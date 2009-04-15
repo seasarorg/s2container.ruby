@@ -1,0 +1,964 @@
+
+<!-- ##################################################################### -->
+<sect1 id="misc.s2cgi"><title>S2CGI Web Framework</title>
+  <para>
+  S2CGI Web Framework is a small framework for creating the Ruby Application which is executed
+  as a CGI script on Apache HTTPD Server.
+  </para>
+
+  <!--  ################################################################# -->
+  <sect2><title>Setup</title>      
+    <sect3><title>Download</title>
+      <blockquote>
+      Please download <ulink url="http://sites.google.com/site/klovelab/Home/projects/s2ruby">s2cgi-version.tar.gz</ulink> and extract it.
+      As follows, a project directory will be created.<sbr/>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+project/
+  config/        # configuration files are stored.
+  lib/           # Service and Logic classes are stored.
+  public/        # published to WEB.
+  test/          # UnitTests are stroed.
+  tpl/           # erb template files are stored.
+  var/           # Data and Logs are stored.
+  vendor/        # Dependent Libraries are stored.
+]]></programlisting>
+
+      </blockquote>
+    </sect3>
+
+    <sect3><title>Installation of S2Container.Ruby</title>
+      <blockquote>
+      Please install S2Container.Ruby following <link linkend="install">an install document</link>.
+      </blockquote>
+    </sect3>
+
+    <sect3><title>Installation of Rack</title>
+      <blockquote>
+      Please install <ulink url="http://rack.rubyforge.org/">Rack</ulink>, if you use it.
+      </blockquote>
+    </sect3>
+
+    <sect3><title>Setup of Apache HTTPD Server</title>
+      <blockquote>
+      Extension cgi is registered as a cgi script.<sbr/>
+      And publish to WEB the public directory.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+AddHandler cgi-script .cgi
+Alias /s2cgi/ "/path/to/project/public/"
+<Directory "/path/to/project/public">
+    Options ExecCGI
+    AllowOverride None
+    Order allow,deny
+    Allow from localhost
+</Directory>
+]]></programlisting>
+      </blockquote>
+    </sect3>
+
+    <sect3><title>Setup of s2cgi</title>
+      <blockquote>
+      Base URL should be set up appropriately.
+      You can set Base URL in environment.rb file of a config directory.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat config/environment.rb | grep BASE_URL
+BASE_URL = '/s2cgi'
+%
+]]></programlisting>
+
+      Please check the owner and the right of execution of a cgi script of a public directory.
+      Shebang of cgi script should be set up appropriately.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% ls -l public/cgi/quick1.cgi
+-rwxr--r-- 1 apache apache 1250 Feb  1 00:00 public/cgi/quick1.cgi
+% head -1 public/cgi/quick1.cgi
+#!/usr/bin/env ruby
+%
+]]></programlisting>
+
+      Please check the owner and the right of execution of var directory.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% ls -ld var
+drwxr-xr-x 6 apache apache 4096 Feb  1 00:00 var
+%
+]]></programlisting>
+      </blockquote>
+    </sect3>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Starting of Framework</title>
+    <para>
+    Starting of CGI Framework will be done by calling Seasar::CGI.run method.
+    As an example, let's create the following quick1.cgi in public/cgi directory.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/cgi/quick1.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/cgi.rb'
+Seasar::CGI.run
+%
+]]></programlisting>
+
+    Next, the erb template file of quick1.cgi is created as quick1.html in a tpl/cgi directory.
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat tpl/cgi/quick1.html
+Hello World
+%
+]]></programlisting>
+
+    Please browse http://localhost/s2cgi/cgi/quick1.cgi,  you can see "Hello World".
+  </sect2>
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Seasar::CGI::Page Class</title>
+    <para>
+    You can set the instance of Seasar::CGI::Page class as the argument of Seasar::CGI.run method.
+    As an example, let's create the following quick2.cgi in public/cgi directory.
+    </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/cgi/quick2.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/cgi.rb'
+
+class Page < Seasar::CGI::Page; end
+Seasar::CGI.run(Page.new)
+%
+]]></programlisting>
+
+    Next, the erb template file of quick2.cgi is created as quick2.html in a tpl/cgi directory.
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat tpl/cgi/quick2.html
+Hello World 2
+%
+]]></programlisting>
+
+    Please browse http://localhost/s2cgi/cgi/quick2.cgi, you can see "Hello World 2".
+        
+    <para>
+    Seasar::CGI.run method gets the component of Seasar::CGI::Page class from S2Container, when an argument is nil.
+    When the component of Seasar::CGI::Page class does not exist in a container, 
+    the instance of Seasar::CGI::Page class is generated automatically.
+    </para>
+
+    <para>
+    Seasar::CGI::Page class generates contents from the erb template file of the tpl directory as default processing.
+    As for the path to an erb template file, the path below BASE_URL of SCRIPT_NAME is used.
+    As an example, when SCRIPT_NAME is "/s2cgi/cgi/quick2.cgi", and BASE_URL is "/s2cgi", then the path of an erb tenplate file
+    will be "tpl/cgi/quick2.html".
+    </para>
+
+    <para>
+    In the case of getting Page component from S2Container, the CGI script is as follows.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/cgi/quick3.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/cgi.rb'
+
+class Page < Seasar::CGI::Page
+  s2comp
+end
+Seasar::CGI.run
+%
+]]></programlisting>
+  </sect2>
+
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Class Variables</title> 
+    <para>
+    The class variable of Seasar::CGI::Page class is shown below.
+    </para>     
+    <blockquote>
+      <formalpara><title>@@fatal</title></formalpara>
+      <para>
+      It has a procedure object which will be called when an error occurs after framework has started.
+      The caught error instance and the instance of Seasar::CGI::Page class are passed to a procedure object.      
+      </para>
+      
+      <para>
+      By the default, it is set up as follows within config/cgi.rb.
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+Seasar::CGI::Page.fatal {|e, page|
+  s2logger.fatal() {"#{e.message} #{e.backtrace}"}
+  print "Location: #{BASE_URL}fatal.html\n\n";
+}
+]]></programlisting>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@@tpl_dir</title></formalpara>
+      <para>
+      The path to the directory where an erb template file is saved is set.
+      The tpl directory of the project directory is set up by the default.
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@@tpl_ext</title></formalpara>
+      <para>
+      The extension of an erb template file is set up. a default value is "html".
+      </para>
+    </blockquote>
+  </sect2>    
+
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Instance Variables</title>
+    <para>
+    The instance variables of Seasar::CGI::Page class is shown below.
+    You are able to use them in get/post method.
+    </para>
+    <blockquote>
+      <formalpara><title>@cgi</title></formalpara>
+      <para>
+      cgi instance is set. (cgi is <ulink url="http://www.ruby-lang.org/ja/man/html/cgi.html">the attachment library of ruby</ulink>)
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@contents</title></formalpara>
+      <para>
+      response contents is set. The result string value of puts, p, render method is added.
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@auto_render</title></formalpara>
+      <para>
+      It is set up by Boolean whether a render method is called automatically,
+      when the size of @contents is 0 after calling get/post method.
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@auto_response</title></formalpara>
+      <para>
+      It is set up by Boolean whether @contents is outputted by @cgi.out, after calling get/post method.
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@headers</title></formalpara>
+      <para>
+      The HTTP headers are set as Hash, which are outputted by @cgi.out at the time of auto_response.
+      </para>
+    </blockquote>
+
+  </sect2>    
+
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>get/post method</title>
+    <para>
+    In Page class, next processing of WEB layer is performed.
+    </para>
+    <itemizedlist>
+      <listitem>web page processing. ( redirect method, etc. ) </listitem>
+      <listitem>choosing, rendering erb template file. ( render/partial method )</listitem>
+      <listitem>validation of request parameter.</listitem>
+      <listitem>session processing.</listitem>
+      <listitem>calling Service, Logic component.</listitem>
+      <listitem>sending HTTP headers, etc.</listitem>
+    </itemizedlist>
+
+    <para>
+    If "get" method is defined in Page class, it will be called when a request method is GET.
+    "post" method is also the same, it will be called when a request method is POST.
+    As an example, let's create the following cgi script.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/cgi/quick5.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/cgi.rb'
+
+class Page < Seasar::CGI::Page
+  s2comp
+  def get
+    puts 'Hello World 5'
+  end
+end
+Seasar::CGI.run
+%
+]]></programlisting>
+
+    <para>
+    Please browse http://localhost/s2cgi/cgi/quick5.cgi,  you can see "Hello World 5".
+    puts method and p method are overridden in Seasar::CGI::Page.
+    The puts method adds String expression of an object to the response contents.
+    The p method adds inspection of an object to the response contents.
+    When the size of response contents is not 0, since automatic reading of an erb template file is not performed,
+    it does not need to prepare an erb template file with the above-mentioned sample.
+    </para>
+
+  </sect2>    
+
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>param method</title>      
+    <para>
+    The param method returns the request parameter of the key specified by the argument.
+    When the key does not exist in the request parameter, nil is returned.
+    When two or more keys exist, Array instance is returned.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param(name)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>1st： key of request parameter</listitem>
+      </itemizedlist>
+      <para>
+      The param method is used also when verifying a request parameter.
+      Please refer to it for the validation setup <link linkend="misc.s2cgi.validate.param">here</link>.
+      </para>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>render method</title>      
+    <para>
+    Seasar::CGI::Page#render method processes an erb template file, and adds a string result to @contents.
+    An erb template file can be specified by an argument.
+    Specification of an erb template file is specified with the relative path below the directory specified by @@tpl_dir (class variable).
+    It is as follows when specifying "@@tpl_dir/cgi/quick6.html" template file.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+render 'cgi/quick6'
+]]></programlisting>
+
+    <para>
+    When an argument is omitted, the relative path excluding BASE_URL from SCRIPT_NAME is used.
+    When SCRIPT_NAME is "/s2cgi/cgi/quick6.cgi", and BASE_URL is "/s2cgi", then
+    an erb template will be "cgi/quick6". 
+    @@tpl_ext value is used for the extension of a template file.
+    </para>
+
+    <para>
+    The render method searches a layout file automatically.
+    It does not process a template file, when a layout file is found.
+    A layout file is processed as a template file.
+    In search of a layout file, it is checked whether the file which added "_layout" to the template file exists.
+    When it does not exist, it is checked whether the file "layout" exists in the same directory as a template file.
+    When a template file is "cgi/quick6", It checks whether "cgi/quick6_layout" exists first, 
+    and when it does not exist, it checks whether "cgi/layout" exists.
+    </para>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>partial method</title>      
+    <para>
+    Seasar::CGI::Page#partial method processes an erb template file, and return a string result.
+    An erb template file can be specified by an argument.
+    It is used, when reading the template of main contents within a layout file or dividing a template file partially.
+    When you specify the template file of main contents within a layout file, please specify @template instance variable as an argument.
+    </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+<!-- layout file -->
+<%= partial(@template) %>  # include main contents
+]]></programlisting>
+
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>redirect meshot</title>      
+    <para>
+    Seasar::CGI::Page#redirect method redirects by setting URL specified by the argument as Location of a HTTP header.
+    After carrying out redirection, exit is performed and CGI script is ended.
+    The request parameter at the time of redirection can be set up as Hash by the second argument.    
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+redirect('http://xxx.com/index.cgi', :year => 2009)
+]]></programlisting>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>validate method</title>
+    <para>
+    The validate method receives the block including the procedure which verifies a request parameter.
+    In the first argument, :all, :get, and :post can be specified and it can specify at the time of access of which request method it verifies.
+    Validate block must return Boolean as a return value.
+    When a return value is False, the call of the get/post method corresponding to a request method is not performed.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class Page < Seasar::CGI::Page
+  validate {         # same as :all. performs in GET and POST request.
+    param :year, :numeric
+    valid?
+  }
+
+  validate(:get) {   # performs in GET request.
+    param :year, :numeric
+    valid?
+  }
+
+  validate(:post) {  # performs in POST request.
+    param :year, :numeric
+    valid?
+  }
+end
+]]></programlisting>
+
+    <sbr/>
+    <para>
+    Within Block passed to a validate method, in order to verify a request parameter, the following method can be used.
+    </para>
+    
+    <blockquote>
+      <formalpara id="misc.s2cgi.validate.param"><title>param method</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param(name, type = nil, options = nil)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>1st： key of request parameter</listitem>
+        <listitem>2nd： type of validation</listitem>
+        <listitem>3rd： options passed to validation methodン</listitem>
+      </itemizedlist>
+      <para>
+      A request parameter is specified by name and the verification method to apply is specified by type.
+      Two or more validation types can be registered into one request parameter.
+      </para>
+    </blockquote>
+
+    <sbr/>
+    <blockquote>
+      <formalpara><title>valid? method</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+valid?(name = nil, type = nil)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>1st： key of request parameter</listitem>
+        <listitem>2nd： type of validation</listitem>
+        <listitem>return： Boolean</listitem>
+      </itemizedlist>
+      <para>
+      It returns True, If all the registration entries corresponding to a name and a type which are specified by arguments are valid.
+      It returns False when there is at least one Error.
+      When Argument name is nil, the registration entry corresponding to a type is applicable.
+      When Argument type is nil, the registration entry corresponding to a name is applicable.
+      When both name and type are nil, all the registration entries are applicable.
+      </para>
+    </blockquote>
+
+    <sbr/>
+    <blockquote>
+      <formalpara><title>valids method</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+valids(name = nil, type = nil)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>1st： key of request parameter</listitem>
+        <listitem>2nd： type of validation</listitem>
+        <listitem>return： Array of Seasar::Validate::Entry instance</listitem>
+      </itemizedlist>
+      <para>
+      It returns array of entries with valid validation result 
+      within the entries which were searched with the name and the type specified by arguments.
+      </para>
+    </blockquote>
+
+    <sbr/>
+    <blockquote>
+      <formalpara><title>error? method</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+error?(name = nil, type = nil)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>1st： key of request parameter</listitem>
+        <listitem>2nd： type of validation</listitem>
+        <listitem>return： Boolean</listitem>
+      </itemizedlist>
+      <para>
+      It returns True, If there is at least one Error within the registration entries 
+      corresponding to the name and the type which are specified by arguments.
+      It returns False when all the entries are valid.
+      </para>
+
+      <para>
+      As follows, you can use it within an erb template file.
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+username : <input type="text" name="username" value=""/>
+<% if error?(:username) %><span class="err_msg">error message.</span><% end %>
+]]></programlisting>
+    </blockquote>
+
+    <sbr/>
+    <blockquote>
+      <formalpara><title>errors method</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+errors(name = nil, type = nil)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>1st： key of request parameter</listitem>
+        <listitem>2nd： type of validation</listitem>
+        <listitem>return： Array of Seasar::Validate::Entry instance</listitem>
+      </itemizedlist>
+      <para>
+      It returns array of entries with Error validation result 
+      within the entries which were searched with the name and the type specified by arguments.
+      </para>
+    </blockquote>
+
+    <sbr/>
+    <blockquote>
+      <formalpara><title>if_errors method</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+if_errors(name = nil, type = nil, &procedure)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>1st： key of request parameter</listitem>
+        <listitem>2nd： type of validation</listitem>
+        <listitem>3nd： block</listitem>
+      </itemizedlist>
+      <para>
+      If there is at least one Error within the registration entries 
+      corresponding to the name and the type which are specified by arguments,
+      it passes all the error entry to the block and calls it.
+      </para>
+
+      <para>
+      As follows, you can use it within an erb template file.
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+<% if_errors do |errors| %>
+  <%=h errors.size %> invalid parameters are found.
+<% end %>
+]]></programlisting>
+    </blockquote>
+
+    <sbr/>
+    <sect3><title>Validation Type</title>
+      <blockquote>
+      <para>
+      The method used for every validation type is defined in Seasar::Validate::Utils module.      
+      A method name becomes the name which added "?" to the validation type.
+      A method name becomes "int?" when a validation type is ":int."<sbr/>
+      Moreover, the procedure object registered into Seasar::Validate::Utils::Validators Hash is also used.
+      Symbol specified by a validation type is used as a Hash key.
+      </para>      
+
+      <sbr/>
+      <formalpara><title>:int</title></formalpara>
+        <para>
+        It is verified whether it is Integer.<sbr/>
+        The method used is Seasar::Validate::Utils.int?.<sbr/>      
+        An option is specified by Hash. (omissible)
+        </para>
+        <itemizedlist>
+          <listitem>:min => Minimum value</listitem>
+          <listitem>:max => Maximum value</listitem>
+          <listitem>:include => Include :min、:max value or not. default is True.</listitem>
+          <listitem>:required => Request parameter must be exists or not. default is True.</listitem>
+        </itemizedlist>              
+
+        The example of param method is as follows.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :year, :int, :min => 2000, :max => 2050
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:numeric</title></formalpara>
+        <para>
+        It is verified whether it is a numerical string.<sbr/>
+        The method used is Seasar::Validate::Utils.numeric?.<sbr/>      
+        An option is specified by Hash. (omissible)
+        </para>
+        <itemizedlist>
+          <listitem>:min => Minimum value</listitem>
+          <listitem>:max => Maximum value</listitem>
+          <listitem>:include => Include :min、:max value or not. default is True.</listitem>
+          <listitem>:required => Request parameter must be exists or not. default is True.</listitem>
+        </itemizedlist>              
+
+        The example of param method is as follows.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :year, :int, :min => 2000, :max => 2050
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:string</title></formalpara>
+        <para>
+        It is verified whether it is String.<sbr/>
+        The method used is Seasar::Validate::Utils.string?.<sbr/>      
+        An option is specified by Hash. (omissible)
+        </para>
+        <itemizedlist>
+          <listitem>:min => Minimum length</listitem>
+          <listitem>:max => Maximum length</listitem>
+          <listitem>:include => Include :min、:max value or not. default is True.</listitem>
+          <listitem>:required => Request parameter must be exists or not. default is True.</listitem>
+        </itemizedlist>              
+
+        The example of param method is as follows.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :name, :string, :min => 6, :max => 8
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:array</title></formalpara>
+        <para>
+        It is verified whether it is Array.<sbr/>
+        The method used is Seasar::Validate::Utils.array?.<sbr/>      
+        An option is specified by Hash. (omissible)
+        </para>
+        <itemizedlist>
+          <listitem>:min => Minimum size</listitem>
+          <listitem>:max => Maximum size</listitem>
+          <listitem>:include => Include :min、:max value or not. default is True.</listitem>
+          <listitem>:required => Request parameter must be exists or not. default is True.</listitem>
+        </itemizedlist>              
+
+        The example of param method is as follows.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :names, :array, :min => 6, :max => 8
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:member, :in</title></formalpara>
+        <para>
+        It is verified whether it is member of array specified as an option.<sbr/>
+        The method used is Seasar::Validate::Utils.member?.<sbr/>      
+        An option is specified by Hash or Array.
+        </para>
+        <itemizedlist>
+          <listitem>:items => Member Array</listitem>
+          <listitem>:required => Request parameter must be exists or not. default is True.</listitem>
+        </itemizedlist>              
+
+        The example of param method is as follows.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :names, :member, %w[foo bar hoge huga]
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:regexp</title></formalpara>
+        <para>
+        It is verified whether Regexp specified as an option is matched.<sbr/>
+        The method used is Seasar::Validate::Utils.regexp?.<sbr/>      
+        An option is specified by Hash or Regexp.
+        </para>
+        <itemizedlist>
+          <listitem>:regexp => Regexp</listitem>
+          <listitem>:required => Request parameter must be exists or not. default is True.</listitem>
+        </itemizedlist>              
+
+        The example of param method is as follows.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :name, :regexp, /^abc/
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:alpha</title></formalpara>
+        <para>
+        It verifies whether it is an alphabetical-letter sequence.<sbr/>
+        The method used is Seasar::Validate::Utils.alpha?.<sbr/>      
+        An option is specified by Hash. (omissible)
+        </para>
+        <itemizedlist>
+          <listitem>:case => :down or :up</listitem>
+          <listitem>:required => Request parameter must be exists or not. default is True.</listitem>
+        </itemizedlist>              
+
+        The example of param method is as follows.
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :name, :alpha, :case => :down
+]]></programlisting>              
+
+      </blockquote>
+    </sect3>
+
+    <sbr/>
+    <sect3><title>validate_get/validate_post method</title>
+      <blockquote>
+        <para>
+        Instead of registering verification block by a validate method,
+        Validation can be performed by defining a validate_get method to GET access,
+        or defining a validate_post method to POST access.
+        
+        </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class Page < Seasar::CGI::Page
+  def validate_get   # performs in GET request.
+    param :year, :numeric
+    valid?
+  end
+
+  def validate_post  # performs in POST request.
+    param :year, :numeric
+    valid?
+  end
+end
+]]></programlisting>
+      </blockquote>
+    </sect3>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Session management</title>
+    <para>
+    The session of S2CGI, <ulink url="http://www.ruby-lang.org/ja/man/html/cgi_session.html">CGI::Session of a Ruby attachment library</ulink> is used.
+    The Hash value set as Session.options is used for the option passed to the argument of a new method.
+    By the default, it is set up as follows within config/cgi.rb.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+Seasar::CGI::Session.options = {'tmpdir' => SESSION_DIR, 'database_manager' => CGI::Session::PStore}
+]]></programlisting>
+    <blockquote>
+
+      <formalpara><title>Seasar::CGI::Page#get_session method</title></formalpara>
+      <para>
+      CGI::Session is generated and returned. nil is returned when the session is not started.
+      </para>
+
+      <formalpara><title>Seasar::CGI::Page#start_session method</title></formalpara>
+      <para>
+      The new instance of CGI::Session is returned.
+      </para>
+    </blockquote>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Dependency Injection</title>
+    <para>
+    If Page class defined within a CGI script file is registered as a component
+    Seasar::CGI.run method will get the registered Page component from S2Container, and will perform it.
+    A setup of DI is also performed in a Page class.
+    </para>
+
+    <para>
+    Let's create following service class in a lib/example directory.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat lib/example/some-service.rb
+module Example
+  class SomeService
+    s2comp
+    def add(a, b)
+      return a + b
+    end
+  end
+end
+]]></programlisting>
+
+    <para>
+    Please create the following CGI scripts. 
+    In Page class, ":some_service" accessor method which receives  SomeService instance is defined.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/cgi/quick6.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/cgi.rb'
+require 'example/some-service'
+class Page < Seasar::CGI::Page
+  s2comp
+  attr_accessor :some_service
+  def get
+    puts '1 + 2 = ' + @some_service.add(1, 2).to_s
+  end
+end
+Seasar::CGI.run
+%
+]]></programlisting>
+    <para>
+    Please browse http://localhost/s2cgi/cgi/quick6.cgi, you can see "1 + 2 = 3".
+    </para>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Unit Test</title>
+    <para>
+    Please create UnitTest of the service class or the logic class in the test directory. <sbr/>
+    As follows, you can run UnitTest created in the test directory by test-suite.rb.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% ruby test/test-suite.rb
+Loaded suite .
+Started
+...
+Finished in 0.001 seconds.
+
+3 tests, 8 assertions, 0 failures, 0 errors
+%
+]]></programlisting>
+  </sect2>    
+
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Rack CGI</title>
+    <sect3><title>Starting of Framework</title>
+      <blockquote>
+      <para>
+      Starting of CGI Framework will be done by calling Seasar::Rack::CGI.run method. 
+      As an example, let's create the following quick1.cgi in public/rack directory.
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/rack/quick1.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/rack.rb'
+Seasar::Rack::CGI.run
+%
+]]></programlisting>
+
+      Next, the erb template file of quick1.cgi is created as quick1.html in a tpl/rack directory. 
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat tpl/rack/quick1.html
+Hello World
+%
+]]></programlisting>
+
+      Please browse http://localhost/s2cgi/rack/quick1.cgi, you can see "Hello World". 
+      </blockquote>
+    </sect3>
+
+    <sbr/>
+    <sect3><title>Seasar::Rack::CGI::Page class</title>
+      <blockquote>
+      <para>
+      You can set the instance of Seasar::Rack::CGI::Page class as the argument of Seasar::CGI.run method. 
+      As an example, let's create the following quick2.cgi in public/rack directory. 
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/rack/quick2.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/rack.rb'
+
+class Page < Seasar::Rack::CGI::Page; end
+Seasar::Rack::CGI.run(Page.new)
+%
+]]></programlisting>
+
+      Next, the erb template file of quick2.cgi is created as quick2.html in a tpl/rack directory. 
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat tpl/cgi/quick2.html
+Hello World 2
+%
+]]></programlisting>
+
+      Please browse http://localhost/s2cgi/rack/quick2.cgi, you can see "Hello World 2". 
+        
+      <para>
+      Seasar::Rack::CGI.run method gets the component of Seasar::Rack::CGI::Page class from S2Container, 
+      when an argument is nil. When the component of Seasar::Rack::CGI::Page class does not exist in a container, 
+      the instance of Seasar::Rack::CGI::Page class is generated automatically.
+      </para>
+      </blockquote>
+    </sect3>
+
+    <sbr/>
+    <sect3><title>Instance Variables</title>
+      <blockquote>
+        <formalpara><title>@env</title></formalpara>
+        <para>
+        Rack environment argument passed to Seasar::Rack::CGI::Page#call method is set.
+        </para>
+
+        <formalpara><title>@request</title></formalpara>
+        <para>
+        Rack::Request instance is set.
+        </para>
+
+        <formalpara><title>@response</title></formalpara>
+        <para>
+        Rack::Response instance is set.
+        @response.finish method is automatically called after a call of a get/post method.
+        </para>
+  
+        <formalpara><title>@auto_render</title></formalpara>
+        <para>
+        It is set up by Boolean whether a render method is called automatically, 
+        when the size of @response.body.size is 0 and @response.status is 200
+        after calling get/post method. 
+        </para>
+      </blockquote>
+    </sect3>
+
+    <sbr/>
+    <sect3><title>Rack Up</title>
+      <blockquote>
+      The procedure object which performs Rack Up is set as Seasar::Rack::CGI::Page.rack class variable.
+      As a default value, it is set up as follows in config/rack.rb.
+      
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+Seasar::Rack::CGI::Page.rack {|page|
+  Rack::Builder.app do
+    use Seasar::Rack::CGI::Stdin2StringIO
+    use Rack::ShowStatus
+    use Rack::ShowExceptions
+    use Rack::MethodOverride
+    use Rack::ContentLength
+    use Rack::Session::Cookie
+    run page
+  end
+}
+]]></programlisting>
+
+      <para>
+      Rack Up procedure object is called within a CGI.run method.
+      The Page instance gotten from S2Container or the Page instance generated newly is passed as an argument.<sbr/>
+      Moreover, Rack Up procedure object can be set up also as a block argument of Seasar::Rack::CGI.run method.
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/rack/quick3.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/rack.rb'
+class Page < Seasar::Rack::CGI::Page
+  s2comp
+  def get
+    puts 'Hello World 3'
+  end
+end
+Seasar::Rack::CGI.run {|page|
+  Rack::Builder.app do
+    use Seasar::Rack::CGI::Stdin2StringIO
+    run page
+  end
+}
+%
+]]></programlisting>      
+      </blockquote>
+    </sect3>
+
+
+  </sect2>    
+
+</sect1>

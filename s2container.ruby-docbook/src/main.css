@@ -1,0 +1,174 @@
+body {
+    background-color: #FFFFFF;
+    margin: 10px;
+    padding: 0px;
+    font-size: small;
+    text-align: left;
+}
+
+a {
+    text-decoration: none;
+    color: #006699;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #FF3300;
+}
+
+img {
+    border: none;
+}
+
+img.border {
+    border: 0px solid #888;
+}
+
+h1 {
+    font-size: 120%;
+    color: #000000;
+    padding: 3px 0px 0px 10px;
+}
+
+h2 {
+    color: #000000;
+    font-size: 110%;
+    margin: 0px;
+    padding: 3px 0px 0px 5px;
+    border-bottom: 1px solid #ffffff;
+}
+
+h3 {
+    padding: 5px 2px 5px 5px;
+    font-size: 90%;
+    background-repeat: no-repeat;
+}
+
+h4 {
+    margin-left: 5px;
+    padding: 5px 2px 5px 25px;
+    font-size: 90%;
+    background-repeat: no-repeat;
+}
+
+h1 a, h2 a {
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+h1 a:hover, h2 a:hover {
+    text-decoration: underline;
+    color: #FFFFFF;
+}
+
+ul {
+    margin-left: 2em;
+    padding-left: 0;
+}
+
+li {
+    margin: 3px;
+}
+
+pre {
+    margin: 15px;
+    padding: 5px;
+    font-size: 100%;
+    border: 1px solid #000000;
+    background-color: silver;
+}
+
+.clear {
+    clear: both;
+}
+
+.hide {
+    display: none;
+    width: 0px;
+    height: 0px;
+    overflow: hidden;
+    position: absolute; /* for the benefit of IE5 Mac */
+}
+
+
+/*********************************************
+ * table
+ */
+
+table {
+  font-size: small;
+}
+
+td.item {
+    width: 120px;
+    background-color: #dedede;
+}
+
+table.list {
+    border: 1px solid;
+    margin: 1% 1em 1em 1%;
+}
+
+table.list th {
+    background-color: #ccc;
+    font-weight: bold;
+    border: 0px;
+    margin: 0px;
+}
+
+table.list tr.a {
+    background-color: #eee;
+    border: 0px;
+    margin: 0px;
+}
+
+table.list tr.b {
+    background-color: #fff;
+    border: 0px;
+    margin: 0px;
+}
+
+
+/* +--------------+ */
+/* | Other Styles | */
+/* +--------------+ */
+
+div.important
+{
+  background-color: #fff0f5;
+  border-style: solid;
+  border-width: 1px;
+  padding : 10px 10px 10px 10px;
+}
+
+div.note
+{
+  background-color: #eeeee0;
+  border-style: solid;
+  border-width: 1px;
+  padding : 10px 10px 10px 10px;
+}
+
+div.warning
+{
+  background-color: #ffe4e1;
+  border-style: solid;
+  border-width: 1px;
+  padding : 10px 10px 10px 10px;
+}
+
+div.tip
+{
+  background-color: #f0ffff;
+  border-style: solid;
+  border-width: 1px;
+  padding : 10px 10px 10px 10px;
+}
+
+div.caution
+{
+  background-color: #ffdab9;
+  border-style: solid;
+  border-width: 1px;
+  padding : 10px 10px 10px 10px;
+}

@@ -1,0 +1,279 @@
+<chapter id="aop"><title>S2Aop.Ruby リファレンス</title>
+  <sect1 id="aop.about"><title>S2Aopの概要</title>
+    <para>
+    AOPとはAspect Oriented Programmingの略で、複数のクラスに分散するロジックをモジュールとして抽出し、外側から織り込む手法です。
+    </para>
+    <sect2><title>AOPを考える上でキーとなる概念</title>
+      <blockquote>
+        <formalpara><title>Advice(Interceptor)</title></formalpara>
+        <para>
+                 プログラム中に挿入されるコードを表します。Interceptorと呼ばれることもあります。
+        </para>
+
+        <formalpara><title>Joinpoint(MethodInvocation)</title></formalpara>
+        <para>
+                対象となるクラスとAdviceを結合するポイントを表します。 AdviceはJoinpointから引数やメソッドの情報を取得することができます。
+        </para>
+
+        <formalpara><title>Pointcut</title></formalpara>
+        <para>
+                 どこにJoinpointを設定するのかを定義します。
+        </para>
+
+        <formalpara><title>Aspect</title></formalpara>
+        <para>
+        AdviceとPointcutを関連付けます。
+        </para>
+      </blockquote>
+    </sect2>
+  </sect1>
+
+  <sect1 id="aop.caution"><title>S2Aop 使用上の注意点</title>
+
+    <itemizedlist>
+      <listitem>
+       aspectタグで指定されたコンポーネントは、コンテナの初期化時にコンテナから取得されます。
+              そのため、aspectタグで指定されたコンポーネントのinstance属性がprototypeだったとしても、 
+       Interceptorのメソッドが呼び出される度に新しいインスタンスが作成されるわけではありません。
+      </listitem>
+      <listitem>
+       pointcut属性を指定しない場合、Kernelモジュールのメソッドを除くすべてのメソッドが対象になります。
+      </listitem>
+    </itemizedlist>
+  </sect1>
+
+  <sect1 id="aop.aspect"><title>S2AopFactoryを用いてAspectする</title>
+    <para>
+    S2AopFactoryクラスのcreateメソッドを用いて、あるクラスの拡張クラスを生成し、アスペクトを織り込んだインスタンスを取得します。
+    </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2AopFactory.create(component_class, aspects) 
+]]></programlisting>
+    <blockquote>
+    <itemizedlist>
+      <listitem>第1引数 ： Aspect対象クラス</listitem>
+      <listitem>第2引数 ： 織り込むAspectの配列</listitem>
+    </itemizedlist>
+    </blockquote>
+    <para>
+        例として、次のようなサービスクラスにAspectを適用してみます。
+    </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Service
+    def add(a, b)
+      return a + b
+    end
+  end
+end
+]]></programlisting>
+  <para>
+  ServiceクラスのaddメソッドにTraceInterceptorをAspectします。
+  </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'seasar/aop/s2aop-factory'
+require 'seasar/aop/aspect'
+require 'seasar/aop/pointcut'
+require 'example'
+
+interceptor = Seasar::Aop::Interceptor::TraceInterceptor.new
+pointcut    = Seasar::Aop::Pointcut.new(/^add$/)
+aspect      = Seasar::Aop::Aspect.new(interceptor, pointcut)
+service     = Seasar::Aop::S2AopFactory::create(Example::Service, [aspect]).new
+
+p service.add(2, 3)
+]]></programlisting>
+      <blockquote>
+        <formalpara><title>Interceptor</title></formalpara>
+        <para>
+        callメソッドを実装するクラスです。S2Aopでは、次のインターセプターがバンドルされています。
+        </para>
+        <itemizedlist>
+          <listitem>Seasar::Aop::Interceptor::TraceInterceptor<sbr/>
+                    トレース処理を「Crosscutting Concern」として扱うためのInterceptorです。
+          </listitem>
+        </itemizedlist>
+
+        <formalpara id="aop.aspect.pointcut"><title>Pointcut</title></formalpara>
+        <para>
+        Interceptorがどこに適用されるのかをあらわすクラスです。
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+Seasar::Aop::Pointcut.new(target)
+]]></programlisting>
+        <para>
+                コンストラクタ引数のtargetには、Pointcutとなるメソッドを特定する正規表現、文字列、またはSymbolを渡します。
+        </para>
+
+        <formalpara><title>Aspect</title></formalpara>
+        <para>
+        Interceptor(Advice)とPointcutを関連付けるクラスです。
+        </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+Seasar::Aop::Aspect.new(interceptor, pointcut)
+]]></programlisting>
+        <para>
+                コンストラクタ引数でInterceptorとPointcutを指定します。
+        </para>
+
+    <note><title>NOTE</title>
+      <para>この例は example/example09 にあります。</para>
+    </note>
+
+      </blockquote>
+  </sect1>
+
+
+  <!-- ##################################################################### -->
+  <sect1 id="aop.dicon"><title>S2ApplicationContextを用いてAspectする</title>
+        <para>
+        <link linkend="dicon.application.autoaspect">S2ApplictionContextの自動アスペクト機能</link>を参照下さい。
+        </para>
+  </sect1>
+
+  <!-- ##################################################################### -->
+  <sect1 id="aop.interceptor"><title>S2Aopで用意されているInterceptor</title>
+    <sect2 id="aop.interceptor.trace"><title>TraceInterceptor</title>   
+          <para>
+                     トレース処理を「Crosscutting Concern」として扱うためのInterceptorです。
+          <sbr/>例として、次のようなサービスクラスにアスペクトしてみます。
+          </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Service
+    s2comp
+    def add(a, b) {
+      puts "#{self.class.superclass.name}.add called."
+      return a + b
+    end
+  end
+end
+]]></programlisting>
+          <para>
+                    次のような実行スクリプトを作成します。
+          </para>
+          <itemizedlist>
+            <listitem>
+            S2ApplicationContext.aspectメソッドでサービスコンポーネントにTraceInterceptorをアスペクトする設定とします。
+            </listitem>
+            <listitem>
+            S2ApplicationContext.createメソッドでコンテナを生成します。
+            </listitem>
+            <listitem>
+            S2Containerのget_componentメソッドでServiceコンポーネントを取得します。
+            </listitem>
+            <listitem>
+            Serviceコンポーネントのaddメソッドを実行します。
+            </listitem>
+          </itemizedlist>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+Seasar::Container::S2ApplicationContext.aspect(:pattern => Example::Service, :interceptor => Seasar::Aop::Interceptor::TraceInterceptor.new)
+container = Seasar::Container::S2ApplicationContext.create
+service   = container->get(Service)
+
+p service.add(2, 3)
+]]></programlisting>
+
+          <para>
+                    上記スクリプトを実行すると、サービスクラスのaddメソッドの実行時TraceInterceptorがログを出力します。
+          </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% ruby run.rb
+D, [2009-01-01] DEBUG -- Seasar::Aop::Interceptor::TraceInterceptor: before : Example::Service.add([2, 3])
+Example::Service.add called.
+D, [2009-01-01] DEBUG -- Seasar::Aop::Interceptor::TraceInterceptor: after  : Example::Service.add([2, 3]) : 5 : 0.002727
+5
+%
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>この例は example/example10 にあります。</para>
+    </note>
+    </sect2> 
+
+    <sbr/>
+    <sect2 id="aop.interceptor.custom"><title>Interceptorを実装する</title>   
+      <para>
+      Interceptorをカスタム実装する場合は、callメソッドを実装するクラスを作成します。<sbr/>
+            次のようなサンプルインターセプターを作成してみます。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class SampleInterceptor
+    def call(invocation)
+      puts 'Before'            # <-- 次のインターセプターや実際のメソッドを呼び出す前の処理
+      result = invocation.proceed
+      puts 'After'             # <-- 次のインターセプターや実際のメソッドを呼び出した後の処理
+      return result
+    end
+  end
+end
+]]></programlisting>
+      <para>
+      MethodInvocation.proceed を実行すると、次のインターセプターや実際のメソッドを呼び出します。
+      1つのコンポーネントに複数のアスペクトが定義されている場合は、以下のよう実行されます。
+      </para>
+      <itemizedlist>
+        <listitem>Aspectの登録順にInterceptorのBefore部分が実行されます。</listitem>
+        <listitem>最後のInterceptorのBefore部分を実行した後にコンポーネント自身のメソッドが呼び出されます。</listitem>
+        <listitem>Aspectの登録の逆順にInterceptorのAfter部分が実行されます。</listitem>
+      </itemizedlist>
+
+      <para>
+      Interceptor.callメソッドの引数で渡される<link linkend="aop.invocation">MethodInvocation</link>インスタンスを介して、アスペクト対象のインスタンスや、
+            クラス、メソッド引数などを取得できます。
+      </para>
+
+    <note><title>NOTE</title>
+      <para>この例は example/example11 にあります。</para>
+    </note>
+    </sect2> 
+    
+  </sect1>
+  <sect1 id="aop.invocation"><title>MethodInvocation API リファレンス</title>
+    <para>
+    MethodInvocationインスタンスは、Interceptorのcallメソッドの引数として渡されます。
+    MethodInvocationはインターセプターの管理を行い、順次実行し、アスペクト対象メソッドの呼び出しを行います。
+    MethodInvocationインスタンスを介して、アスペクト対象のインスタンスや、クラス、メソッド引数などを取得できます。
+    </para>
+
+    <blockquote>
+
+      <formalpara><title>Seasar::Aop::MethodInvocation#proceed メソッド</title></formalpara>
+      <para>
+            インターセプターや実際のメソッドを呼び出します。
+      </para>
+
+      <formalpara><title>Seasar::Aop::MethodInvocation#this インスタンス変数</title></formalpara>
+      <para>
+            アスペクト対象のインスタンスを返します。
+      </para>
+
+      <formalpara><title>Seasar::Aop::MethodInvocation#method インスタンス変数</title></formalpara>
+      <para>
+            アスペクト対象となっているメソッドを返します。
+      </para>
+
+      <formalpara><title>Seasar::Aop::MethodInvocation#component_class インスタンス変数</title></formalpara>
+      <para>
+            アスペクト対象のクラス
+      </para>
+
+      <formalpara><title>Seasar::Aop::MethodInvocation#args インスタンス変数</title></formalpara>
+      <para>
+            アスペクト対象メソッドの実行時引数を返します。
+      </para>
+
+    </blockquote>
+  </sect1>
+
+</chapter>

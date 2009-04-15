@@ -1,0 +1,289 @@
+<chapter id="aop"><title>S2Aop.Ruby Reference</title>
+  <sect1 id="aop.about"><title>The outline of S2Aop</title>
+    <para>
+      AOP, Aspect Oriented Programming, it is a technique which extracts the common logic distributed
+      in two or more classes, and is woven in from the outside of a class.
+
+    </para>
+    <sect2><title>The Concept of AOP</title>
+      <blockquote>
+        <formalpara><title>Advice(Interceptor)</title></formalpara>
+        <para>
+          Advice expresses the code inserted into a program.
+          Advice may be called Interceptor.
+        </para>
+
+        <formalpara><title>Joinpoint(MethodInvocation)</title></formalpara>
+        <para>
+          Joinpoint expresses the point which combines target class and Advice.
+          Advice can acquire the information on an argument or a method from Joinpoint.
+        </para>
+
+        <formalpara><title>Pointcut</title></formalpara>
+        <para>
+          Pointcut defines where Joinpoint is set up.
+        </para>
+
+        <formalpara><title>Aspect</title></formalpara>
+        <para>
+          Aspect associates Advice and Pointcut.
+        </para>
+      </blockquote>
+    </sect2>
+  </sect1>
+
+  <sect1 id="aop.caution"><title>Notes on S2Aop</title>
+
+    <itemizedlist>
+      <listitem>
+        The component specified with aspect tag is acquired from a container at the time of initialization of a container.
+        Therefore, even if the instance attribute of the component specified with the aspect tag is prototype", 
+        a new instance is not created whenever an aspected method is called.
+      </listitem>
+      <listitem>
+      When not specifying a pointcut attribute, all the methods except 
+      the method of a Kernel module are applicable.
+      </listitem>
+    </itemizedlist>
+  </sect1>
+
+  <sect1 id="aop.aspect"><title>Aspect using S2AopFactory</title>
+    <para>
+      By the create method of S2AopFactory class, the extended class of an aspect target class is generated and
+      the instance which wove in the aspect is acquired.
+    </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2AopFactory.create(component_class, aspects)
+]]></programlisting>
+    <blockquote>
+    <itemizedlist>
+      <listitem>The 1st argument ： Aspect target class</listitem>
+      <listitem>The 2nd argument ： Array of Aspects woven in</listitem>
+    </itemizedlist>
+    </blockquote>
+    <para>
+      As an example, an aspect is applied to the following Service class.
+    </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Service
+    def add(a, b)
+      return a + b
+    end
+  end
+end
+]]></programlisting>
+  <para>
+    TraceInterceptor is aspected to add method of Service class as follws.
+  </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'seasar/aop/s2aop-factory'
+require 'seasar/aop/aspect'
+require 'seasar/aop/pointcut'
+require 'example'
+
+interceptor = Seasar::Aop::Interceptor::TraceInterceptor.new
+pointcut    = Seasar::Aop::Pointcut.new(/^add$/)
+aspect      = Seasar::Aop::Aspect.new(interceptor, pointcut)
+service     = Seasar::Aop::S2AopFactory::create(Example::Service, [aspect]).new
+
+p service.add(2, 3)
+]]></programlisting>
+      <blockquote>
+        <formalpara><title>Interceptor</title></formalpara>
+        <para>
+          Interceptor is a class which implements call method.
+          These next interceptors are attached to S2Aop.
+        </para>
+        <itemizedlist>
+          <listitem>Seasar::Aop::Interceptor::TraceInterceptor <sbr/>
+            TraceInterceptor is a interceptor for treating trace processing as "Crosscutting Concern".
+          </listitem>
+        </itemizedlist>
+
+        <formalpara id="aop.aspect.pointcut"><title>Pointcut</title></formalpara>
+        <para>
+          Pointcut is a class showing where Interceptor is applied.
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+Seasar::Aop::Pointcut.new(target)
+]]></programlisting>
+        <para>
+        Regexp, String or Symbol which specify the method used as Pointcut
+        is passed to a constructor argument.
+        </para>
+
+        <formalpara><title>Aspect</title></formalpara>
+        <para>
+          Aspect is a class which associates Interceptor(Advice) and Pointcut.
+        </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+Seasar::Aop::Aspect.new(interceptor, pointcut)
+]]></programlisting>
+        <para>
+          Interceptor and Pointcut are specified by a constructor argument.
+        </para>
+
+    <note><title>NOTE</title>
+      <para>This Example is located at "example/example09".</para>
+    </note>
+      </blockquote>
+  </sect1>
+
+
+  <!-- ##################################################################### -->
+  <sect1 id="aop.dicon"><title>Aspect using S2ApplicationContext</title>
+        <para>
+        Please refer to <link linkend="dicon.application.autoaspect">Auto Aspect of S2ApplictionContext</link>.
+        </para>
+  </sect1>
+
+  <!-- ##################################################################### -->
+  <sect1 id="aop.interceptor"><title>Interceptor prepared in S2Aop</title>
+    <sect2 id="aop.interceptor.trace"><title>TraceInterceptor</title>   
+          <para>
+            TraceInterceptor is Interceptor to handle trace processing as "Crosscutting Concern".<sbr/>
+            As an example, an aspect is applied to the following Service class.
+          </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Service
+    s2comp
+    def add(a, b) {
+      puts "#{self.class.superclass.name}.add called."
+      return a + b
+    end
+  end
+end
+]]></programlisting>
+          <para>
+          Please create the following executable files.
+          </para>
+          <itemizedlist>
+            <listitem>
+              TraceInterceptor is aspected to a service component by the S2ApplicationContext.aspect method
+            </listitem>
+            <listitem>
+              A container is generated by the S2ApplicationContext.create method
+            </listitem>
+            <listitem>
+              A Service component is acquired by the S2Container.get_component method.
+            </listitem>
+            <listitem>
+              The add method of the Service component is carried out.
+            </listitem>
+          </itemizedlist>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+Seasar::Container::S2ApplicationContext.aspect(:pattern => Example::Service, :interceptor => Seasar::Aop::Interceptor::TraceInterceptor.new)
+container = Seasar::Container::S2ApplicationContext.create
+service   = container->get(Service)
+
+p service.add(2, 3)
+]]></programlisting>
+
+          <para>
+          when you execute above script, when the add method of the service class was carried out, 
+          TraceInterceptor outputs log.
+          </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% ruby run.rb
+D, [2009-01-01] DEBUG -- Seasar::Aop::Interceptor::TraceInterceptor: before : Example::Service.add([2, 3])
+Example::Service.add called.
+D, [2009-01-01] DEBUG -- Seasar::Aop::Interceptor::TraceInterceptor: after  : Example::Service.add([2, 3]) : 5 : 0.002727
+5
+%
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>This Example is located at "example/example10".</para>
+    </note>
+    </sect2> 
+
+    <sbr/>
+    <sect2 id="aop.interceptor.custom"><title>Implementing Interceptor</title>   
+      <para>
+        When implementing custom-made Interceptor,
+        please create the class which implements the call method.
+        Let's create following Interceptor as an example.
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class SampleInterceptor
+    def call(invocation)
+      puts 'Before'            # <-- Processing before calling following Interceptor or a following actual method
+      result = invocation.proceed
+      puts 'After'             # <-- Processing after calling following Interceptor or a following actual method
+      return result
+    end
+  end
+end
+]]></programlisting>
+
+      <para>
+        Execution of MethodInvocation.proceed method will call following Interceptor or a following actual method.
+        If two or more Aspects are defined as one component, as-follows execution is carried out.
+      </para>
+      <itemizedlist>
+        <listitem>The Before part of Interceptor is performed in order of registration of Aspect.</listitem>
+        <listitem>After performing the Before part of the last Interceptor, a component's own method is called.</listitem>
+        <listitem>The After portion of Interceptor is performed by the order of reverse of registration of Aspect.</listitem>
+      </itemizedlist>
+
+      <para>
+        The instance for an aspect, method, method arguments, etc. are acquirable through <link linkend="aop.invocation">MethodInvocation</link> passed by the argument of Interceptor::invoke method.
+      </para>
+
+    <note><title>NOTE</title>
+      <para>This Example is located at "example/example11".</para>
+    </note>
+    </sect2> 
+    
+  </sect1>
+  <sect1 id="aop.invocation"><title>MethodInvocation API Reference</title>
+    <para>
+      MethodInvocation instance is passed as an argument of the invoke method of Interceptor.
+      MethodInvocation manages Interceptors and performs the call of sequential execution and the method for an aspect.
+      The instance for an aspect, method, method arguments, etc. are acquirable through MethodInvocation instance.
+    </para>
+
+    <blockquote>
+
+      <formalpara><title>Seasar::Aop::MethodInvocation#proceed method</title></formalpara>
+      <para>
+        Interceptors and an actual method are called.
+      </para>
+
+      <formalpara><title>Seasar::Aop::MethodInvocation#this instance variable</title></formalpara>
+      <para>
+        Instance for an aspect is returned.
+      </para>
+
+      <formalpara><title>Seasar::Aop::MethodInvocation#method instance variable</title></formalpara>
+      <para>
+        Method of the method to which an aspect is applied is returned.
+      </para>
+
+      <formalpara><title>Seasar::Aop::MethodInvocation#component_class instance variable</title></formalpara>
+      <para>
+        Class of the class to which an aspect is applied is returned.
+      </para>
+      
+      <formalpara><title>Seasar::Aop::MethodInvocation#args instance variable</title></formalpara>
+      <para>
+        Arguments of the method to which an aspect is applied is returned.
+      </para>
+
+    </blockquote>
+  </sect1>
+
+</chapter>

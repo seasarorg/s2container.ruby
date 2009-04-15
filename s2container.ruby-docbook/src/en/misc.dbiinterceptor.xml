@@ -1,0 +1,414 @@
+
+  <!-- ##################################################################### -->
+  <sect1 id="misc.dbiinterceptor"><title>Database access using DBIInterceptor</title>
+    <sect2><title>The outline of DBIInterceptor</title>
+      <para>
+        When DBIInterceptor is aspected to a class, the method which suited Pointcut is performed.
+        DBIInterceptor will treat the return value of a method as an SQL query, 
+        if the return value of a method is string.
+        If the return value of a method is Array, the 1st value is treated as an SQL query,
+        the 2nd value is treated as a context at the time of SQL execution.
+      </para>
+      
+      <para>
+        The sql is executed in a database and a result is returned as a return value of a method.
+        Prepared Statement of DBI is used for execution of the SQL query to a database.
+        As for value bound to Prepared Statement, method arguments are used.
+        If the return value of a method is Array, the 2nd value is treated as bind value.
+      </para>
+
+      <para>
+        DBIInterceptor does not have OR map function and automatic SQL construction function.
+      </para>
+
+    <note><title>NOTE</title>
+      <para>This Example is located in example/example14</para>
+    </note>
+    </sect2>
+
+  <!-- ##################################################################### -->
+    <sbr/>
+    <sect2><title>Aspect of DBIInterceptor</title>
+      <para>
+        Let's create PrefectureDao class which accesses Prefecture table.
+        The find_all method which gets all the data from Prefecture table is implemented in PrefectureDao class.
+        As a return value of the find_all method, SQL query which will be executed to a database is returned.
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor => "dbi.interceptor"
+    def find_all
+      return 'select * from prefecture'
+    end
+  end
+end
+]]></programlisting>
+
+      <para>
+      Please create run.rb which performs the next processing.
+      </para>
+      <orderedlist>
+        <listitem>
+        Seasar::DBI::DBIInterceptor can be used By requiring 'seasar/dbi/interceoptor'.
+        "dbi.interceptor" component is registered when Seasar::DBI::Interceptor class definition is read.
+        </listitem>
+        <listitem>
+        DBI::DatabaseHandle class is registered as a component by the s2component method.
+        It is necessary to set namespace of a component to "dbi" same with DBIInterceptor.
+        DSN is set up by the constructor block passed to the s2component method.
+        </listitem>
+        <listitem>
+        Getting PrefectureDao component and calling find_all mehod.
+        DBI::StatementHandle.fetch_hash result is returned to the return value of DBIInterceptor.
+        </listitem>
+      </orderedlist>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  s2app[Example::PrefectureDao].find_all.each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError => e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+
+end
+]]></programlisting>
+    </sect2>
+
+
+  <!-- ##################################################################### -->
+    <sbr/>
+    <sect2><title>Setup Bind value by Method argument</title>
+      <para>
+        Let's create PrefectureDao class which accesses a Prefecture table.
+        The find_by_id method which searches data with ID from Prefecture table is implemented in PrefectureDao class.
+        ID which searches data is specified by the argument of find_by_id method.
+        The embedding of ID to an SQL query is described like "?".
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor => "dbi.interceptor"
+    def find_by_id(id)
+      return 'select * from prefecture where id = ?'
+    end
+  end
+end
+]]></programlisting>      
+
+      <para>
+      Please create the following executable files.
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  s2app[Example::PrefectureDao].find_by_id(1).each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError => e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+
+end
+]]></programlisting>      
+
+    </sect2>
+
+
+  <!-- ##################################################################### -->
+    <sbr/>
+    <sect2><title>Setup Bind value By Method result</title>
+      <para>
+        Let's create PrefectureDao class which accesses a Prefecture table.
+        The find_by_name method which searches data with NAME from Prefecture table is implemented in PrefectureDao class.
+        Array is returned as a return value of a method, the 1st value is treated as an SQL query,
+        the 2nd value is treated as a context at the time of SQL execution.
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor => "dbi.interceptor"
+    def find_by_name(name)
+      return "select * from prefecture where name = ?", name
+    end
+  end
+end
+]]></programlisting>      
+      <para>
+      Please create the following executable files.
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  s2app[Example::PrefectureDao].find_by_name("HOKKAIDO").each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError => e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+
+end
+]]></programlisting>      
+    </sect2>
+
+
+  <!-- ##################################################################### -->
+    <sbr/>
+    <sect2><title>Using DBI in Dao</title>
+      <para>
+        If using DBI directly in Dao, It is necessary to carry out injection of the DBI component to Dao component.
+        In the following example, Property injection of the DBI::DatabaseHandle component is executed to the PrefectureDao class.
+        In the transactional_insert method, the transaction is started using injected DBI component.
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor => "dbi.interceptor", :pointcut => /^insert/
+
+    def initialize
+      @dbh = :di, DBI::DatabaseHandle
+    end
+
+    def transactional_insert(id, name)
+      result = nil
+      @dbh['AutoCommit'] = false
+      begin
+        result = self.insert(id, name)
+        @dbh.commit
+      rescue => e
+        s2logger.warn(self.class.superclass.name) { "transaction failed. #{e.class.name} #{e.message}" }
+        @dbh.rollback
+      end
+      @dbh['AutoCommit'] = true
+      return result
+    end
+
+    def insert(id, name)
+      return 'insert into prefecture values(?, ?)'
+    end
+  end
+end
+]]></programlisting>
+      <para>
+      Please create the following executable files.
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  puts s2app[Example::PrefectureDao].transactional_insert(48, "Other")
+rescue Seasar::DBI::DBIInterceptor::ConnectError => e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+
+end
+]]></programlisting>
+    </sect2>
+
+  <!-- ##################################################################### -->
+    <sbr/>
+    <sect2><title>Paging by Paginate class</title>
+      <para>
+        Seasar::DBI::Paginate class is a utility class which performs paging when acquiring data from Database.
+        Let's implement the find_by_dto method in PrefectureDao class and do paging.
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor => "dbi.interceptor"
+
+    def find_by_dto(dto)
+      return "select * from prefecture where name like ? limit ? offset ?", [dto.name_like, dto.limit, dto.offset]
+    end
+
+    def find_total_by_dto(dto)
+      return "select count(*) as total from prefecture where name like ?", dto.name_like
+    end
+  end
+
+  require 'seasar/dbi/paginate'
+  class PrefectureDto < Seasar::DBI::Paginate
+    attr_accessor :name_like
+  end
+end
+]]></programlisting>      
+
+      <para>
+      Please create run.rb which performs the next processing.
+      </para>
+      <orderedlist>
+        <listitem>create a instance of Example::PrefectureDto</listitem>
+        <listitem>set the page limit as 5</listitem>
+        <listitem>set the search information</listitem>
+        <listitem>set the total count</listitem>
+        <listitem>search the 1st page data and display the result</listitem>
+        <listitem>move to next page</listitem>
+        <listitem>search the 2nd page data and display the result</listitem>
+      </orderedlist>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  dto = Example::PrefectureDto.new
+  dto.limit = 5
+  dto.name_like = '%er'
+  dto.total = s2app[Example::PrefectureDao].find_total_by_dto(dto)[0]["total"]
+  puts "page : #{dto.page}"
+  s2app[Example::PrefectureDao].find_by_dto(dto).each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+  dto.next
+  puts "page : #{dto.page}"
+  s2app[Example::PrefectureDao].find_by_dto(dto).each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError => e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+
+end
+]]></programlisting>
+      
+    <sbr/>
+      <sect3><title>Paginate API Reference</title>
+        <blockquote>
+
+        <formalpara><title>Seasar::DBI::Paginate.get_total_page method</title></formalpara>
+        <para>
+          All the number of pages is returned. (total records / page limit)
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#paage method</title></formalpara>
+        <para>
+          Current page number is returned.
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#page= method</title></formalpara>
+        <para>
+          Page number is set up.
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#offset method</title></formalpara>
+        <para>
+          Current offset position is returned.
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#limit= method</title></formalpara>
+        <para>
+          The number of records per 1 Paige is set up.
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#total method</title></formalpara>
+        <para>
+          The total number is returned.
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#total= method</title></formalpara>
+        <para>
+          The total number is set up.
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#window_size method</title></formalpara>
+        <para>
+          The number of Pages displayed on a window is set up.。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#next method</title></formalpara>
+        <para>
+          1 page is advanced.
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#next? method</title></formalpara>
+        <para>
+          It is returned whether there is any next page.
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#prev method</title></formalpara>
+        <para>
+          1 page returns.
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#prev? method</title></formalpara>
+        <para>
+          It is returned whether there is any previous page.
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#page_range method</title></formalpara>
+        <para>
+         Range of page number settled in a page window is returned.
+        </para>
+        </blockquote>
+      </sect3>
+    </sect2>
+  </sect1>

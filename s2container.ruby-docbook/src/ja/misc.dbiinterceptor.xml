@@ -1,0 +1,395 @@
+
+  <!-- ##################################################################### -->
+  <sect1 id="misc.dbiinterceptor"><title>DBIInterceptorを用いたデータベースアクセス</title>
+    <sect2><title>DBIInterceptorの概要</title>
+      <para>
+        DBIInterceptorをアスペクトした場合は、Pointcutに適合したメソッドが実行されます。
+        DBIInterceptorは、メソッドの戻り値が文字列の場合は、SQLクエリとして扱います。
+                メソッドの戻り値が配列の場合は、1番目の値をSQLクエリ、2番目の値をSQL発行時のコンテキストとして
+                扱います。
+      </para>
+      
+      <para>
+        SQLクエリが取得できた場合は、データベースに発行して結果を メソッドの戻り値として return します。
+                データベースへのSQLクエリの発行は、DBIのPrepared Statementが使用されます。 Prepared Statementにバインド
+                されるvalueは、メソッド引数が使用されます。メソッドの戻り値が配列の場合は、2番目の値がバインドvalueとして扱われます。       
+      </para>
+      <para>
+        PdoInterceptorには、O/Rマップ機能や自動SQL構築機能は実装されていません。
+      </para>
+    <note><title>NOTE</title>
+      <para>DBIInterceptorの例は example/example14 にあります。</para>
+    </note>
+    </sect2>
+
+    <sbr/>
+    <sect2><title>DBIInterceptorをアスペクトする</title>      
+      <para>
+        PrefectureテーブルにアクセスするPrefectureDaoクラスを作成します。
+        PrefectureDaoクラスには、Prefectureテーブルから全件を取得するfind_allメソッドを実装します。
+                メソッドの戻り値としてデータベースに発行するSQLクエリを返します。
+      </para>
+      
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor => "dbi.interceptor"
+    def find_all
+      return 'select * from prefecture'
+    end
+  end
+end
+]]></programlisting>      
+
+      <para>
+             次の処理を行うrun.rbを作成します。
+      </para>
+      <orderedlist>
+        <listitem>
+        'seasar/dbi/interceoptor'をrequireすることで、Seasar::DBI::DBIInterceptorが利用可能となります。
+                「dbi.interceptor」コンポーネントは、Seasa::DBI::Interceptorクラス定義が読み込まれた際に登録されます。
+        </listitem>
+        <listitem>DBI::DatabaseHandleクラスを、s2componentメソッドでコンポーネントとして登録します。
+                コンポーネントのnamespaceを DBIInterceptorと同様に「dbi」とする必要があります。
+        s2componentメソッドのコンストラクタ ブロックでDSNを設定します。</listitem>
+        <listitem>
+        PrefectureDaoコンポーネントを取得し、find_allメソッドを実行します。
+        DBIInterceptorの戻り値はDBI::StatementHandle.fetch_hash結果が返されます。
+        </listitem>
+      </orderedlist>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  s2app[Example::PrefectureDao].find_all.each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError => e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+end
+]]></programlisting>      
+    </sect2>
+
+    <sbr/>
+    <sect2><title>メソッド引数でバインド値を設定する</title>      
+      <para>
+        PrefectureテーブルにアクセスするPrefectureDaoクラスを作成します。PrefectureDaoクラスには、
+        PrefectureテーブルからIDで検索するfind_by_idメソッドを実装します。
+        find_by_idメソッドの引数で検索するIDを指定します。SQLクエリへのIDの埋め込みは、「?」で行います。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor => "dbi.interceptor"
+    def find_by_id(id)
+      return 'select * from prefecture where id = ?'
+    end
+  end
+end
+]]></programlisting>      
+
+      <para>
+            実行ファイルは次になります。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  s2app[Example::PrefectureDao].find_by_id(1).each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError => e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+end
+]]></programlisting>      
+
+    </sect2>
+
+    <sbr/>
+    <sect2><title>メソッドの戻り値でバインド値を設定する</title>      
+      <para>
+        PrefectureテーブルにアクセスするPrefectureDaoクラスを作成します。PrefectureDaoクラスには、
+        Prefectureテーブルからタイトル名で検索するfind_by_nameメソッドを実装します。
+                メソッドの戻り値を配列とし、1番目の値にSQLクエリ、2番目の値にSQLクエリにバインドする値を配列で指定します。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor => "dbi.interceptor"
+    def find_by_name(name)
+      return "select * from prefecture where name = ?", name
+    end
+  end
+end
+]]></programlisting>      
+
+      <para>
+            実行ファイルは次になります。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  s2app[Example::PrefectureDao].find_by_name("北海道").each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError => e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+end
+]]></programlisting>      
+    </sect2>
+
+    <sbr/>
+    <sect2><title>DaoクラスでDBIを直接使用する</title>      
+      <para>
+      Daoクラスの中で直接DBIを使用する場合は、DaoクラスにDBIコンポーネントをインジェクションします。
+            次の例では、PrefectureDaoクラスにDBI::DatabaseHandleコンポーネントをプロパティインジェクションしています。
+      transactional_insertメソッドでは、インジェクションされたdbhコンポーネントを使用してトランザクションを開始しています。
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor => "dbi.interceptor", :pointcut => /^insert/
+
+    def initialize
+      @dbh = :di, DBI::DatabaseHandle
+    end
+
+    def transactional_insert(id, name)
+      result = nil
+      @dbh['AutoCommit'] = false
+      begin
+        result = self.insert(id, name)
+        @dbh.commit
+      rescue => e
+        s2logger.warn(self.class.superclass.name) { "transaction failed. #{e.class.name} #{e.message}" }
+        @dbh.rollback
+      end
+      @dbh['AutoCommit'] = true
+      return result
+    end
+
+    def insert(id, name)
+      return 'insert into prefecture values(?, ?)'
+    end
+  end
+end
+]]></programlisting>      
+
+      <para>
+            実行ファイルは次になります。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  puts s2app[Example::PrefectureDao].transactional_insert(48, "その他")
+rescue Seasar::DBI::DBIInterceptor::ConnectError => e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+end
+]]></programlisting>      
+    </sect2>
+
+    <sbr/>
+    <sect2><title>Paginateクラスでページング処理</title>      
+      <para>
+        Seasar::DBI::Paginateクラスは、データベースからのデータ取得の際にページングを行うユーティリティクラスです。    
+        PrefectureDaoクラスにfind_by_dtoメソッドを実装し、ページングを行います。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor => "dbi.interceptor"
+
+    def find_by_dto(dto)
+      return "select * from prefecture where name like ? limit ? offset ?", [dto.name_like, dto.limit, dto.offset]
+    end
+
+    def find_total_by_dto(dto)
+      return "select count(*) as total from prefecture where name like ?", dto.name_like
+    end
+  end
+
+  require 'seasar/dbi/paginate'
+  class PrefectureDto < Seasar::DBI::Paginate
+    attr_accessor :name_like
+  end
+end
+]]></programlisting>      
+      <para>
+             次の処理を行う実行ファイルを作成します。
+      </para>
+      <orderedlist>
+        <listitem>Example::PrefectureDtoインスタンスを生成</listitem>
+        <listitem>1ページのリミットを5に設定</listitem>
+        <listitem>検索情報を設定(「県」のみを検索)</listitem>
+        <listitem>全件数を設定</listitem>
+        <listitem>1ページ目のデータを検索し結果を表示</listitem>
+        <listitem>次のページに遷移</listitem>
+        <listitem>2ページ目のデータを検索し結果を表示</listitem>
+      </orderedlist>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  dto = Example::PrefectureDto.new
+  dto.limit = 5
+  dto.name_like = '%県'
+  dto.total = s2app[Example::PrefectureDao].find_total_by_dto(dto)[0]["total"]
+  puts "page : #{dto.page}"
+  s2app[Example::PrefectureDao].find_by_dto(dto).each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+  dto.next
+  puts "page : #{dto.page}"
+  s2app[Example::PrefectureDao].find_by_dto(dto).each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError => e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+end
+]]></programlisting>      
+   
+    <sbr/>
+      <sect3><title>Seasar::DBI::Paginate API リファレンス</title>
+        <blockquote>
+
+        <formalpara><title>Seasar::DBI::Paginate#get_total_page メソッド</title></formalpara>
+        <para>
+                  全件数を件数/ページ(limit)で割った全ページ数を返します。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#page メソッド</title></formalpara>
+        <para>
+                  現在のページ番号を返します。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#page= メソッド</title></formalpara>
+        <para>
+                  ページ番号を設定します。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#offset メソッド</title></formalpara>
+        <para>
+                  現在のoffset位置を返します。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#limit= メソッド</title></formalpara>
+        <para>
+         1ページあたりの件数を設定します。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#total メソッド</title></formalpara>
+        <para>
+                  全件数を返します。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#total= メソッド</title></formalpara>
+        <para>
+                  全件数を設定します。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#window_size メソッド</title></formalpara>
+        <para>
+                  ページウィンドウに表示するページ数を設定します。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#next メソッド</title></formalpara>
+        <para>
+          1ページ進めます。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#next? メソッド</title></formalpara>
+        <para>
+                  次のページがあるかどうかを返します。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#prev メソッド</title></formalpara>
+        <para>
+          1ページ戻ります。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#prev? メソッド</title></formalpara>
+        <para>
+                  前のページがあるかどうかを返します。
+        </para>
+
+        <formalpara><title>Seasar::DBI::Paginate#page_range メソッド</title></formalpara>
+        <para>
+                ページウィンドウ内に収まるページ番号のRangeを返します。
+        </para>
+
+        </blockquote>
+      </sect3>
+    </sect2>    
+  </sect1>

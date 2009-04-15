@@ -1,0 +1,199 @@
+<chapter id="quickstart"><title>クイックスタート</title>
+
+  <!-- ################################################################### -->
+  <sect1 id="setup"><title>セットアップ</title>
+    <para>はじめに<link linkend="install">インストールドキュメント</link>にしたがって S2Container.Ruby をインストールして下さい。</para>
+  </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick202"><title>コンポーネントの登録と取得</title>
+    <para>コンポーネントは、s2component メソッドで登録します。コンポーネントの取得は、S2ApplicationContextクラスの getメソッドで行います。
+     s2app メソッドは、S2ApplicationContextクラスへのショートカットです。</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2component
+end
+
+action = s2app.get(Action)
+action = s2app[Action]       # []でもOK
+]]></programlisting>
+    <para>
+    上記の例では、Actionクラスがコンポーネントとして登録されているので、S2ApplicationContextクラスのgetメソッドの引数に
+    Actionクラスを指定しています。
+    </para>
+    <note><title>NOTE</title>
+      <para>この例は example/quickstart/quickstart1 にあります。</para>
+    </note>
+
+  </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick203"><title>コンポーネントに名前をつける</title>
+    <para>s2componentメソッドの引数で、コンポーネントに名前をつけることができます。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2comp :name => :act
+end
+
+p s2app.get(:act)   # コンポーネント名で取得
+p s2app[Action]     # クラスでも取得できます
+]]></programlisting>
+  <para>コンポーネント名は、String または Symbolで指定します。
+  </para>
+
+    <note><title>NOTE</title>
+      <para>この例は example/quickstart/quickstart2 にあります。</para>
+    </note>
+  </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick204"><title>Prototype コンポーネント</title>
+    <para>これまでの例では、S2ApplicationContextクラスから取得したActionコンポーネントはすべて同一インスタンスでした。(:singleton)
+    s2appから取得する度に新規インスタンスを返す設定は、s2componentメソッドの引数で設定します。(:prototype)</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2comp :name => :act, :instance => :prototype
+end
+
+p s2app.get(:act)   #
+p s2app[:act]       # 別々のインスタンスが返る
+]]></programlisting>
+    <note><title>NOTE</title>
+      <para>この例は example/quickstart/quickstart3 にあります。</para>
+    </note>
+ </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick205"><title>コンストラクタ ブロック</title>
+    <para>
+      s2componentメソッドに、コンポーネントの生成処理を行うコンストラクタ ブロックを渡すことで、コンポーネントの
+      生成、初期化処理を指定できます。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  attr_accessor :name
+end
+
+s2comp(:class => Action) {
+  act = Action.new
+  act.name = "foo"
+  next act
+}
+
+p s2app.get(Action).name    # -> foo
+]]></programlisting>
+    <note><title>NOTE</title>
+      <para>この例は example/quickstart/quickstart4 にあります。</para>
+    </note>
+  </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick207"><title>Dependency Injection</title>
+    <para>
+      プロパティ・インジェクションにより、DIを実施します。インスタンス変数とアクセッサメソッドがプロパティとして扱われます。
+      インスタンス変数プロパティの場合は、デフォルト値でインジェクションを行うコンポーネントを指定します。
+      プロパティ値がnilの場合、プロパティ名(Symbol)がコンポーネント名として使用されます。
+      プロパティ値が配列で、1番目の値が「di」の場合、2番目の値がコンポーネント名となります。
+     アクセッサメソッドのプロパティの場合は、attr_accessorで指定するプロパティ名がDIされるコンポーネント名となります。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2comp
+  def initialize
+    @a = nil              # コンポーネント名は :a
+    @b = :di, ServiceB    # Arrayで指定
+  end
+  attr_reader :a, :b
+  attr_accessor :c
+end
+
+class ServiceA
+  s2comp :name => :a
+end
+
+class ServiceB
+  s2comp :instance => :prototype
+end
+
+class ServiceC
+  s2comp :name => :c
+end
+
+p s2app[Action].a
+p s2app[Action].b
+p s2app[Action].c
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>この例は example/quickstart/quickstart6 にあります。</para>
+    </note>
+  </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick208"><title>自動 Aspect</title>
+    <para>Aspectの設定は、s2aspectメソッドで行います。s2aspectメソッドの引数で、Interceptorを指定します。</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2comp
+  s2aspect :interceptor => Seasar::Aop::Interceptor::TraceInterceptor.new
+  def index
+    s2logger.debug(self){"Action::index called."}
+  end
+end
+
+p s2app[Action].index
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>この例は example/quickstart/quickstart7 にあります。</para>
+    </note>
+  </sect1>
+
+  <!-- ################################################################### -->
+  <sect1 id="quick209"><title>Interceptor ブロック</title>
+    <para>s2aspectメソッドにブロックが渡された場合は、ブロックがInterceptorとして実行されます。
+    ブロックへの引数は、MethodInvocationインスタンスです。MethodInvocationクラスのproceedメソッド呼び出しにより、
+    次のInterceptor、またはAspect対象メソッドが実行されます。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2comp
+  def index
+    s2logger.debug(self){"Action::index called."}
+    return 100
+  end
+end
+
+s2aspect(:pattern => Action) {|invocation|
+  invocation.proceed * 1.05
+}
+
+p s2app[Action].index  # -> 105.0
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>この例は example/quickstart/quickstart7 にあります。</para>
+    </note>
+  </sect1>
+</chapter>

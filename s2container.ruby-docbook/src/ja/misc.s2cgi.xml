@@ -1,0 +1,933 @@
+
+<!-- ##################################################################### -->
+<sect1 id="misc.s2cgi"><title>S2CGI Webフレームワーク</title>
+  <para>
+  S2CGI Webフレームワークは、Apache上でCGIスクリプトとし実行されるRubyアプリケーションを作成するための小さなフレームワークです。
+  </para>
+
+  <sect2><title>セットアップ</title>      
+    <sect3><title>ダウンロード</title>
+      <blockquote>
+      <ulink url="http://sites.google.com/site/klovelab/Home/projects/s2ruby">s2cgi-version.tar.gz</ulink>をダウンロードし展開します。
+            次のディレクトリが作成されます。<sbr/>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+project/
+  config/        # 設定ファイルディレクトリ
+  lib/           # サービスやロジッククラスの保存ディレクトリ
+  public/        # WEB公開ディレクトリ
+  test/          # UnitTestディレクトリ
+  tpl/           # erbテンプレートファイル保存ディレクトリ
+  var/           # データやログ保存ディレクトリ
+  vendor/        # 依存ライブラリ保存ディレクトリ
+]]></programlisting>
+
+      </blockquote>
+    </sect3>
+
+    <sect3><title>S2Container.Rubyのインストール</title>
+      <blockquote>
+      <link linkend="install">インストールドキュメント</link>にしたがって S2Container.Ruby をインストールして下さい。
+      </blockquote>
+    </sect3>
+
+    <sect3><title>Rackのインストール</title>
+      <blockquote>
+      <ulink url="http://rack.rubyforge.org/">Rack</ulink>を使用する場合は、Rackをインストールして下さい。
+      </blockquote>
+    </sect3>
+
+    <sect3><title>Apacheの設定</title>
+      <blockquote>
+            拡張子cgiをcgiスクリプトとして登録します。<sbr/>
+      public ディレクトリを公開する設定とします。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+AddHandler cgi-script .cgi
+Alias /s2cgi/ "/path/to/project/public/"
+<Directory "/path/to/project/public">
+    Options ExecCGI
+    AllowOverride None
+    Order allow,deny
+    Allow from localhost
+</Directory>
+]]></programlisting>
+      </blockquote>
+    </sect3>
+
+    <sect3><title>s2cgiの設定</title>
+      <blockquote>
+      Base URLを適切に設定します。Base URLの設定は config ディレクトリの environment.rb で行います。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat config/environment.rb | grep BASE_URL
+BASE_URL = '/s2cgi'
+%
+]]></programlisting>
+
+      publicディレクトリのcgiスクリプトの所有者と実行権を確認してください。cgiスクリプトのシェバングを適切に設定します。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% ls -l public/cgi/quick1.cgi
+-rwxr--r-- 1 apache apache 1250 Feb  1 00:00 public/cgi/quick1.cgi
+% head -1 public/cgi/quick1.cgi
+#!/usr/bin/env ruby
+%
+]]></programlisting>
+
+      varディレクトリの所有者と実行権を確認してください。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% ls -ld var
+drwxr-xr-x 6 apache apache 4096 Feb  1 00:00 var
+%
+]]></programlisting>
+      </blockquote>
+    </sect3>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>フレームワークの起動</title>
+    <para>
+    CGI フレームワークの起動は、Seasar::CGI.run メソッドを呼びます。 public/cgiディレクトリに次のような
+    quick1.cgiを作成します。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/cgi/quick1.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/cgi.rb'
+Seasar::CGI.run
+%
+]]></programlisting>
+
+        次に、tpl/cgi ディレクトリに quick1.cgiのerbテンプレートファイルを「quick1.html」として作成します。
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat tpl/cgi/quick1.html
+Hello World
+%
+]]></programlisting>
+
+        ブラウザで、http://localhost/s2cgi/cgi/quick1.cgi にアクセスすると、「Hello World」 と表示されます。
+  </sect2>
+
+  <sbr/>
+  <sect2><title>Seasar::CGI::Pageクラス</title>
+    <para>
+    Seasar::CGI.run メソッドには、引数でSeasar::CGI::Pageクラスのインスタンスを渡すことができます。
+    public/cgiディレクトリに次のような quick2.cgi を作成します。
+    </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/cgi/quick2.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/cgi.rb'
+
+class Page < Seasar::CGI::Page; end
+Seasar::CGI.run(Page.new)
+%
+]]></programlisting>
+
+        次に、tpl/cgi ディレクトリに quick2.cgiのerbテンプレートファイルを「quick2.html」として作成します。
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat tpl/cgi/quick2.html
+Hello World 2
+%
+]]></programlisting>
+
+        ブラウザで、http://localhost/s2cgi/cgi/quick2.cgi にアクセスすると、「Hello World 2」 と表示されます。
+        
+    <para>
+    Seasar::CGI.run メソッドは、引数が nil の場合、S2ContainerからSeasar::CGI::Pageクラスのコンポーネントを取得します。
+        コンテナにSeasar::CGI::Pageクラスのコンポーネントが存在しない場合は、Seasar::CGI::Pageクラスのインスタンスを自動生成して使用します。
+    (上述の「フレームワークの起動」の例になります。)
+    </para>
+
+    <para>
+    Seasar::CGI::Pageクラスは、デフォルト処理として、tpl ディレクトリ以下のerbテンプレートファイルからコンテンツを生成します。
+    erbテンプレートファイルへのパスは、SCRIPT_NAMEのBASE_URL以下のパスが使用されます。「/s2cgi/cgi/quick2.cgi」の場合は、
+        「tpl/cgi/quick2.html」がerbテンプレートファイルとなります。
+    </para>
+
+    <para>
+    S2ContainerからPageコンポーネントを取得する場合は、次のようなCGIスクリプトになります。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/cgi/quick3.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/cgi.rb'
+
+class Page < Seasar::CGI::Page
+  s2comp
+end
+Seasar::CGI.run
+%
+]]></programlisting>
+  </sect2>
+
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Class Variables</title> 
+    <para>
+    Seasar::CGI::Pageクラスのクラス変数を次に示します。
+    </para>     
+    <blockquote>
+      <formalpara><title>@@fatal</title></formalpara>
+      <para>
+            フレームワーク起動後にエラーが発生した場合に、実行される手続きオブジェクトを設定します。手続きオブジェクトには、
+            キャッチされたエラーインスタンスとSeasar::CGI::Pageクラスのインスタンスが渡されます。
+      </para>
+      
+      <para>
+            デフォルトでは、config/cgi.rb内で次のように設定されています。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+Seasar::CGI::Page.fatal {|e, page|
+  s2logger.fatal() {"#{e.message} #{e.backtrace}"}
+  print "Location: #{BASE_URL}fatal.html\n\n";
+}
+]]></programlisting>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@@tpl_dir</title></formalpara>
+      <para>
+      erbテンプレートファイルを保存するディレクトリへのパスを設定します。デフォルトではプロジェクトディレクトリの
+      tplディレクトリが設定されています。
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@@tpl_ext</title></formalpara>
+      <para>
+      erbテンプレートファイルの拡張子を設定します。デフォルトは「html」です。
+      </para>
+    </blockquote>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Instance Variables</title>
+    <para>
+    Seasar::CGI::Pageクラスのインスタンス変数を次に示します。get/postメソッドの処理において使用できます。
+    </para>
+    <blockquote>
+      <formalpara><title>@cgi</title></formalpara>
+      <para>
+      <ulink url="http://www.ruby-lang.org/ja/man/html/cgi.html">Ruby添付ライブラリのCGI</ulink>インスタンスを保持します。
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@contents</title></formalpara>
+      <para>
+             レスポンスコンテンツを保持する変数です。puts, p, renderメソッドの結果文字列が追記されます。
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@auto_render</title></formalpara>
+      <para>
+      get/postメソッドの呼び出し後に、@contentsのサイズが0の場合に、自動的にrenderメソッドを呼ぶかどうかを
+      Booleanで設定します。
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@auto_response</title></formalpara>
+      <para>
+      get/postメソッドの呼び出し後に、@contentsを、@cgi.outで出力するかどうかをBooleanで設定します。
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <formalpara><title>@headers</title></formalpara>
+      <para>
+      auto_response時に、@cgi.outで出力するHTTPヘッダをHashで保持します。
+      </para>
+    </blockquote>
+
+  </sect2>    
+
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>get/postメソッド</title>
+    <para>
+    Pageクラスでは、WEB層に関する次の処理を行います。
+    </para>
+    <itemizedlist>
+      <listitem>ページ遷移に関する処理  ( redirect メソッドなど ) </listitem>
+      <listitem>erb テンプレートに関する処理  ( render/partial メソッドなど )</listitem>
+      <listitem>リクエストパラメータに関する処理  ( バリデーション関連 )</listitem>
+      <listitem>セッションに関する処理</listitem>
+      <listitem>サービスやロジックの呼び出し</listitem>
+      <listitem>その他、HTTPヘッダに関する処理など</listitem>
+    </itemizedlist>
+
+    <para>
+    Pageクラスにgetメソッドを定義すると、リクエストメソッドがGETの場合に呼ばれます。postメソッドも同様に、リクエストメソッドが
+    POSTの場合に実行されます。次のようなCGIスクリプトを作成します。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/cgi/quick5.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/cgi.rb'
+
+class Page < Seasar::CGI::Page
+  s2comp
+  def get
+    puts 'Hello World 5'
+  end
+end
+Seasar::CGI.run
+%
+]]></programlisting>
+
+    <para>
+        ブラウザで、http://localhost/s2cgi/cgi/quick5.cgi にアクセスすると、「Hello World 5」 と表示されます。
+    putsメソッドとpメソッドは、Seasar::CGI::Pageクラスでオーバーライドされています。それぞれ、引数で渡されたオブジェクトの
+        文字列表現とinspect結果をレスポンスコンテンツに追加します。レスポンスコンテンツのサイズが0でない場合は、erbテンプレートファイルの
+        自動読み込みは行われないため、上記サンプルでは、erbテンプレートファイルを用意する必要はありません。
+    </para>
+
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>paramメソッド</title>      
+    <para>
+    Seasar::CGI::Page#paramメソッドは、引数で指定されたキー名のリクエストパラメータを返します。リクエストパラメータに
+        キーが存在しない場合はnilを返します。キーが複数存在する場合は配列を返します。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param(name)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>第1引数： リクエストパラメータのキー名</listitem>
+      </itemizedlist>
+      <para>
+      paramメソッドは、 リクエストパラメータの検証を行う場合にも使用します。検証設定については<link linkend="misc.s2cgi.validate.param">こちら</link>を参照下さい。
+      </para>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>renderメソッド</title>      
+    <para>
+    Seasar::CGI::Page#renderメソッドはerbテンプレートファイルを処理し、結果文字列を@contentsに追記します。引数でerbテンプレートファイルを指定することができます。
+    erbテンプレートファイルの指定は、@@tpl_dirで指定されるディレクトリ以下の相対パスで指定します。「@@tpl_dir/cgi/quick6.html」
+        テンプレートファイルを指定する場合は、次のようになります。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+render 'cgi/quick6'
+]]></programlisting>
+
+    <para>
+       引数を省略した場合は、SCRIPT_NAMEからBASE_URLを除いた相対パスが使用されます。SCRIPT_NAMEが「/s2cgi/cgi/quick6.cgi」、BASE_URLが「/s2cgi」の場合は、
+       テンプレートファイルは「cgi/quick6」となります。テンプレートファイルの拡張子には、@@tpl_ext値が使用されます。
+    </para>
+
+    <para>
+    renderメソッドは、レイアウトファイルを自動検索します。レイアウトファイルが見つかった場合は、テンプレートファイルの処理を行いません。
+        レイアウトファイルがテンプレートファイルとして処理されます。レイアウトファイルの検索は、テンプレートファイルに「_layout」を付加したファイルが
+       存在するかを確認します。存在しない場合は、テンプレートファイルと同じディレクトリに「layout」というファイルが存在するかを確認します。
+        テンプレートファイルが「cgi/quick6」の場合は、まず「cgi/quick6_layout」が存在するかを確認し、存在しない場合は、「cgi/layout」
+        が存在するかを確認します。
+    </para>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>partialメソッド</title>      
+    <para>
+    Seasar::CGI::Page#partialメソッドは、テンプレートファイルを処理し、文字列を返します。引数でerbテンプレートファイルを指定できます。レイアウトファイル内でメインコンテンツの
+        テンプレートを読み込んだり、テンプレートファイルを部分的に分割したりする場合に使用します。レイアウトファイル内でメインコンテンツのテンプレートファイルを指定
+       する場合は、@templateを引数に指定して下さい。
+    </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+<!-- レイアウトファイル -->
+<%= partial(@template) %>   # メインコンテンツの読み込み
+]]></programlisting>
+
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>redirectメソッド</title>      
+    <para>
+    Seasar::CGI::Page#redirectメソッドは、引数で指定されたURLをHTTPヘッダのLocationに設定し、リダイレクトを実施します。
+        リダイレクトを実施後、exitを実行しCGIスクリプトを終了します。第二引数でリダイレクトする際のリクエストパラメータを
+    Hashで設定できます。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+redirect('http://xxx.com/index.cgi', :year => 2009)
+]]></programlisting>
+  </sect2>    
+
+  <sbr/>
+  <sect2><title>validateメソッド</title>
+    <para>
+    Seasar::CGI::Page#validateメソッドは、リクエストパラメータの検証を行う処理を含むブロックを受け取ります。第一引数では、
+    :all、:get、:postを指定し、どのリクエストメソッドのアクセス時に検証を行うかを指定することができます。
+        戻り値としてBooleanを返します。戻り値がFalseの場合は、リクエストメソッドに対応するget/postメソッドの呼び出しが行われません。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class Page < Seasar::CGI::Page
+  validate {         # :allと同じ。 GET、POST リクエストの場合に実行される
+    param :year, :numeric
+    valid?
+  }
+
+  validate(:get) {   # GET リクエストの場合に実行される
+    param :year, :numeric
+    valid?
+  }
+
+  validate(:post) {  # POST リクエストの場合に実行される
+    param :year, :numeric
+    valid?
+  }
+end
+]]></programlisting>
+
+    <sbr/>
+    <para>
+    validateメソッドに渡されるブロック内では、リクエストパラメータを検証するために次のメソッドが使用できます。
+    </para>
+    
+    <blockquote>
+      <formalpara id="misc.s2cgi.validate.param"><title>param メソッド</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param(name, type = nil, options = nil)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>第1引数： リクエストパラメータのキー名</listitem>
+        <listitem>第2引数： バリデーションタイプ</listitem>
+        <listitem>第3引数： 検証メソッドに渡されるオプション</listitem>
+      </itemizedlist>
+      <para>
+            リクエストパラメータを nameで指定し、適用する検証メソッドを typeで指定します。一つのリクエストパラメータに複数の
+            バリデーションタイプを登録することができます。
+      </para>
+    </blockquote>
+
+    <sbr/>
+    <blockquote>
+      <formalpara><title>valid? メソッド</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+valid?(name = nil, type = nil)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>第1引数： リクエストパラメータのキー名</listitem>
+        <listitem>第2引数： バリデーションタイプ</listitem>
+        <listitem>戻り値： Boolean</listitem>
+      </itemizedlist>
+      <para>
+            引数の name と type に合致する登録エントリがすべてValidな場合にTrueを返します。1つでもErrorが
+            ある場合は、Falseとなります。引数 name がnilの場合は、typeに合致する検証エントリが対象となります。
+           引数typeがnilの場合は、nameに合致する検証エントリが対象となります。nameおよびtypeが共にnilの場合は、
+           すべての登録エントリが対象となります。
+      </para>
+    </blockquote>
+
+    <sbr/>
+    <blockquote>
+      <formalpara><title>valids メソッド</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+valids(name = nil, type = nil)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>第1引数： リクエストパラメータのキー名</listitem>
+        <listitem>第2引数： バリデーションタイプ</listitem>
+        <listitem>戻り値： Seasar::Validate::Entryインスタンスの配列</listitem>
+      </itemizedlist>
+      <para>
+            引数の name と type に合致する登録エントリのうち、検証結果がValidなエントリを配列で返します。
+      </para>
+    </blockquote>
+
+    <sbr/>
+    <blockquote>
+      <formalpara><title>error? メソッド</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+error?(name = nil, type = nil)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>第1引数： リクエストパラメータのキー名</listitem>
+        <listitem>第2引数： バリデーションタイプ</listitem>
+        <listitem>戻り値： Boolean</listitem>
+      </itemizedlist>
+      <para>
+            引数の name と type に合致する登録エントリのうち、1つでもErrorがある場合にTrueを返します。
+            すべてのエントリがValidな場合はFalseを返します。
+      </para>
+
+      <para>
+           次のように、erbテンプレートファイル内で使用することができます。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+username : <input type="text" name="username" value=""/>
+<% if error?(:username) %><span class="err_msg">ユーザ名を4～8文字で入力して下さい。</span><% end %>
+]]></programlisting>
+
+    </blockquote>
+
+    <sbr/>
+    <blockquote>
+      <formalpara><title>errors メソッド</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+errors(name = nil, type = nil)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>第1引数： リクエストパラメータのキー名</listitem>
+        <listitem>第2引数： バリデーションタイプ</listitem>
+        <listitem>戻り値： Seasar::Validate::Entryインスタンスの配列</listitem>
+      </itemizedlist>
+      <para>
+            引数の name と type に合致する登録エントリのうち、検証結果がErrorのエントリを配列で返します。
+      </para>
+    </blockquote>
+
+    <sbr/>
+    <blockquote>
+      <formalpara><title>if_errors メソッド</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+if_errors(name = nil, type = nil, &procedure)
+]]></programlisting>
+      <itemizedlist>
+        <listitem>第1引数： リクエストパラメータのキー名</listitem>
+        <listitem>第2引数： バリデーションタイプ</listitem>
+        <listitem>第3引数： ブロック</listitem>
+      </itemizedlist>
+      <para>
+            引数の name と type に合致する登録エントリのうち、1つでもErrorがある場合に、ブロック引数にすべてのエラーエントリ配列を
+            渡して呼び出します。
+      </para>
+
+      <para>
+           次のように、erbテンプレートファイル内で使用することができます。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+<% if_errors do |errors| %>
+  <%=h errors.size %>件の問題が発生しました。
+<% end %>
+]]></programlisting>
+
+    </blockquote>
+
+    <sbr/>
+    <sect3><title>バリデーションタイプ</title>
+      <blockquote>
+      <para>
+            バリデーションタイプごとに使用されるメソッドは、Seasar::Validate::Utilsモジュールに定義されているメソッドが
+            使用されます。その際、メソッド名は、バリデーションタイプに"?"を付加した名前になります。バリデーションタイプが「:int」の
+            場合は、メソッド名は「int?」とになります。<sbr/>
+            また、Seasar::Validate::Utils::Validators Hashに登録されている手続きオブジェクトも使用されます。
+            バリデーションタイプで指定されるSymbolがHashキーとして使用されます。
+      </para>      
+
+      <sbr/>
+      <formalpara><title>:int</title></formalpara>
+        <para>
+        Integerかどうかを検証します。<sbr/>
+               使用されるメソッドは、Seasar::Validate::Utils.int? です。<sbr/>      
+               オプションはHashで指定します。(省略可)
+        </para>
+        <itemizedlist>
+          <listitem>:min => 最小値</listitem>
+          <listitem>:max => 最大値</listitem>
+          <listitem>:include => :min、:maxで指定される数値を含むかどうか。デフォルトはTrueです。</listitem>
+          <listitem>:required => リクエストパラメータが存在するかどうか。デフォルトはTrueです。</listitem>
+        </itemizedlist>              
+
+        paramメソッドの例は次になります。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :year, :int, :min => 2000, :max => 2050
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:numeric</title></formalpara>
+        <para>
+               数値文字列かどうかを検証します。<sbr/>
+               使用されるメソッドは、Seasar::Validate::Utils.numeric? です。<sbr/>      
+               オプションはHashで指定します。(省略可)
+        </para>
+        <itemizedlist>
+          <listitem>:min => 最小値</listitem>
+          <listitem>:max => 最大値</listitem>
+          <listitem>:include => :min、:maxで指定される数値を含むかどうか。デフォルトはTrueです。</listitem>
+          <listitem>:required => リクエストパラメータが存在するかどうか。デフォルトはTrueです。</listitem>
+        </itemizedlist>              
+
+        paramメソッドの例は次になります。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :year, :int, :min => 2000, :max => 2050
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:string</title></formalpara>
+        <para>
+        Stringかどうかを検証します。<sbr/>
+               使用されるメソッドは、Seasar::Validate::Utils.string? です。<sbr/>      
+               オプションはHashで指定します。(省略可)
+        </para>
+        <itemizedlist>
+          <listitem>:min => 最短文字数</listitem>
+          <listitem>:max => 最長文字数</listitem>
+          <listitem>:include => :min、:maxで指定される数値を含むかどうか。デフォルトはTrueです。</listitem>
+          <listitem>:required => リクエストパラメータが存在するかどうか。デフォルトはTrueです。</listitem>
+        </itemizedlist>              
+
+        paramメソッドの例は次になります。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :name, :string, :min => 6, :max => 8
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:array</title></formalpara>
+        <para>
+                配列かどうかを検証します。<sbr/>
+               使用されるメソッドは、Seasar::Validate::Utils.array? です。<sbr/>      
+               オプションはHashで指定します。(省略可)
+        </para>
+        <itemizedlist>
+          <listitem>:min => 最小メンバ数</listitem>
+          <listitem>:max => 最大メンバ数</listitem>
+          <listitem>:include => :min、:maxで指定される数値を含むかどうか。デフォルトはTrueです。</listitem>
+          <listitem>:required => リクエストパラメータが存在するかどうか。デフォルトはTrueです。</listitem>
+        </itemizedlist>              
+
+        paramメソッドの例は次になります。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :names, :array, :min => 6, :max => 8
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:member, :in</title></formalpara>
+        <para>
+                オプションで指定する配列のメンバかどうかを検証します。<sbr/>
+               使用されるメソッドは、Seasar::Validate::Utils.member? です。<sbr/>      
+               オプションはHashまたはArrayで指定します。
+        </para>
+        <itemizedlist>
+          <listitem>:items => メンバ配列</listitem>
+          <listitem>:required => リクエストパラメータが存在するかどうか。デフォルトはTrueです。</listitem>
+        </itemizedlist>              
+
+        paramメソッドの例は次になります。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :names, :member, %w[foo bar hoge huga]
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:regexp</title></formalpara>
+        <para>
+                オプションで指定するRegexpにマッチするかどうかを検証します。<sbr/>
+               使用されるメソッドは、Seasar::Validate::Utils.regexp? です。<sbr/>      
+               オプションはHashまたはRegexpで指定します。
+        </para>
+        <itemizedlist>
+          <listitem>:regexp => Regexp</listitem>
+          <listitem>:required => リクエストパラメータが存在するかどうか。デフォルトはTrueです。</listitem>
+        </itemizedlist>              
+
+        paramメソッドの例は次になります。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :name, :regexp, /^abc/
+]]></programlisting>              
+
+      <sbr/>
+      <formalpara><title>:alpha</title></formalpara>
+        <para>
+               アルファベット文字列かどうかを検証します。<sbr/>
+               使用されるメソッドは、Seasar::Validate::Utils.alpha? です。<sbr/>      
+               オプションはHashで指定します。(省略可)
+        </para>
+        <itemizedlist>
+          <listitem>:case => :down または、:up</listitem>
+          <listitem>:required => リクエストパラメータが存在するかどうか。デフォルトはTrueです。</listitem>
+        </itemizedlist>              
+
+        paramメソッドの例は次になります。
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+param :name, :alpha, :case => :down
+]]></programlisting>              
+
+      </blockquote>
+    </sect3>
+
+    <sbr/>
+    <sect3><title>validate_get/validate_postメソッド</title>
+      <blockquote>
+        <para>
+        Validationメソッドで検証ブロックを登録する代わりに、GETアクセスに対してはvalidate_getメソッド、
+        POSTアクセスに対してはvalidate_postメソッドを定義して、バリデーションを実施することもできます。
+        </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class Page < Seasar::CGI::Page
+  def validate_get   # GET リクエストの場合に実行される
+    param :year, :numeric
+    valid?
+  end
+
+  def validate_post  # POST リクエストの場合に実行される
+    param :year, :numeric
+    valid?
+  end
+end
+]]></programlisting>
+      </blockquote>
+    </sect3>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>セッション管理</title>
+    <para>
+    S2CGIのセッションは、<ulink url="http://www.ruby-lang.org/ja/man/html/cgi_session.html">Ruby添付ライブラリのCGI::Session</ulink>
+        を使用します。newメソッドの引数で渡すオプションは、Seasar::CGI::Session.optionsに設定されているHash値が使用されます。
+        デフォルトでは、config/cgi.rb内で次のように設定されています。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+Seasar::CGI::Session.options = {'tmpdir' => SESSION_DIR, 'database_manager' => CGI::Session::PStore}
+]]></programlisting>
+    <blockquote>
+
+      <formalpara><title>Seasar::CGI::Page#get_session メソッド</title></formalpara>
+      <para>
+      CGI::Sessionを生成して返します。セッションが開始されていない場合は、nilを返します。
+      </para>
+
+      <formalpara><title>Seasar::CGI::Page#start_session メソッド</title></formalpara>
+      <para>
+      CGI::Sessionの新規インスタンスを返します。
+      </para>
+    </blockquote>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Dependency Injection</title>
+    <para>
+    CGIスクリプト内で定義するPageクラスをコンポーネント登録すると、Seasar::CGI.runメソッドは、登録されたPageコンポーネントを
+    S2Containerから取得して実行します。Pageコンポーネントに依存するコンポーネントのインジェクション設定を行うことで、DIを実施できます。
+    </para>
+
+    <para>
+    lib/exampleディレクトリに次のようなサービスクラスを作成します。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat lib/example/some-service.rb
+module Example
+  class SomeService
+    s2comp
+    def add(a, b)
+      return a + b
+    end
+  end
+end
+]]></programlisting>
+
+    <para>
+        次のようなCGIスクリプトを作成します。Pageクラスでは、SomeServiceインスタンスを受け取る「:some_service」
+        アクセッサメソッドを定義します。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/cgi/quick6.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/cgi.rb'
+require 'example/some-service'
+class Page < Seasar::CGI::Page
+  s2comp
+  attr_accessor :some_service
+  def get
+    puts '1 + 2 = ' + @some_service.add(1, 2).to_s
+  end
+end
+Seasar::CGI.run
+%
+]]></programlisting>
+    <para>
+        ブラウザで、http://localhost/s2cgi/cgi/quick6.cgi にアクセスすると、「1 + 2 = 3」 と表示されます。
+    </para>
+  </sect2>    
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Unit Test</title>
+    <para>
+    libディレクトリに作成するサービスやロジッククラスのUnitTestはtestディレクトリに作成します。<sbr/>
+    testディレクトリに作成したUnitTestは、test-suite.rbで実行できます。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% ruby test/test-suite.rb
+Loaded suite .
+Started
+...
+Finished in 0.001 seconds.
+
+3 tests, 8 assertions, 0 failures, 0 errors
+%
+]]></programlisting>
+  </sect2>    
+
+
+  <!--  ################################################################# -->
+  <sbr/>
+  <sect2><title>Rack CGI</title>
+    <sect3><title>フレームワークの起動</title>
+      <blockquote>
+      <para>
+       Rack CGI フレームワークの起動は、Seasar::Rack::CGI.run メソッドを呼びます。 public/rackディレクトリに次のような
+       quick1.cgiを作成します。
+      </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/rack/quick1.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/rack.rb'
+Seasar::Rack::CGI.run
+%
+]]></programlisting>
+
+            次に、tpl/rack ディレクトリに quick1.cgiのerbテンプレートファイルを「quick1.html」として作成します。
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat tpl/rack/quick1.html
+Hello World
+%
+]]></programlisting>
+
+            ブラウザで、http://localhost/s2cgi/rack/quick1.cgi にアクセスすると、「Hello World」 と表示されます。
+      </blockquote>
+    </sect3>
+
+    <sbr/>
+    <sect3><title>Seasar::Rack::CGI::Pageクラス</title>
+      <blockquote>
+      <para>
+      Seasar::Rack::CGI.run メソッドには、引数でSeasar::Rack::CGI::Pageクラスのインスタンスを渡すことができます。
+      public/rackディレクトリに次のような quick2.cgi を作成します。
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/rack/quick2.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/rack.rb'
+
+class Page < Seasar::Rack::CGI::Page; end
+Seasar::Rack::CGI.run(Page.new)
+%
+]]></programlisting>
+
+            次に、tpl/rackディレクトリに quick2.cgiのerbテンプレートファイルを「quick2.html」として作成します。
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat tpl/cgi/quick2.html
+Hello World 2
+%
+]]></programlisting>
+
+            ブラウザで、http://localhost/s2cgi/rack/quick2.cgi にアクセスすると、「Hello World 2」 と表示されます。
+        
+      <para>
+      Seasar::Rack::CGI.run メソッドは、引数が nil の場合、S2ContainerからSeasar::Rack::CGI::Pageクラスのコンポーネントを取得します。
+            コンテナにSeasar::Rack::CGI::Pageクラスのコンポーネントが存在しない場合は、Seasar::Rack::CGI::Pageクラスのインスタンスを自動生成して使用します。
+      </para>
+      </blockquote>
+    </sect3>
+
+    <sbr/>
+    <sect3><title>Instance Variables</title>
+      <blockquote>
+        <formalpara><title>@env</title></formalpara>
+        <para>
+        Seasar::Rack::CGI::Page#callに渡されるRack環境引数
+        </para>
+
+        <formalpara><title>@request</title></formalpara>
+        <para>
+        Rack::Requestのインスタンスを保持します。
+        </para>
+
+        <formalpara><title>@response</title></formalpara>
+        <para>
+        Rack::Responseのインスタンスを保持します。@response.finishメソッドは、get/postメソッドの呼び出し後に自動的に実行されます。
+        </para>
+  
+        <formalpara><title>@auto_render</title></formalpara>
+        <para>
+        get/postメソッドの呼び出し後に、@response.body.size が 0、 @response.status が 200 の場合に、
+                自動的にrenderメソッドを呼ぶかどうかをBooleanで設定します。
+        </para>
+      </blockquote>
+    </sect3>
+
+    <sbr/>
+    <sect3><title>Rack Up</title>
+      <blockquote>
+      Rack Up を行う手続きオブジェクトをSeasar::Rack::CGI::Page.rack クラス変数に設定します。デフォルト値として、config/rack.rbで
+            次のように設定されています。
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+Seasar::Rack::CGI::Page.rack {|page|
+  Rack::Builder.app do
+    use Seasar::Rack::CGI::Stdin2StringIO
+    use Rack::ShowStatus
+    use Rack::ShowExceptions
+    use Rack::MethodOverride
+    use Rack::ContentLength
+    use Rack::Session::Cookie
+    run page
+  end
+}
+]]></programlisting>
+
+      <para>
+      Rack Up 手続きオブジェクトは、Seasar::Rack::CGI.runメソッド内で実行されます。
+            その際、S2Containerから取得されたPageインスタンスや新規生成されたPageインスタンスが引数として渡されます。<sbr/>
+            また、Rack Up 手続きオブジェクトは、Seasar::Rack::CGI.runメソッドのブロック引数としても設定できます。
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% cat public/rack/quick3.cgi
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+require File.dirname(__FILE__) + '/../../config/rack.rb'
+class Page < Seasar::Rack::CGI::Page
+  s2comp
+  def get
+    puts 'Hello World 3'
+  end
+end
+Seasar::Rack::CGI.run {|page|
+  Rack::Builder.app do
+    use Seasar::Rack::CGI::Stdin2StringIO
+    run page
+  end
+}
+%
+]]></programlisting>      
+      </blockquote>
+    </sect3>
+
+
+  </sect2>    
+
+</sect1>

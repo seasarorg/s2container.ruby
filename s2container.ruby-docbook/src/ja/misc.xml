@@ -1,0 +1,162 @@
+<chapter id="misc"><title>MISC</title>
+  <sect1 id="misc201"><title>コンポーネントでS2Containerを使用する</title>
+    <para>
+        コンポーネントが自分自身が登録されているS2Containerに依存している場合は、プロパティインジェクションで
+    S2Containerインスタンスを取得することができます。S2Containerのコンポーネント名は「container」です。
+    <sbr/>
+        例として、次のようなサービスクラスを作成します。自動バインディングによりプロパティインジェクションによってS2ContainerインスタンスがDIされます。
+   
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Service
+    s2comp
+    def initialize
+      @container = :container
+    end
+    attr_reader :container
+  end
+end
+]]></programlisting>
+
+    <para>
+        実行スクリプトは次のように作成します。
+    </para>  
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+service = s2app.get(Example::Service)
+p service.container.class.name
+]]></programlisting>
+    <note><title>NOTE</title>
+      <para>このExampleは example/example12 にあります。</para>
+    </note>
+
+  </sect1>
+
+
+
+  <!-- ##################################################################### -->
+  <sect1 id="misc.s2log"><title>S2Containerのログ設定</title>
+    <para>
+    S2Containerでは、次のようにs2loggerメソッドでLoggerインスタンスを取得し、ログ出力を行います。
+    </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+s2logger.debug(File::basename(__FILE__)) { "debug test." }
+]]></programlisting>
+
+    <sect2><title>S2Logger</title>
+      <para>
+      S2Containerでは、ログ出力を行う Loggerインスタンスを Seasar::Log::S2Logger クラスを介して取得します。
+      S2Logger.logger メソッドは、デフォルトでは STDERR出力を行う Logger のインスタンスを返します。
+      s2loggerメソッドはSeasar::Log::S2Loggerクラスを返します。
+      </para>
+
+      <blockquote>
+        <formalpara><title>ログデバイスの設定</title></formalpara>
+        <para>
+                ログの出力先を指定する場合は、s2loggerメソッドの引数で指定します。
+        </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+s2logger(STDOUT).debug(File::basename(__FILE__)) { "debug test." }
+]]></programlisting>
+
+        <formalpara><title>ログレベルの設定</title></formalpara>
+        <para>
+                ログ出力のレベル設定は、S2LoggerからLoggerインスタンスを取得して設定します。
+        </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+s2logger.level = Logger::WARN
+s2logger.debug(File::basename(__FILE__)) { "debug test." }
+s2logger.info(File::basename(__FILE__)) { "info test." }
+s2logger.warn(File::basename(__FILE__)) { "warn test." }
+s2logger.error(File::basename(__FILE__)) { "error test." }
+s2logger.fatal(File::basename(__FILE__)) { "fatal test." }
+]]></programlisting>
+
+      </blockquote>
+    </sect2>
+
+  </sect1>
+
+
+  <!-- ##################################################################### -->
+  <sect1 id="misc.dbi"><title>DBIを用いたデータベースアクセス</title>
+    <sect2><title>DBI::DatabaseHandleのコンポーネント化</title>
+        <para>
+        DBIを用いてデータベースにアクセスする場合は、DBI.connectメソッドを使用してDBI::DatabaseHandle インスタンスを取得します。
+                このDBI::DatabaseHandleをコンポーネントとして扱うことで、DaoコンポーネントへのDIが可能となります。
+        </para>
+
+        <para>
+        DBI::DatabaseHandleコンポーネントの作成には、s2compメソッドを使用します。
+        s2compメソッドにコンストラクタ ブロックを渡し、そのブロック内でDBI.connectメソッドを実行します。
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+s2comp(:class => DBI::DatabaseHandle) {
+  DBI.connect("dbi:SQLite3:sample.db")
+}
+]]></programlisting>
+
+        <para>DBI::DatabaseHandleコンポーネントを使用するCdDaoを作成します。</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Dao
+    s2comp
+
+    def initialize
+      @dbh = nil             # DBI::DatabaseHandle インスタンスがDIされる
+    end
+
+    def find_by_name(name)
+      sth = @dbh.prepare("SELECT * FROM people WHERE name = ?")
+      sth.execute(name)
+      sth.fetch {|row|
+        printf "ID: %d, Name: %s, Height: %.1f\n", row[0], row[1], row[2]
+      }
+      sth.finish
+    end
+  end
+end
+]]></programlisting>
+
+        <para>実行ファイルは次になります。</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+require 's2container'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :name => :dbh, :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:sample.db")
+}
+
+begin
+  s2app[Example::Dao].find_by_name('hoge')
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+
+end
+]]></programlisting>
+    </sect2>
+
+    <note><title>NOTE</title>
+      <para>このExampleは example/example13 にあります。</para>
+    </note>
+
+  </sect1>
+
+  &misc.dbiinterceptor;
+  &misc.s2cgi;
+  &misc.s2rails;
+</chapter>

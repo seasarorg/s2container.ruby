@@ -1,0 +1,789 @@
+<chapter id="dicon"><title>S2Container.Ruby Reference</title>
+
+  <sect1 id="dicon.s2container"><title>S2Container Reference</title>
+    <sect2><title>Generation of S2Container</title>
+       <para>
+         Generation of S2Container is carried out by the "create" method of <link linkend="dicon.application">S2ApplicationContext</link> class.
+       </para>
+       
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+container = Seasar::Container::S2ApplicationContext.instance.create
+]]></programlisting>
+
+       <para>
+       By using the s2app method which returns S2ApplicationContext instance, S2Container is generable as follows.  
+       </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+container = s2app.create
+]]></programlisting>
+
+   </sect2>
+
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.s2container.component"><title>Getting a component</title>
+       <para>The following method is used in order to take out a component from S2Container.</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2Container#get_component(component_key)
+]]></programlisting>
+    <para>
+          The class name or component name of a component is specified as an argument.<sbr/>
+          When there are two or more components which indicates the class specified in S2Container,
+          Since S2Container cannot judge which component should be returned, it carries out a raise of the exception "TooManyRegistrationRuntimeException".
+          Therefore, please specify the class name it is decided uniquely that a component will be.<sbr/>
+          It is also the same as when taking out a component by a component name.
+    </para>
+
+    <para>
+        As an example, The following classes are defined. 
+        A component name is set up by a character string and Symbol by the argument of the s2component method.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class IndexAction
+    s2component :name => "index"
+  end
+
+  class TopAction
+    s2component :name => :top
+  end
+
+  class ResultAction
+    s2component
+  end
+end
+]]></programlisting>
+
+    <para>
+    It is as follows, when specifying a component name by a character string and getting a component.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+container = s2app.create
+component = container.get_component("index")
+]]></programlisting>
+
+    <para>
+    It is as follows, when specifying a component by Class and getting a component.
+    The component method is alias of the get_component method.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+component = container.component(Example::IndexAction)
+]]></programlisting>
+
+    <para>
+    It is as follows, when specifying a component by Symbol and getting a component.
+    The get method is alias of the get_component method.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+component = container.get(:top)
+]]></programlisting>
+
+    <para>
+     [] can also be used as a method which gets a component from S2Contaienr.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+component = container[Example::ResultAction]
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>This Example is located at "example/example01".</para>
+    </note>
+    </sect2>
+ 
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.di.auto"><title>Dependency Injection</title>
+       <para>
+       Dependency Injection of S2Container is the property injection by automatic binding.
+       Instance variables and accessor methods are treated as a property.
+       Automatic binding solves the dependency between components by the property name and
+       by the class and component name which are specified by the default value of a property.
+       </para>
+       <para>
+       Let's define following classes. The constructor (initialize method) of Action class defines instance variables. 
+       The dependence information on Action and Service component is set up as a default value of an instance variable.
+       Moreover, since the attr_accessor method defines the property "d", the component named "d" will be injected. 
+       </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    s2comp
+    def initialize
+      @a = nil
+      @b = :di, "x.y.z.service_b"
+      @c = :di, ServiceC
+      @x_ = nil
+      @_x = nil
+    end
+    attr_reader :a, :b, :c
+    attr_accessor :d
+  end
+
+  class ServiceA
+    s2comp :name => :a
+  end
+
+  class ServiceB
+    s2comp :name => "service_b", :namespace => "x.y.z"
+  end
+
+  class ServiceC
+    s2comp
+  end
+
+  class ServiceD
+    s2comp :name => :d
+  end
+end
+]]></programlisting>
+
+         <para>
+        Please create the following executable files.
+        when Action component is taken out from S2Container, 
+        Dependent Service component will be injected to the instance variables of the Action component.
+         </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+container = s2app.create
+component = container[Example::Action]
+]]></programlisting>
+
+      <para>
+      The instance variable to which the underscore was attached a head or behind the variable name 
+      is not bound automatically.
+      How to set up the dependency between components by the default value of a property is shown below.
+      </para>
+      <blockquote>
+      <table frame='all'><title>Property value and DI</title>
+        <tgroup cols='3' align='left' colsep='1' rowsep='1'>
+          <colspec colwidth="100*" align="center"/>
+          <colspec colwidth="500*"/>
+          <colspec colwidth="200*"/>
+          <thead>
+            <row>
+              <entry align="center">Property value</entry>
+              <entry align="center">Explanation</entry>
+              <entry align="center">Example</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>nil</entry>
+              <entry>
+              The Symbol of an instance variable name is used as a component key.
+              A component name is set to ":a" when an instance variable name is "@a."
+              </entry>
+              <entry> @property = nil </entry>
+            </row>
+<!--
+            <row>
+              <entry>Class</entry>
+              <entry>
+              The Class set as the instance variable is used as a component key.
+              </entry>
+              <entry> @property = Example::Service </entry>
+            </row>
+            <row>
+              <entry>Symbol</entry>
+              <entry>
+              The Symbol set as the instance variable is used as a component key.
+              </entry>
+              <entry> @property = :service </entry>
+            </row>
+-->
+            <row>
+              <entry>Array</entry>
+              <entry>
+              When the size of Array is 2 and the first value is "di" (String or Symbol),
+              uses the second value as a component key.
+              </entry>
+              <entry> @property = :di, "service" </entry>
+            </row>
+<!-- 
+            <row>
+              <entry>Hash</entry>
+              <entry>
+              When the size of Hash is 1 and the first key is "di" (String or Symbol)
+              uses the value as a component key.
+              </entry>
+              <entry> @property = {:di => :service} </entry>
+            </row>
+            <row>
+              <entry>s2di method</entry>
+              <entry>
+              The argument value of the s2di method is used as a component key.
+              </entry>
+              <entry> @property = s2di "x.y.z.service" </entry>
+            </row>
+            <row>
+              <entry>String</entry>
+              <entry>
+              when the value has started with "di", the remaining character strings are used as a component key.
+              </entry>
+              <entry> @property = "di service" </entry>
+            </row>
+-->
+          </tbody>
+        </tgroup>
+      </table>
+      </blockquote>
+
+    <note><title>NOTE</title>
+      <para>This Example is located at "example/example02".</para>
+    </note>
+    </sect2>
+
+
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.s2container.block"><title>Constructor Block</title>
+      <para>
+      Constructor Block is a block which performs generation processing of a component.
+      Constructor Block is set up when registering a component by the s2component method.
+      </para>
+
+        <para>Let's define the following classes.</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    def initialize(val)
+      @val = val
+    end
+    attr_accessof :val
+  end
+end
+]]></programlisting>
+
+        <para>
+        Please create the following executable files.
+        Constructor Block is passed to the s2component method.
+        The evaluation result of the last of Constructor Block must fulfill the relation of is_a? with a component class.
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+s2component(:class => Example::Action) {
+  Example::Action.new("abc")
+} 
+
+container = s2app.create
+component = container[Example::Action]
+p component.val          # -> "abc" 
+]]></programlisting>
+ 
+    <note><title>NOTE</title>
+      <para>This Example is located at "example/example03".</para>
+    </note>
+ 
+    </sect2>
+     
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.binding"><title>Binding type setup</title>
+      <para>
+      In S2Container, a binding type can be specified per component.
+      </para>
+
+      <blockquote>
+      <table frame='all'><title>Binding Type</title>
+        <tgroup cols='2' align='left' colsep='1' rowsep='1'>
+          <colspec colwidth="50*" align="center"/>
+          <colspec colwidth="750*"/>
+          <thead>
+            <row>
+              <entry align="center">autoBinding</entry>
+              <entry align="center">Explanation</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>:auto (default)</entry>
+              <entry>
+                It binds automatically by the default value of a property.
+              </entry>
+            </row>
+            <row>
+              <entry>:none</entry>
+              <entry>
+                It is followed when the argument of the constructor is specified clearly.<sbr/>
+                It is followed when the property is specified clearly.
+              </entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      </blockquote>
+
+      <para>
+        It is as follows when specifying a binding type by the s2component method.
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class Service
+  s2component :autobinding => :auto
+end
+]]></programlisting>
+
+    </sect2>
+
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.instance"><title>Instance type setup</title>
+      <para>
+        In S2Container, instance management can be specified per component.
+      </para>
+
+      <blockquote>
+      <table frame='all'><title>Instance Type</title>
+        <tgroup cols='2' align='left' colsep='1' rowsep='1'>
+          <colspec colwidth="50*" align="center"/>
+          <colspec colwidth="750*"/>
+          <thead>
+            <row>
+              <entry align="center">instance</entry>
+              <entry align="center">Explanation</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>:singleton (default)</entry>
+              <entry>
+                Getting a component by S2Container.get_component method will return the always same instance.
+              </entry>
+            </row>
+            <row>
+              <entry>:prototype</entry>
+              <entry>
+                A new instance is returned whenever it gets a component by S2Container.get_component method.
+              </entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      </blockquote>
+
+      <para>
+       It is as follows when specifying an instance type by the s2component method.
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class Service
+  s2component :instance => :singleton
+end
+]]></programlisting>
+    </sect2>
+  </sect1>
+
+
+
+
+
+
+
+
+  <!-- ##################################################################### -->
+  
+  <sect1 id="dicon.application"><title>S2ApplicationContext Reference</title>
+       <para>
+         The main functions of S2ApplicationContext become the next.
+       </para>
+        <itemizedlist>
+          <listitem>Generate S2Container which contains the registerd class as a component</listitem>
+          <listitem>Automatic setup of Aspect</listitem>
+          <listitem>Singleton S2Container instance management</listitem>
+        </itemizedlist>
+
+    <!-- ##################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.application.create"><title>Generation of S2ApplicationContext</title>
+       <para>
+         You are able to generate S2ApplicationContext by the instance method. 
+       </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext#instance
+]]></programlisting>
+       <para>
+       The Singleton instance returns when S2ApplicationContext is generated by the instance method. 
+       Please use the new method when you generate a new instance, as usual. 
+       </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext#new
+]]></programlisting>
+       <para>
+       Also, the s2app method is defined as a short cut to S2ApplicationContext#instance.
+       </para>
+   </sect2>
+   
+    <!-- ##################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.application.import"><title>Registration of a component</title>
+       <para>Registration of a component is performed by the s2component method</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+s2component(options = {}, &procedure)
+alias s2comp s2component
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>1st arugument : component information (Hash)
+          <itemizedlist>
+            <listitem>Symbol :class       => Class of component<sbr/>
+            When the s2component method is called within a class definition, the class is set up as a default value.
+            </listitem>
+            <listitem>Symbol :name        => name of component (String | Symbol)</listitem>
+            <listitem>Symbol :instance    => <link linkend="dicon.instance">instance management setup</link></listitem>
+            <listitem>Symbol :autobinding => <link linkend="dicon.binding">automatic binding setup</link></listitem>
+            <listitem>Symbol :namespace   => namespace setup (String)</listitem>
+          </itemizedlist>
+          </listitem>
+          <listitem>2nd argument : Constructor Block<sbr/>
+          Constructor Block is passed to the s2component method.
+          The evaluation result of the last of Constructor Block must fulfill the relation of is_a?
+          with a component class which is specified by 1st argument.
+          </listitem>
+        </itemizedlist>
+      </blockquote>
+   </sect2>
+
+
+    <!-- ##################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.application.create"><title>Generation of S2Container</title>
+      <para>Generation of S2Container instance is performed by the following method.</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext#create(namespaces = [])
+]]></programlisting>
+      <para>
+        Generated S2Container has all the classes as a component which are registered by the s2component method.
+        If the namespaces argument is given (String or Array of String vlaue), the S2Container instance including specified namespace is returned.
+        As an example, S2Container is generated as follows, when there is Action class in global namespace (means without namespace) and
+        Service class in "services" namespace.
+      </para>
+
+        <para>
+        Let's define the following classes.
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    s2comp
+  end
+
+  class Service
+    s2comp :namespace => "services"
+  end
+end
+]]></programlisting>
+
+        <para>
+        Please create the following executable files.
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+// generation of a global container
+container = s2app.create
+component = container.get(Example::Action)
+p component
+component = container.get(Example::Service)
+p component
+
+
+// generation of services namespace container
+container = s2app.create("services")
+begin
+  component = container.get(Example::Action)  # -> error occured. because the component not exists.
+rescue => err
+  puts err.message
+end
+component = container.get(Example::Service)
+p component
+]]></programlisting>
+    <note><title>NOTE</title>
+      <para>This Example is located at "example/example04".</para>
+    </note>
+   </sect2>
+
+
+
+
+
+    <!-- ##################################################################### -->
+    <sbr/>
+    <sect2><title>Selection of a component</title>
+       <para>
+         A part can be chosen from the registered classes when generating S2Container by a create method.
+       </para>
+        <itemizedlist>
+          <listitem>default (no setting) : All the registered classes are treated as a component.</listitem>
+          <listitem>Include Pattern : Only what matches a pattern to a component is used.</listitem>
+          <listitem>Exclude Pattern : What matches a pattern to a component is excepted.</listitem>
+          <listitem>Include &amp; Exclude : If both Include Pattern and Exclude Pattern are set, What matched Exclude Pattern is excepted from what matched Include Pattern.</listitem>
+        </itemizedlist>
+   </sect2>
+
+   <sbr/>
+   <blockquote><formalpara><title>include method definition</title>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext.include(pattern)
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>The 1st argument : include pattern
+            <itemizedlist>
+            <listitem>Regexp : used when Regexp matches to name of component or name of component class.</listitem>          
+            <listitem>Class : used when Class equals to a component class.</listitem>          
+            <listitem>String : used when String equals to name of component or name of component class.</listitem>          
+            <listitem>Symbol : used when Symbol equals to name(Symbol) of component or name(Symbol) of component class.</listitem>          
+            </itemizedlist>
+          </listitem>
+        </itemizedlist>
+      </blockquote>
+    </formalpara></blockquote>
+
+   <sbr/>
+   <blockquote><formalpara><title>exclude method definition</title>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext.exclude(pattern)
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>The 1st argument : exclude pattern
+            <itemizedlist>
+            <listitem>Regexp : excluded when Regexp matches to name of component or name of component class.</listitem>          
+            <listitem>Class : excluded when Class equals to a component class.</listitem>          
+            <listitem>String : excluded when String equals to name of component or name of component class.</listitem>          
+            <listitem>Symbol : excluded when Symbol equals to name(Symbol) of component or name(Symbol) of component class.</listitem>          
+            </itemizedlist>
+          </listitem>
+        </itemizedlist>
+      </blockquote>
+   </formalpara></blockquote>
+
+    <!-- ##################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.application.autoaspect"><title>Auto Aspect</title>
+       <para>
+         An aspect is automatically applied to the component included by selection of the component.
+         A setup of an automatic aspect is performed by the s2aspect method.
+       </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+s2aspect(options, &procedure)
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>1st argument : Hash of aspect information.
+          <itemizedlist>
+            <listitem>Symbol :pattern => (Regexp /.+/ is a default value.)
+            <itemizedlist>
+            <listitem>Regexp : aspected when Regexp matches to name of component or name of component class.</listitem>          
+            <listitem>Class : aspected when Class equals to a component class.</listitem>          
+            <listitem>String : aspected when String equals to name of component or name of component class.</listitem>          
+            <listitem>Symbol : aspected when Symbol equals to name(Symbol) of component or name(Symbol) of component class.</listitem>          
+            </itemizedlist>
+            </listitem>
+            <listitem>Symbol :pointcut => (Regexp /.+/ is a default value)
+            <itemizedlist>
+            <listitem>Regexp : aspected when Regexp matches to method name.</listitem>          
+            <listitem>String : aspected when String equals to method name.</listitem>          
+            <listitem>Symbol : aspected when Symbol equals to method name(Symbol).</listitem>          
+            </itemizedlist>
+            </listitem>
+            <listitem>Symbol :interceptor => Interceptor component name ot Interceptor instance</listitem>
+          </itemizedlist>
+          </listitem>
+          <listitem>2nd argument : Interceptor Block<sbr/>
+          It is the block including Interceptor processing.
+          An argument of Interceptor Block is MethodInvocation instance.
+          By calling the proceed method of MethodInvocation class, following Interceptor or 
+          the method for Aspect is executed.
+          </listitem>
+        </itemizedlist>
+      </blockquote>
+      <para>
+      When an aspect method is performed within a class definition,
+      a class name is set automatically as :pattern value of the 1st argument.
+      </para>
+      <para>
+      The case where the the TraceInterceptor is aspected to the index method of Action class is shown below.
+      TraceInterceptor is beforehand registered as interceptor.trace.
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    s2comp
+    s2aspect :interceptor => "interceptor.trace", :pointcut => :index
+    def index
+      s2logger.debug(self.class.superclass) {"index action called."}
+    end
+  end
+end
+]]></programlisting>
+        <para>
+        Please create the following executable files.
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+container = s2app.create
+component = container.get(Example::Action)
+component.index
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>This Example is located at "example/example06".</para>
+    </note>
+
+      <para>
+      Next, the case where the the Interceptor is aspected to the index method of Action class by Brock is shown.
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    s2comp :name => :action
+    def index
+      s2logger.debug(self.class.superclass) {"index action called."}
+    end
+  end
+end
+]]></programlisting>
+        <para>
+        Please create the following executable files.
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+s2aspect(:pattern => :action, :pointcut => :index) {|invocation|
+  s2logger.debug(invocation.component_class) {"before"}
+  result = invocation.proceed
+  s2logger.debug(invocation.component_class) {"after "}
+  next result
+}
+
+container = s2app.create
+component = container.get(:action)
+component.index
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>This Example is located at "example/example07".</para>
+    </note>
+
+    </sect2>
+
+    <!-- ##################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.application.singleton"><title>Management of Singleton S2Container instance</title>
+      <para>
+        S2ApplicationContext generates and manages Singleton S2Container in a namespace unit.
+        Access to Singleton S2Container is performed by the following method.
+      </para>
+
+      <blockquote><formalpara><title>get_component method</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext#get_component(key, namespaces = [])
+alias component get_component
+alias get get_component
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>The 1st argument : name of component</listitem>
+          <listitem>the 2nd argument : namespaces of S2Container</listitem>
+        </itemizedlist>
+      </blockquote>
+      <para>
+        The component specified by the 1st argument is acquired.
+        If Singleton S2Container including namespaces specified by the 2nd argument has not been created, 
+        S2Continer is generated using S2ApplicationContext.create method.
+      </para>
+      </blockquote>
+
+      <sbr/>
+      <blockquote><formalpara><title>get_component_def method</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext#get_component_def(key, namespaces = [])
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>The 1st argument : name of component</listitem>
+          <listitem>the 2nd argument : namespace of S2Container</listitem>
+        </itemizedlist>
+      </blockquote>
+      <para>
+        The component definition specified by the 1st argument is acquired.
+        If Singleton S2Container including namespaces specified by the 2nd argument has not been created, 
+        S2Continer is generated using S2ApplicationContext.create method.
+      </para>
+      </blockquote>
+
+      <para>
+        As an example, Action class is in global namespace (without a namespace), 
+        and when Service class is services namesace,
+        each component can be acquired as follows.
+      </para>
+
+        <para>
+        Let's define the following classes.
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    s2comp
+  end
+
+  class Service
+    s2comp :namespace => "services"
+  end
+end
+]]></programlisting>
+
+        <para>
+        Please create the following executable files.
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+global_action = s2app.get(Example::Action)
+p global_action
+global_service = s2app.get(Example::Service)
+p global_service
+
+begin
+  services_action = s2app.get(Example::Action, "services")
+rescue => err
+  puts err.message                # -> component [Example::Action] not found.
+end
+services_service = s2app.get(Example::Service, "services")
+p services_service
+p global_service == services_service       # -> false
+]]></programlisting>
+
+      <caution><title>Caution</title>
+      <para>
+        When a global Singleton container is generated, the container of example namespace is also generated, and it is held as a child container, 
+        but it is an instance different from the singleton container of example namespace.
+      </para>
+      </caution>
+
+    <sbr/>
+    <note><title>NOTE</title>
+      <para>This Example is located at "example/example07".</para>
+    </note>
+    </sect2>
+
+    <sbr/>
+  </sect1>
+</chapter>

@@ -1,0 +1,40 @@
+<chapter id="install"><title>Installation</title>
+  <sect1 id="install.environment"><title>Requirement</title>
+    <itemizedlist>
+      <listitem>
+        <para>ruby-1.8.7</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+  <sect1 id="install.setup"><title>Installation with setup.rb</title>
+    <para>
+      Please download s2container-version.tgz and do "ruby setup.rb".
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% tar zxvf s2container-version.tgz
+% cd s2container-version
+% ruby setup.rb
+%
+]]></programlisting>
+
+  <para>S2Container.Ruby will be available by requiring "s2container.rb".</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+]]></programlisting>
+
+  </sect1>
+  <sect1 id="install.gem"><title>Installation with Gems</title>
+    <para>
+      Please download s2container-version.gem and do "gem install".
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% gem install s2container-version.gem
+%
+]]></programlisting>
+  <para>S2Container.Ruby will be available by requiring "s2container.rb".</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 's2container'
+]]></programlisting>
+  </sect1>
+</chapter>

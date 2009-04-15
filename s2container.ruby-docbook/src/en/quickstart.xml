@@ -1,0 +1,224 @@
+<chapter id="quickstart"><title>Quick Start</title>
+
+  <!-- ################################################################### -->
+  <sect1 id="setup"><title>Setup</title>
+    <para>Along <link linkend="install">the installation document</link>, please install S2Container.Ruby.</para>
+  </sect1>
+
+  <sect1 id="quick202"><title>Registration and getting of a component</title>
+    <para>
+      A component is registered by the s2component method. 
+      Getting of a component is performed by the get method of S2ApplicationContext class. 
+      The s2app method is the shortcut to S2ApplicationContext class.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2component
+end
+
+action = s2app.get(Action)
+action = s2app[Action]       # [] method is also available.
+]]></programlisting>
+
+    <para>
+    In the above example, since Action class is registered as a component, 
+    Action class is specified as an argument of the get method of S2ApplicationContext class. 
+    </para>
+
+    <note><title>NOTE</title>
+      <para>
+        This Example is located at "example/quickstart/quickstart1".
+      </para>
+    </note>
+  </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick203"><title>Naming of component</title>
+    <para>
+      A component can be named by the argument of the s2component method.
+      A component name is specified as a character string or a symbol.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2comp :name => :act
+end
+
+p s2app.get(:act)   # getting a component by name
+p s2app[Action]     # getting a component by class
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>
+        This Example is located at "examples/quickstart/quickstart2".
+      </para>
+    </note>
+  </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick204"><title>Prototype Component</title>
+    <para>
+      In the previous example, all the Action components gotten from the S2ApplicationContext
+      were the same instances.(singleton)
+      If you want to obtain a new instance each time you get a component from s2app,
+      please set :prototype symbol as an argument of the s2component method.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2comp :name => :act, :instance => :prototype
+end
+
+p s2app.get(:act)   #
+p s2app[:act]       # each time, new instance will be returned.
+]]></programlisting>
+    <note><title>NOTE</title>
+      <para>
+        This Example is located at "examples/quickstart/quickstart3".
+      </para>
+    </note>
+  </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick205"><title>Constructor Block</title>
+    <para>
+      Generation of a component and initialization processing can be specified 
+      by passing Constructor Block to the s2component method.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  attr_accessor :name
+end
+
+s2comp(:class => Action) {
+  act = Action.new
+  act.name = "foo"
+  next act
+}
+
+p s2app.get(Action).name    # -> foo
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>This Example located in examples/quickstart/quickstart4</para>
+    </note>
+  </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick206"><title>Dependency Injection</title>
+    <para>
+      Dependency Injection of S2Container.Ruby is property injection.
+      Instance variables and accessor methods are treated as a property.
+      By an instance variable property, the component which will be injected is specified by the default value of a property.
+      When a property value is nil, a property name (Symbol) is used as a component name.
+      When a property value is Array and the 1st value is ":di", then the 2nd value is used as a component name.
+      By an accessor method property, the component which will be injected is specified by the name specified by
+      attr_accessor method. 
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2comp
+  def initialize
+    @a = nil　　　　　　　　　　　　　　　　# name of component is a ":a"
+    @b = :di, ServiceB　　　　　　　# specified by Array
+  end
+  attr_reader :a, :b
+  attr_accessor :c
+end
+
+class ServiceA
+  s2comp :name => :a
+end
+
+class ServiceB
+  s2comp :instance => :prototype
+end
+
+class ServiceC
+  s2comp :name => :c
+end
+
+p s2app[Action].a
+p s2app[Action].b
+p s2app[Action].c
+]]></programlisting>
+    <note><title>NOTE</title>
+      <para>
+        This Example is located at "examples/quickstart/quickstart6".
+      </para>
+    </note>
+  </sect1>
+
+  <!-- ################################################################### -->
+  <sect1 id="quick207"><title>Auto Aspect</title>
+    <para>
+    A setup of Aspect is performed by the s2aspect method. Interceptor is specified by the argument of the s2aspect method.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2comp
+  s2aspect :interceptor => Seasar::Aop::Interceptor::TraceInterceptor.new
+  def index
+    s2logger.debug(self){"Action::index called."}
+  end
+end
+
+p s2app[Action].index
+]]></programlisting>
+    <note><title>NOTE</title>
+      <para>
+        This Example is located at "examples/quickstart/quickstart7".
+      </para>
+    </note>
+  </sect1>
+
+
+  <!-- ################################################################### -->
+  <sect1 id="quick208"><title>Interceptor Block</title>
+    <para>
+    When a block is passed to the s2aspect method, the block is treated as Interceptor.
+    The argument to the block is MethodInvocation instance.
+    By calling the proceed method of MethodInvocation class, following Interceptor or 
+    the method for Aspect is executed. 
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+
+class Action
+  s2comp
+  def index
+    s2logger.debug(self){"Action::index called."}
+    return 100
+  end
+end
+
+s2aspect(:pattern => Action) {|invocation|
+  invocation.proceed * 1.05
+}
+
+p s2app[Action].index  # -> 105.0
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>
+        This Example is located at "examples/quickstart/quickstart7".
+      </para>
+    </note>
+  </sect1>
+
+
+</chapter>

@@ -1,0 +1,144 @@
+
+  <!-- ##################################################################### -->
+  <sect1 id="misc.s2rails"><title>RailsでS2Containerを使用する</title>
+    <sect2><title>動作環境</title>
+      <itemizedlist>
+        <listitem>Ruby-1.8.7</listitem>
+        <listitem>Rails-2.3.2</listitem>
+        <listitem>WEBrick-1.3.1</listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2><title>セットアップ</title>
+      <sect3><title>Initializerのインストール</title>
+        <blockquote>
+        <para>
+        Railsプロジェクトディレクトリのconfig/initializersディレクトリにS2Rails設定ファイルを保存します。
+        </para>
+        
+        <itemizedlist>
+          <listitem><ulink url="hrrp://www.google.com/">S2Rails設定ファイル (s2rails.rb)</ulink></listitem>
+        </itemizedlist>
+        </blockquote>
+      </sect3>
+
+      <sect3><title>ApplicationControllerの設定</title>
+        <blockquote>
+        <para>
+        Railsプロジェクトディレクトリのapp/controllers/application_controller.rbで定義されている
+        ApplicationControllerクラスに次のprocessメソッドを追記します。
+        </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class ApplicationController < ActionController::Base
+  ...
+  def self.process(request, response)
+    ctrl = S2Rails.instantiate_controller(self, request)
+    if ctrl.nil?
+      return super # new.process(request, response);
+    else
+      return ctrl.process(request, response)
+    end
+  end
+  ...
+end
+]]></programlisting>
+        </blockquote>
+      </sect3>
+    </sect2>
+
+    <sbr/>
+    <sect2><title>概要</title>
+      <para>
+           セットアップでインストールしたS2Rails設定ファイル(s2rails.rb)では、次の3つの処理を実施しています。
+      </para>      
+      <itemizedlist>
+        <listitem>S2Containerの初期設定</listitem>
+        <listitem>S2Rails用のRack Middlewareの定義(S2Rails::Rack)と組み込み</listitem>
+        <listitem>ActionControllerをS2Containerで生成するinstantiate_controllerメソッドの定義</listitem>
+      </itemizedlist>
+      <para>
+      S2Rails::Rack Middlewareでは、S2ApplicationContextの初期設定を行っています。<sbr/>
+      instantiate_controllerメソッドは、ApplicationControllerクラスに追記したprocessメソッド内で使用されます。<sbr/>
+      </para>
+      
+      <para>
+      ActionControllerを生成するS2Containerは、S2Rails::Rack Middlewareで初期化されたS2ApplicationContextによって生成されます。
+      S2Containerの生成の際に指定するコンポーネントのネームスペースには、コントローラ名を使用します。また、S2Rails.IncludeNamespaces定数に設定されているnamespaceも使用されます。
+      S2Rails.IncludeNamespaces定数には、デフォルト値として %w[services daos models interceptors dbi] が設定されています。
+            これらのnamespaceに含まれるコンポーネントを持つS2Containerがリクエスト毎に生成されます。
+      </para>
+      
+      <caution><title>注意</title>
+      <para>
+      S2ApplicationContextではクラス定義の読み込み時にコンポーネント登録が実施されるため(s2componentメソッド)、
+           環境設定が「development」の場合でも、リクエスト毎にクラス定義のeager loadingが実施されます。
+      </para>
+      </caution>
+    </sect2>    
+
+    <sbr/>
+    <sect2><title>Dependency Injection</title>      
+      <para>
+           例として、sampleコントローラを作成します。
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+% ruby script/generate controller sample
+      ...
+      create  app/controllers/sample_controller.rb
+      ...
+%
+]]></programlisting>
+
+      <para>
+      sampleコントローラを次のように編集します。s2componentメソッドでコンポーネントとして登録します。
+      namespaceオプションを省略した場合は、コントローラ名「sample」がnamespaceとなります。
+      attr_accessorで、helloコンポーネントを受け取るアクセッサメソッドを定義しています。
+      </para>
+      <itemizedlist>
+        <listitem>app/controllers/sample_controller.rb</listitem>
+      </itemizedlist>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class SampleController < ApplicationController
+  s2component
+  attr_accessor :hello
+  def index
+    @result = @hello.world
+  end
+end
+]]></programlisting>
+
+      <para>
+      indexアクションのテンプレートファイルを作成します。
+      </para>
+      <itemizedlist>
+        <listitem>app/views/sample/index.rhtml</listitem>
+      </itemizedlist>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+<%=h @result %>;
+]]></programlisting>
+
+      <para>
+      Helloクラスをapp/modelsディレクトリに作成します。namespaceに「models」を指定することで、
+      SampleController以外のActionControllerでもHelloコンポーネントを使用できます。
+            共通に使用されるnamespaceは、S2Rails.IncludeNamespaces定数配列で設定されています。
+      SampleControllerでのみ使用したい場合は、namespaceを「sample」に設定します。
+      </para>
+      <itemizedlist>
+        <listitem>app/models/hello.rb</listitem>
+      </itemizedlist>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class Hello
+  s2comp :namespace => 'models'
+  def world
+    return 'Hello World'
+  end
+end
+]]></programlisting>
+
+    <para>
+        ブラウザで「http://localhost:3000/sample/index」にアクセスすると、「Hello World」と表示されます。
+    </para>
+    </sect2>    
+  </sect1>

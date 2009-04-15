@@ -1,0 +1,165 @@
+<chapter id="misc"><title>MISC</title>
+
+  <sect1 id="misc201"><title>Using S2Container in component</title>
+    <para>
+      When the component is dependent on S2Container into which it is registered,
+      S2Container instance can be acquired by Property Injection.
+      The component name of S2Container is "container".<sbr/>
+      The following service classes are created as an example.
+      S2Container instance is be DI by automatic Property Injection.
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Service
+    s2comp
+    def initialize
+      @container = :container
+    end
+    attr_reader :container
+  end
+end
+]]></programlisting>
+
+    <para>
+        An execution script is created as follows.
+    </para>  
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+service = s2app.get(Example::Service)
+p service.container.class.name
+]]></programlisting>
+    <note><title>NOTE</title>
+      <para>This Example is located in example/example12</para>
+    </note>
+
+  </sect1>
+
+
+
+  <!-- ##################################################################### -->
+  <sect1 id="misc.s2log"><title>Log setup of S2Container</title>
+    <para>
+     In S2Container, Logger instance is acquired by the s2logger method as follows,
+     and a log output is performed.
+
+    </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+s2logger.debug(File::basename(__FILE__)) { "debug test." }
+]]></programlisting>
+
+    <sect2><title>S2Logger</title>
+      <para>
+        In S2Container, Logger instance which performs a log output is acquired through Seasar::Log::S2Logger class.
+        S2Logger.logger method returns the instance of Logger which performs STDERR output.
+        As a shortcut, the s2logger method returns Seasar::Log::S2Logger class.
+      </para>
+
+      <blockquote>
+        <formalpara><title>Setting a log device</title></formalpara>
+        <para>
+        When specifying the output place of a log, it specifies by the argument of the s2logger method.
+        </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+s2logger(STDOUT).debug(File::basename(__FILE__)) { "debug test." }
+]]></programlisting>
+
+        <formalpara><title>Setting a log level</title></formalpara>
+        <para>
+         A level setup of a log output is performed to Logger instance taken out from S2Logger.
+        </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+s2logger.level = Logger::WARN
+s2logger.debug(File::basename(__FILE__)) { "debug test." }
+s2logger.info(File::basename(__FILE__)) { "info test." }
+s2logger.warn(File::basename(__FILE__)) { "warn test." }
+s2logger.error(File::basename(__FILE__)) { "error test." }
+s2logger.fatal(File::basename(__FILE__)) { "fatal test." }
+]]></programlisting>
+      </blockquote>
+    </sect2>
+  </sect1>
+
+
+  <!-- ##################################################################### -->
+  <sect1 id="misc.dbi"><title>Database access using DBI</title>
+    <sect2><title>Component-izing of DBI::DatabaseHandle</title>
+        <para>
+        When accessing a database using DBI, DBI::DatabaseHandle instance is created by DBI.connect method.
+        By treating this DBI::DatabaseHandle as a component in S2Container, 
+        it is injected to some components, such as Dao component.
+        </para>
+
+        <para>
+        The s2comp method is used for creation of a DBI::DatabaseHandle component.
+        A constructor block is passed to the s2component method and DBI.connect method is called within the block.
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+s2comp(:class => DBI::DatabaseHandle) {
+  DBI.connect("dbi:SQLite3:sample.db")
+}
+]]></programlisting>
+
+        <para>Let's create CdDao which uses a DBI::DatabaseHandle component.</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Dao
+    s2comp
+
+    def initialize
+      @dbh = nil             # DBI::DatabaseHandle instance will be injected
+    end
+
+    def find_by_name(name)
+      sth = @dbh.prepare("SELECT * FROM people WHERE name = ?")
+      sth.execute(name)
+      sth.fetch {|row|
+        printf "ID: %d, Name: %s, Height: %.1f\n", row[0], row[1], row[2]
+      }
+      sth.finish
+    end
+  end
+end
+]]></programlisting>
+
+        <para>Please create the following executable files.</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 'rubygems'
+require 'dbi'
+require 's2container'
+require 'example'
+
+s2comp(:class => DBI::DatabaseHandle, :name => :dbh, :autobinding => :none) {
+  DBI.connect("dbi:SQLite3:sample.db")
+}
+
+begin
+  s2app[Example::Dao].find_by_name('hoge')
+rescue => e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+
+end
+]]></programlisting>
+    </sect2>
+
+    <note><title>NOTE</title>
+      <para>This Example is located in example/example13</para>
+    </note>
+  </sect1>
+
+
+
+  &misc.dbiinterceptor;
+  &misc.s2cgi;
+  &misc.s2rails;
+</chapter>

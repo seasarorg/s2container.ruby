@@ -1,0 +1,775 @@
+<chapter id="dicon"><title>S2Container.Ruby リファレンス</title>
+
+  <sect1 id="dicon.s2container"><title>S2Container リファレンス</title>
+    <sect2><title>S2Containerの生成</title>
+       <para>
+         S2Containerの生成は<link linkend="dicon.application">S2ApplicationContext</link>クラスのcreateメソッドで行います。
+       </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+container = Seasar::Container::S2ApplicationContext.instance.create
+]]></programlisting>
+       <para>
+         S2ApplicationContext instanceを返すs2appメソッドを使用して、次のようにS2Containerを生成できます。
+       </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+container = s2app.create
+]]></programlisting>
+   </sect2>
+
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.s2container.component"><title>コンポーネントの取得</title>
+       <para>S2Containerからコンポーネントを取り出すには、次のメソッドを使用します。</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2Container#get_component(component_key)
+]]></programlisting>
+    <para>
+          引数にはコンポーネントのクラス、または文字列及びSymbolでコンポーネント名を指定します。
+     S2Containerに登録されているコンポーネント中に、指定したクラスを実装しているコンポーネントが複数ある場合は、S2Containerはどの
+          コンポーネントを返せばよいのか判断できないためTooManyRegistrationRuntimeExceptionをraiseします。
+          実装コンポーネントがユニークに決まるクラスを指定してください。<sbr/>
+          コンポーネント名で取得する場合も同様に、1つのS2Containerの中でユニークとなるコンポーネント名を指定します。
+          同じ名前をもつコンポーネントが複数登録されている場合は、TooManyRegistrationRuntimeExceptionが発生します。    
+    </para>
+
+    <para>
+        例として次のようなクラスを定義します。 s2componentメソッドの引数でコンポーネント名を文字列及びSymbolで設定します。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class IndexAction
+    s2component :name => "index"
+  end
+
+  class TopAction
+    s2component :name => :top
+  end
+
+  class ResultAction
+    s2component
+  end
+end
+]]></programlisting>
+
+    <para>
+       コンポーネント名を文字列で指定してコンポーネントを取得する場合は次のようになります。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+container = s2app.create
+component = container.get_component("index")
+]]></programlisting>
+
+    <para>
+       クラスを指定してコンポーネントを取得する場合は次のようになります。componentメソッドはget_componenntメソッドのaliasです。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+component = container.component(Example::IndexAction)
+]]></programlisting>
+
+    <para>
+       コンポーネント名をSymbolで指定してコンポーネントを取得する場合は次のようになります。getメソッドはget_componentメソッドのaliasです。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+component = container.get(:top)
+]]></programlisting>
+
+    <para>
+       S2Contaienrからコンポーネントを取得するメソッドとして[]も使用できます。
+    </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+component = container[Example::ResultAction]
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>この例は example/example01 にあります。</para>
+    </note>
+
+    </sect2>
+ 
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.di.auto"><title>Dependency Injection</title>
+       <para>
+       S2ContainerのDependency Injectionは、自動バインディングによるプロパティ・インジェクションです。
+             インスタンス変数とアクセッサメソッドがプロパティとして扱われます。
+              自動バインディングは、コンポーネント間の依存関係を、プロパティ名やデフォルト値で指定されるクラスやコンポーネント名で解決します。
+       </para>
+
+       <para>
+              次のようなクラスを定義します。Actionクラスのコンストラクタinitializeメソッドで、インスタンス変数を定義します。インスタンス変数の
+              デフォルト値に、Actionコンポーネントが依存する各ServiceコンポーネントをDIするための情報を設定しています。
+              また、attr_accessorメソッドでプロパティ「d」を定義しているため、コンポーネント名が「d」のコンポーネントがDIされます。
+       </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    s2comp
+    def initialize
+      @a = nil
+      @b = :di, "x.y.z.service_b"
+      @c = :di, ServiceC
+      @x_ = nil
+      @_x = nil
+    end
+    attr_reader :a, :b, :c
+    attr_accessor :d
+  end
+
+  class ServiceA
+    s2comp :name => :a
+  end
+
+  class ServiceB
+    s2comp :name => "service_b", :namespace => "x.y.z"
+  end
+
+  class ServiceC
+    s2comp
+  end
+
+  class ServiceD
+    s2comp :name => :d
+  end
+end
+]]></programlisting>
+
+         <para>
+         次のような実行ファイルを作成します。S2ContainerからActionコンポーネントを取得すると、インスタンス変数aからfに
+         各ServiceインスタンスがDIされたActionコンポーネントのインスタンスが返されます。
+         </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+container = s2app.create
+component = container[Example::Action]
+]]></programlisting>
+
+      <para>
+            インスタンス変数名の先頭・後方にアンダースコアが付いたインスタンス変数は、自動バインディングの対象外となります。
+            コンポーネント間の依存関係を、プロパティのデフォルト値で設定するフォーマット一覧を次に示します。
+      </para>
+      <blockquote>
+      <table frame='all'><title>プロパティ値とDI</title>
+        <tgroup cols='3' align='left' colsep='1' rowsep='1'>
+          <colspec colwidth="100*" align="center"/>
+          <colspec colwidth="500*"/>
+          <colspec colwidth="200*"/>
+          <thead>
+            <row>
+              <entry align="center">プロパティ値</entry>
+              <entry align="center">説明</entry>
+              <entry align="center">例</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>nil</entry>
+              <entry>
+                           インスタンス変数名のSymbol値をコンポーネント名としてDIします。インスタンス変数名が「@a」の場合、コンポーネント名は「:a」となります。
+              </entry>
+              <entry> @property = nil </entry>
+            </row>
+<!--
+            <row>
+              <entry>クラス</entry>
+              <entry>
+                            インスタンス変数に設定されたクラスをコンポーネントクラスとしてDIします。
+              </entry>
+              <entry> @property = Example::Service </entry>
+            </row>
+            <row>
+              <entry>Symbol</entry>
+              <entry>
+                            インスタンス変数に設定されたSymbol値をコンポーネント名としてDIします。
+              </entry>
+              <entry> @property = :service </entry>
+            </row>
+-->
+            <row>
+              <entry>Array</entry>
+              <entry>
+              Arrayの sizeが2で、一番目の値が文字列かSymbolで「di」の場合に、二番目の値をコンポーネント名としてDIします。
+              </entry>
+              <entry> @property = :di, "service" </entry>
+            </row>
+<!--
+            <row>
+              <entry>Hash</entry>
+              <entry>
+              Hashの sizeが1で、キーの値が文字列かSymbolで「di」の場合に、その値をコンポーネント名としてDIします。
+              </entry>
+              <entry> @property = {:di => :service} </entry>
+            </row>
+            <row>
+              <entry>s2diメソッド</entry>
+              <entry>
+              s2diメソッドの引数値をコンポーネント名としてDIします。
+              </entry>
+              <entry> @property = s2di "x.y.z.service" </entry>
+            </row>
+            <row>
+              <entry>文字列</entry>
+              <entry>
+                            インスタンス値が[di ]で文字列が始まっている場合に、残りの文字列をコンポーネント名としてDIします。
+              </entry>
+              <entry> @property = "di service" </entry>
+            </row>
+-->
+          </tbody>
+        </tgroup>
+      </table>
+      </blockquote>
+
+    <note><title>NOTE</title>
+      <para>この例は example/example02 にあります。</para>
+    </note>
+    </sect2>
+
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.s2container.block"><title>コンストラクタ ブロック</title>
+      <para>
+            コンストラクタ ブロックとは、コンポーネントの生成処理を行うブロックです。コンストラクタ ブロックは、s2componentメソッドで
+            クラスをコンポーネントととして登録する際に設定します。
+      </para>
+
+        <para>次のようなクラスを定義します。</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    def initialize(val)
+      @val = val
+    end
+    attr_accessof :val
+  end
+end
+]]></programlisting>
+
+        <para>
+                次のような実行ファイルを作成します。s2componentメソッドにコンストラクタ ブロックを渡します。
+                 コンストラクタ ブロックの最後の評価結果は、コンポーネントクラスとis_a?関係でなければいけません。
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+s2component(:class => Example::Action) {
+  Example::Action.new("abc")
+} 
+
+container = s2app.create
+component = container[Example::Action]
+p component.val          # -> "abc" 
+]]></programlisting>
+ 
+     <note><title>NOTE</title>
+      <para>この例は example/example03 にあります。</para>
+    </note>
+ 
+    </sect2>
+   
+ 
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.binding"><title>バインディングタイプの設定</title>
+      <para>
+      S2Containerでは、コンポーネント単位でバインディングタイプを指定できます。バインディングタイプは次の2つがあります。     
+      </para>
+
+      <blockquote>
+      <table frame='all'><title>バインディングタイプ</title>
+        <tgroup cols='2' align='left' colsep='1' rowsep='1'>
+          <colspec colwidth="50*" align="center"/>
+          <colspec colwidth="750*"/>
+          <thead>
+            <row>
+              <entry align="center">autoBinding</entry>
+              <entry align="center">説明</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>:auto (default)</entry>
+              <entry>
+                             プロパティのデフォルト値により自動的にバインドします。
+              </entry>
+            </row>
+            <row>
+              <entry>:none</entry>
+              <entry>
+                            コンストラクタの引数が明示的に指定されている場合は、それに従います。<sbr/>
+                            プロパティが明示的に指定されている場合は、それに従います。
+              </entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      </blockquote>
+
+      <para>
+      s2componentメソッドでバインディングタイプを指定する場合は次のようになります。
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class Service
+  s2component :autobinding => :auto
+end
+]]></programlisting>
+    </sect2>
+
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.instance"><title>インスタンスタイプの設定</title>
+      <para>
+      S2Containerでは、コンポーネント単位でインスタンスの管理方法を指定できます。インスタンスタイプは次の2つがあります。     
+      </para>
+
+      <blockquote>
+      <table frame='all'><title>インスタンスタイプ</title>
+        <tgroup cols='2' align='left' colsep='1' rowsep='1'>
+          <colspec colwidth="50*" align="center"/>
+          <colspec colwidth="750*"/>
+          <thead>
+            <row>
+              <entry align="center">instance</entry>
+              <entry align="center">説明</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>:singleton (default)</entry>
+              <entry>
+              S2Container.get_componentでコンポーネントを取得すると、常に同じインスタンスが返されます。
+              </entry>
+            </row>
+            <row>
+              <entry>:prototype</entry>
+              <entry>
+              S2Container.get_componentでコンポーネントを取得すると、常に新規インスタンスが返されます。
+              </entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+      </blockquote>
+
+      <para>
+      s2componentメソッドでインスタンスタイプを指定する場合は次のようになります。
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+class Service
+  s2component :instance => :singleton
+end
+]]></programlisting>
+    </sect2>
+
+  </sect1>
+
+
+
+
+
+
+
+
+  <!-- ##################################################################### -->
+  
+  <sect1 id="dicon.application"><title>S2ApplicationContext リファレンス</title>
+       <para>
+         S2ApplicationContextの主な機能は次になります。
+       </para>
+        <itemizedlist>
+          <listitem>s2componentメソッドで登録されたコンポーネントからS2Containerの生成</listitem>
+          <listitem>アスペクトの自動設定</listitem>
+          <listitem>S2Container内における名前空間(namespace)単位でのコンポーネント登録</listitem>
+          <listitem>名前空間(namespace)単位でのにSingleton S2Containerインスタンス管理</listitem>
+        </itemizedlist>
+
+    <!-- ##################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.application.create"><title>S2ApplicationContextの生成</title>
+       <para>
+         S2ApplicationContextの生成は、instanceメソッドで行います。
+       </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext#instance
+]]></programlisting>
+       <para>
+         instanceメソッドでS2ApplicationContextを生成した場合は、Singletonインスタンスが返ります。
+                 新規インスタンスを生成する場合は、newメソッドを使用して下さい。
+       </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext#new
+]]></programlisting>
+       <para>
+         S2ApplicationContext#instanceメソッドへのショートカットとしてs2appメソッドが定義されています。
+       </para>
+   </sect2>
+
+    <!-- ##################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.application.import"><title>コンポーネントの登録</title>
+       <para>s2componentメソッドを用いてクラスをコンポーネントとして登録します。</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+s2component(options = {}, &procedure)
+alias s2comp s2component
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>第1引数 : コンポーネントの情報 (Hash)
+          <itemizedlist>
+            <listitem>Symbol :class       => コンポーネントのクラス<sbr/>
+            s2componentメソッドがクラス定義内で呼ばれた場合は、そのクラスがデフォルト値として設定されます。
+            </listitem>
+            <listitem>Symbol :name        => コンポーネント名 (String | Symbol)</listitem>
+            <listitem>Symbol :instance    => <link linkend="dicon.instance">インスタンス管理設定</link></listitem>
+            <listitem>Symbol :autobinding => <link linkend="dicon.binding">自動バインディング設定</link></listitem>
+            <listitem>Symbol :namespace   => S2Container内での名前空間設定 (String)</listitem>
+          </itemizedlist>
+          </listitem>
+          <listitem>第2引数 : コンストラクタ ブロック <sbr/>
+                   コンポーネントの生成処理を含むブロックです。ブロックの最後の評価値は、第1引数の:classで指定したクラスとis_a?関係とならなければいけません。
+          </listitem>
+        </itemizedlist>
+      </blockquote>
+   </sect2>
+
+
+    <!-- ##################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.application.create"><title>S2Containerの生成</title>
+      <para>S2Containerインスタンスの生成は次のメソッドで行います。</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext#create(namespaces = [])
+]]></programlisting>
+      <para>
+              生成されるS2Containerは、s2componentメソッドで登録した全クラスをコンポーネントとして持ちます。
+       namespaces引数(文字列、文字列の配列)を設定した場合は、指定されたnamespaceを含むS2Containerインスタンスが返されます。
+              例として、グローバル(namespace指定無し)にActionクラスがあり、services namespaceにServiceクラスが
+              ある場合は、次のようにS2Containerを生成できます。
+      </para>
+
+      <blockquote>
+        <para>
+                クラスの定義は次になります。
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    s2comp
+  end
+
+  class Service
+    s2comp :namespace => "services"
+  end
+end
+]]></programlisting>
+
+        <para>
+                実行スクリプトは次になります。
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+// グローバルコンテナの生成
+container = s2app.create
+component = container.get(Example::Action)
+p component
+component = container.get(Example::Service)
+p component
+
+
+// services namespace コンテナの生成
+container = s2app.create("services")
+begin
+  component = container.get(Example::Action)  # -> コンポーネントが存在しないのでエラーとなります。
+rescue => err
+  puts err.message
+end
+component = container.get(Example::Service)
+p component
+]]></programlisting>
+      </blockquote>
+
+    <note><title>NOTE</title>
+      <para>この例は example/example05 にあります。</para>
+    </note>
+   </sect2>
+
+
+
+
+
+    <sbr/>
+    <sect2><title>コンポーネントの選択</title>
+       <para>createメソッドでS2Containerを生成する際に、s2componentメソッドで登録されたクラスから一部を選択することができます。</para>
+        <itemizedlist>
+          <listitem>default (パターン設定無し) : 登録された全てのクラスをコンポーネントとしてincludeします。</listitem>
+          <listitem>Include Pattern : 登録されたクラスに対してパターンにマッチするもののみを使用します。</listitem>
+          <listitem>Exclude Pattern : 登録されたクラスに対してパターンにマッチするものは除外します。</listitem>
+          <listitem>Include &amp; Exclude : Include PatternとExclude Patternが両方設定されている場合は、Include PatternにマッチしたものからExclude Patternにマッチしたものが除外されます。</listitem>
+        </itemizedlist>
+   </sect2>
+
+   <sbr/>
+   <blockquote><formalpara><title>include メソッド</title>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext.include(pattern)
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>第1引数 : include パターン
+            <itemizedlist>
+            <listitem>正規表現 : コンポーネント名、コンポーネントのクラス名にmatchした場合にincludeします。</listitem>          
+            <listitem>クラス : コンポーネントクラスと等しい場合にincludeします。</listitem>          
+            <listitem>文字列 : コンポーネント名、コンポーネントのクラス名に等しい場合にincludeします。</listitem>          
+            <listitem>Symbol : コンポーネント名、コンポーネントのクラス名のSymbolに等しい場合にincludeします。</listitem>          
+            </itemizedlist>
+          </listitem>
+        </itemizedlist>
+      </blockquote>
+   </formalpara></blockquote>
+
+   <sbr/>
+   <blockquote><formalpara><title>excludeメソッド</title>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext.exclude(pattern)
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>第1引数 : exclude パターン
+            <itemizedlist>
+            <listitem>正規表現 : コンポーネント名、コンポーネントのクラス名にmatchした場合にexcludeします。</listitem>          
+            <listitem>クラス : コンポーネントクラスと等しい場合にexcludeします。</listitem>          
+            <listitem>文字列 : コンポーネント名、コンポーネントのクラス名に等しい場合にexcludeします。</listitem>          
+            <listitem>Symbol : コンポーネント名、コンポーネントのクラス名のSymbolに等しい場合にexcludeします。</listitem>          
+            </itemizedlist>
+          </listitem>
+        </itemizedlist>
+      </blockquote>
+   </formalpara></blockquote>
+
+    <sbr/>
+    <sect2 id="dicon.application.autoaspect"><title>自動アスペクト</title>
+       <para>
+              コンポーネントの選択でインクルードされたコンポーネントに対して、自動的にアスペクトを適用します。
+              自動アスペクトの設定は、s2aspectメソッドで行います。
+       </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+s2aspect(options, &procedure)
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>第1引数 : アスペクト情報をHashで設定します。
+          <itemizedlist>
+            <listitem>Symbol :pattern => デフォルト値は Regexp /.+/ です。
+            <itemizedlist>
+            <listitem>正規表現 : コンポーネント名、コンポーネントのクラス名にmatchした場合にaspect対象となります。</listitem>          
+            <listitem>クラス : コンポーネントクラスと等しい場合にaspect対象となります。</listitem>          
+            <listitem>文字列 : コンポーネント名、コンポーネントのクラス名に等しい場合にaspect対象となります。</listitem>          
+            <listitem>Symbol : コンポーネント名、コンポーネントのクラス名のSymbolに等しい場合にaspect対象となります。</listitem>          
+            </itemizedlist>
+            </listitem>
+            <listitem>Symbol :pointcut => デフォルト値は Regexp /.+/ です。
+            <itemizedlist>
+            <listitem>正規表現 : メソッド名にmatchした場合にaspect対象となります。</listitem>          
+            <listitem>文字列 : メソッド名に等しい場合にaspect対象となります。</listitem>          
+            <listitem>Symbol : メソッド名に等しい場合にaspect対象となります。</listitem>          
+            </itemizedlist>
+            </listitem>
+            <listitem>Symbol :interceptor => Interceptorコンポーネント名、またはInterceptorインスタンス</listitem>
+          </itemizedlist>
+          </listitem>
+          <listitem>第2引数 : Interceptor ブロック <sbr/>
+          Interceptor処理を含むブロックです。引数はMethodInvocationインスタンスです。MethodInvocationのproceedメソッドで
+                    次のInterceptor処理、あるいはアスペクト対象のメソッドを実行します。
+          </listitem>
+        </itemizedlist>
+      </blockquote>
+      <para>
+      s2aspectメソッドがクラス定義内で実行された場合は、第1引数の:pattern値に文字列でクラス名が自動設定されます。
+      </para>
+      <para>
+      ActionクラスのindexメソッドにTraceInterceptorをアスペクトする場合を次に示します。 TraceInterceptorは、予め
+            「interceptor.trace」としてコンポーネントが登録されています。
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    s2comp
+    s2aspect :interceptor => "interceptor.trace", :pointcut => :index
+    def index
+      s2logger.debug(self.class.superclass) {"index action called."}
+    end
+  end
+end
+]]></programlisting>
+        <para>
+                実行スクリプトは次になります。
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+container = s2app.create
+component = container.get(Example::Action)
+component.index
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>この例は example/example06 にあります。</para>
+    </note>
+
+      <para>
+      ActionクラスのindexメソッドにブロックでInterceptorをアスペクトする場合を次に示します。
+      </para>
+
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    s2comp :name => :action
+    def index
+      s2logger.debug(self.class.superclass) {"index action called."}
+    end
+  end
+end
+]]></programlisting>
+        <para>
+                実行スクリプトは次になります。
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+s2aspect(:pattern => :action, :pointcut => :index) {|invocation|
+  s2logger.debug(invocation.component_class) {"before"}
+  result = invocation.proceed
+  s2logger.debug(invocation.component_class) {"after "}
+  next result
+}
+
+container = s2app.create
+component = container.get(:action)
+component.index
+]]></programlisting>
+
+    <note><title>NOTE</title>
+      <para>この例は example/example07 にあります。</para>
+    </note>
+
+    </sect2>
+
+
+    <sbr/>
+    <sect2 id="dicon.application.singleton"><title>Singleton S2Container インスタンスの管理</title>
+      <para>
+      S2ApplicationContextは、namespace単位でSingleton S2Containerを生成、管理します。
+      Singleton S2Containerへのアクセスは次のメソッドで行います。
+      </para>
+
+      <blockquote><formalpara><title>get_componentメソッド</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext#get_component(key, namespaces = [])
+alias component get_component
+alias get get_component
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>第1引数 : コンポーネントキー</listitem>
+          <listitem>第2引数 : S2Containerを管理するnamespaces</listitem>
+        </itemizedlist>
+      </blockquote>
+      <para>
+            第1引数で指定されたコンポーネントを取得します。
+            第2引数で指定されたnamespaceを含むSingleton S2Containerが未作成の場合は、S2ApplicationContext.createメソッド
+            を用いてコンテナを生成します。
+      </para>
+
+      </blockquote>
+
+      <sbr/>
+      <blockquote><formalpara><title>get_component_defメソッド</title></formalpara>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+S2ApplicationContext#get_component_def(key, namespaces = [])
+]]></programlisting>
+      <blockquote>
+        <itemizedlist>
+          <listitem>第1引数 : コンポーネントキー</listitem>
+          <listitem>第2引数 : S2Containerを管理するnamespaces</listitem>
+        </itemizedlist>
+      </blockquote>
+      <para>
+            第1引数で指定されたコンポーネント定義を取得します。
+            第2引数で指定されたnamespaceを含むSingleton S2Containerが未作成の場合は、S2ApplicationContext.createメソッド
+            を用いてコンテナを生成します。
+      </para>
+      </blockquote>
+
+      <para>
+              例として、グローバル(namespace指定無し)にActionクラスがあり、services namespaceにServiceクラスが
+              ある場合は、次のように 各コンポーネントを取得できます。
+      </para>
+
+        <para>
+                クラス定義は次になります。
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    s2comp
+  end
+
+  class Service
+    s2comp :namespace => "services"
+  end
+end
+]]></programlisting>
+
+        <para>
+                実行スクリプトは次になります。
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+global_action = s2app.get(Example::Action)
+p global_action
+global_service = s2app.get(Example::Service)
+p global_service
+
+begin
+  services_action = s2app.get(Example::Action, "services")
+rescue => err
+  puts err.message                # -> component [Example::Action] not found.
+end
+services_service = s2app.get(Example::Service, "services")
+p services_service
+p global_service == services_service       # -> false
+]]></programlisting>
+
+      <caution><title>注意</title>
+      <para>
+            グローバルのSingletonコンテナが生成される際にservices namespaceのコンテナも生成され、子コンテナとして保持されていますが、
+      services namespaceのSingletonコンテナとは別インスタンスとなります。
+      </para>
+      </caution>
+
+    <sbr/>
+    <note><title>NOTE</title>
+      <para>この例は example/example08 にあります。</para>
+    </note>
+
+    </sect2>
+  </sect1>
+
+</chapter>

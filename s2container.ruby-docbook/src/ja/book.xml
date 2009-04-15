@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"../../lib/docbook-xml/docbook-5.0/dtd/docbook.dtd"
+[
+<!ENTITY install    SYSTEM "install.xml">
+<!ENTITY quickstart SYSTEM "quickstart.xml">
+<!ENTITY dicon      SYSTEM "dicon.xml">
+<!ENTITY aop        SYSTEM "aop.xml">
+<!ENTITY misc       SYSTEM "misc.xml">
+<!ENTITY misc.dbiinterceptor    SYSTEM "misc.dbiinterceptor.xml">
+<!ENTITY misc.s2cgi    SYSTEM "misc.s2cgi.xml">
+<!ENTITY misc.s2rails  SYSTEM "misc.s2rails.xml">
+]>
+<book lang="ja" id="index"><title>S2Container.Ruby ドキュメント</title>
+  <bookinfo>
+    <title>S2Container.Ruby ドキュメント</title>
+    <copyright>
+      <year>2008-2009</year>
+      <holder>The Seasar Foundation and the others.</holder>
+    </copyright>
+    <!--
+    <revhistory>
+      <revision>
+        <revnumber>1.0.0</revnumber>
+        <date>2009-01-01</date>
+        <authorinitials>klove</authorinitials>
+        <revremark>初版</revremark>
+      </revision>
+    </revhistory>
+    <authorgroup>
+      <author>
+        <surname>klove</surname>
+      </author>
+    </authorgroup>
+  -->
+  </bookinfo>
+
+  &install;
+  &quickstart;
+  &dicon;
+  &aop;
+  &misc;
+</book>
