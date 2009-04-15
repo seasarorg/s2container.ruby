@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<project name="docbook-src" default="build-html">
+
+    <description>
+    This Ant build.xml file is used to transform DocBook XML to various
+    </description>
+
+    <!--
+    - Configure basic properties that will be used in the file.
+    -->
+    <property name="docbook.xsl.dir" value="lib/docbook-xsl" />
+    <property name="doc.dir" value="doc" />
+    <property name="html.stylesheet" value="src/book.xsl" />
+    <property name="fo.stylesheet" value="src/book_pdf.xsl" />
+    <property name="xalan.lib.dir" value="lib/xalan" />
+
+    <!--
+    - Sets up the classpath for the Xalan and Xerces implementations
+    - that are to be used in this script, since the versions that ship
+    - with Ant may be out of date.
+    -->
+    <path id="xalan.classpath">
+        <fileset dir="${xalan.lib.dir}" id="xalan.fileset">
+            <include name="xalan.jar" />
+            <include name="xercesImpl.jar" />
+            <include name="xalan27.jar" />
+        </fileset>
+    </path>
+
+    <!--
+    - target:  usage
+    -->
+    <target name="usage" description="Prints the Ant build.xml usage">
+        <echo message="Use -projecthelp to get a list of the available targets." />
+    </target>
+
+    <!--
+    - target:  clean
+    -->
+    <target name="clean" description="Cleans up generated files.">
+        <delete dir="${doc.dir}/ja/docbook" />
+        <delete dir="${doc.dir}/en/docbook" />
+    </target>
+
+    <!--
+    - target:  depends
+    -->
+    <target name="depends">
+        <mkdir dir="${doc.dir}" />
+    </target>
+
+    <!--
+    - target:  build-html
+    - description:  Iterates through a directory and transforms
+    -     .xml files into .html files using the DocBook XSL.
+    -->
+    <target name="build-html" depends="clean" description="Generates HTML files from DocBook XML">
+        <xslt style="${html.stylesheet}" extension=".html" basedir="src/ja" destdir="${doc.dir}/ja/docbook" force="true">
+            <classpath refid="xalan.classpath" />
+            <include name="book.xml" />
+            <exclude name="chapter*.xml" />
+        </xslt>
+
+        <xslt style="${html.stylesheet}" extension=".html" basedir="src/en" destdir="${doc.dir}/en/docbook" force="true">
+            <classpath refid="xalan.classpath" />
+            <include name="book.xml" />
+            <exclude name="chapter*.xml" />
+        </xslt>
+    </target>
+
+
+    <target name="build-pdf" depends="depends" description="Generates PDF files from DocBook XML">
+        <property name="fop.home" value="lib/fop" />
+        <taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop">
+            <classpath>
+                <fileset dir="${fop.home}/lib">
+                    <include name="*.jar" />
+                </fileset>
+                <fileset dir="${fop.home}/build">
+                    <include name="fop.jar" />
+                    <include name="fop-hyph.jar" />
+                </fileset>
+            </classpath>
+        </taskdef>
+
+        <xslt style="${fo.stylesheet}" extension=".fo" 
+            basedir="src/ja" destdir="${doc.dir}/ja/docbook"  force="true">
+            <classpath refid="xalan.classpath" />
+            <include name="book.xml" />
+        </xslt>
+
+        <fop format="application/pdf" fofile="${doc.dir}/ja/docbook/book.fo" 
+             outfile="${doc.dir}/ja/docbook/s2container.ruby-docbook.pdf"
+             userconfig="${fop.home}/conf/fop.xconf"/>
+
+        <delete file="${doc.dir}/ja/docbook/book.fo" />
+
+        <xslt style="${fo.stylesheet}" extension=".fo" 
+            basedir="src/en" destdir="${doc.dir}/en/docbook"  force="true">
+            <classpath refid="xalan.classpath" />
+            <include name="book.xml" />
+        </xslt>
+
+        <fop format="application/pdf" fofile="${doc.dir}/en/docbook/book.fo" 
+             outfile="${doc.dir}/en/docbook/s2container.ruby-docbook.pdf"
+             userconfig="${fop.home}/conf/fop.xconf"/>
+
+        <delete file="${doc.dir}/en/docbook/book.fo" />
+    </target>
+</project>
