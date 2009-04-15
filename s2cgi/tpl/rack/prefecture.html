@@ -1,0 +1,26 @@
+
+total : <%=h @paginate_dto.total %> pages <br>
+<% @prefectures.each do |h| %>
+  <%=h h["id"]%> : <%=h h["name"]%><br>
+<% end %>
+
+<% if @paginate_dto.prev? %>
+  <a href="<%=h @env["SCRIPT_NAME"] %>?act=prev">prev</a>
+<% else %>
+  prev
+<% end %>
+
+<% @paginate_dto.page_range.each do |i| %>
+  <% if @paginate_dto.page == i %>
+    <%=h i %>
+  <% else %>
+    <a href="<%=h @env["SCRIPT_NAME"] %>?act=goto&idx=<%=h i %>"><%=h i %></a>
+  <% end %>
+<% end %>
+
+<% if @paginate_dto.next? %>
+  <a href="<%=h @env["SCRIPT_NAME"] %>?act=next">next</a>
+<% else %>
+  next
+<% end %>
+<br>

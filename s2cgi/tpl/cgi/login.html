@@ -1,0 +1,11 @@
+
+<form method="POST" action="<%=h ENV['SCRIPT_NAME'] %>">
+  username : <input type="text" name="username" value=""/><% if error?(:username) %><span class="err_msg">ユーザ名を4～8文字で入力して下さい。</span><% end %>
+  <br>
+  password : <%= input :type=>"password", :name=>"password", :value=>"", :msg=>"パスワードを4～8文字で入力して下さい。", :status=> valid?(:password)%><br>
+  <input type="submit" value="login"/>
+</form>
+<br>
+<% if_errors do |errors| %>
+  <%=h errors.size %>件の問題が発生しました。
+<% end %>

@@ -1,0 +1,22 @@
+
+<%=h @env["rack.methodoverride.original_method"] %> -> <%=h @env["REQUEST_METHOD"]%>
+<br>
+<br>
+<form method="POST" action="<%=h @env['SCRIPT_NAME'] %>">
+  <input type="submit" value="post"/>
+</form>
+
+<form method="POST" action="<%=h @env['SCRIPT_NAME'] %>">
+  <input type="hidden" name="_method" value="PUT"/>
+  <input type="submit" value="put"/>
+</form>
+
+<form method="POST" action="<%=h @env['SCRIPT_NAME'] %>">
+  <input type="hidden" name="_method" value="DELETE"/>
+  <input type="submit" value="delete"/>
+</form>
+
+<form method="POST" action="<%=h @env['SCRIPT_NAME'] %>">
+  <input type="hidden" name="_method" value="OPTIONS"/>
+  <input type="submit" value="options"/>
+</form>

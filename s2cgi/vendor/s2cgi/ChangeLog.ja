@@ -1,0 +1,40 @@
+
+2009-03-08 s2cgi-0.5.0
+	* add exampleにBasePageクラスを追加しました。
+
+2009-02-12 s2cgi-0.5.0
+
+	* add Seasar::CGI::Pageにinitメソッドを追加しました。
+	* add Seasar::CGI::Pageにoutメソッドを追加しました。
+
+2009-02-08 s2cgi-0.4.0
+
+	* modify Seasar::CGI::PageでCGIインスタンス用のアクセッサメソッドを追加しました。
+	* modify Seasar::ValidateでProviderを使用しないように修正しました。
+	* delete Seasar::CGI::Validate::Provider クラスを削除しました。
+	* delete Seasar::Rack::CGI::Validate::Provider クラスを削除しました。
+	* info: s2cgi-0.4.0 release.
+
+2009-02-02 s2cgi-0.4.0
+
+	* modify Seasar::CGI.runでPageインスタンスをデフォルト値として自動生成するようにしました。
+	* add validateブロックによる検証設定を追加しました。
+
+2009-02-01 s2cgi-0.3.0
+
+	* modify vendorディレクトリにs2関連のパッケージを移動しました。
+	* add s2cgiパッケージを追加しました。
+	* info: パッケージ名をs2rackからs2cgiに変更しました。
+	* info: s2cgi-0.3.0 release.
+
+2009-01-11 s2rack-0.2.0
+
+	* add Seasar::Rack::Validate::Entrtyに@optionsにアクセスする[]メソッドを追加しました。
+	* modify Seasar::Rack::Session.sessionメソッドで、セッションが開始されていない場合はnilを返すように修正しました。
+	* add Seasar::Rack::Validate.registerメソッドを追加しました。
+	* add Seasar::Rack::CGI::Page.auto_renderクラス変数を追加しました。
+	* info: s2rack-0.2.0 release.
+
+2009-01-10 s2rack-0.1.0
+
+	* info: s2rack-0.1.0 first release.

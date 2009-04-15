@@ -1,0 +1,5 @@
+<form method="POST" action="<%=h @env['SCRIPT_NAME'] %>">
+  username : <%= input :type=>"text", :name=>"username", :value=>"", :msg=>"ユーザ名を4～8文字で入力して下さい。", :status=> valid?(:username)%><br>
+  password : <%= input :type=>"password", :name=>"password", :value=>"", :msg=>"パスワードを4～8文字で入力して下さい。", :status=> valid?(:password)%><br>
+  <input type="submit" value="login"/>
+</form>
