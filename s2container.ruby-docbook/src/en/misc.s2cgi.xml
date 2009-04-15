@@ -10,9 +10,13 @@
   <sect2><title>Setup</title>      
     <sect3><title>Download</title>
       <blockquote>
-      Please download <ulink url="http://sites.google.com/site/klovelab/Home/projects/s2ruby">s2cgi-version.tar.gz</ulink> and extract it.
+      <para>
+        Please export s2cgi from following svn repository.
+        <itemizedlist>
+          <listitem>https://www.seasar.org/svn/sandbox/s2container.ruby/trunk/s2cgi/</listitem>
+        </itemizedlist>
       As follows, a project directory will be created.<sbr/>
-
+      </para>
 <programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
 project/
   config/        # configuration files are stored.

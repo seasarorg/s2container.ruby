@@ -17,7 +17,7 @@
         </para>
         
         <itemizedlist>
-          <listitem><ulink url="hrrp://www.google.com/">S2Rails initialization file (s2rails.rb)</ulink></listitem>
+          <listitem><ulink url="https://www.seasar.org/svn/sandbox/s2container.ruby/trunk/s2rails/config/initializers/s2rails.rb">S2Rails initialization file (s2rails.rb)</ulink></listitem>
         </itemizedlist>
         </blockquote>
       </sect3>

@@ -8,9 +8,13 @@
   <sect2><title>セットアップ</title>      
     <sect3><title>ダウンロード</title>
       <blockquote>
-      <ulink url="http://sites.google.com/site/klovelab/Home/projects/s2ruby">s2cgi-version.tar.gz</ulink>をダウンロードし展開します。
+      <para>
+                次のURLからsvn exportして下さい。
+        <itemizedlist>
+          <listitem>https://www.seasar.org/svn/sandbox/s2container.ruby/trunk/s2cgi/</listitem>
+        </itemizedlist>
             次のディレクトリが作成されます。<sbr/>
-
+      </para>
 <programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
 project/
   config/        # 設定ファイルディレクトリ
