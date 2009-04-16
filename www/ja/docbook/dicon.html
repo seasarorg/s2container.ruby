@@ -1,0 +1,642 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>第3章 S2Container.Ruby リファレンス</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="up" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="prev" href="quick209.html" title="2.8. Interceptor ブロック">
+<link rel="next" href="dicon.application.html" title="3.2. S2ApplicationContext リファレンス">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">第3章 S2Container.Ruby リファレンス</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="quick209.html">前のページ</a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="dicon.application.html">次のページ</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title">
+<a name="dicon"></a>第3章 S2Container.Ruby リファレンス</h2>
+</div>
+</div>
+</div>
+<div class="toc">
+<p>
+<b>目次</b>
+</p>
+<dl>
+<dt>
+<span class="sect1"><a href="dicon.html#dicon.s2container">3.1. S2Container リファレンス</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="dicon.html#N20132">3.1.1. S2Containerの生成</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.s2container.component">3.1.2. コンポーネントの取得</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.di.auto">3.1.3. Dependency Injection</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.s2container.block">3.1.4. コンストラクタ ブロック</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.binding">3.1.5. バインディングタイプの設定</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.instance">3.1.6. インスタンスタイプの設定</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="dicon.application.html">3.2. S2ApplicationContext リファレンス</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.create">3.2.1. S2ApplicationContextの生成</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.import">3.2.2. コンポーネントの登録</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.create">3.2.3. S2Containerの生成</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#N2036D">3.2.4. コンポーネントの選択</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.autoaspect">3.2.5. 自動アスペクト</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.singleton">3.2.6. Singleton S2Container インスタンスの管理</a></span>
+</dt>
+</dl>
+</dd>
+</dl>
+</div>
+
+  
+<div class="sect1" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="dicon.s2container"></a>3.1. S2Container リファレンス</h2>
+</div>
+</div>
+</div>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N20132"></a>3.1.1. S2Containerの生成</h3>
+</div>
+</div>
+</div>
+       
+<p>
+         S2Containerの生成は<a class="link" href="dicon.application.html" title="3.2. S2ApplicationContext リファレンス">S2ApplicationContext</a>クラスのcreateメソッドで行います。
+       </p>
+
+
+<pre class="programlisting">
+require 's2container'
+container = Seasar::Container::S2ApplicationContext.instance.create
+</pre>
+       
+<p>
+         S2ApplicationContext instanceを返すs2appメソッドを使用して、次のようにS2Containerを生成できます。
+       </p>
+
+<pre class="programlisting">
+require 's2container'
+container = s2app.create
+</pre>
+   
+</div>
+
+    
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.s2container.component"></a>3.1.2. コンポーネントの取得</h3>
+</div>
+</div>
+</div>
+       
+<p>S2Containerからコンポーネントを取り出すには、次のメソッドを使用します。</p>
+
+<pre class="programlisting">
+S2Container#get_component(component_key)
+</pre>
+    
+<p>
+          引数にはコンポーネントのクラス、または文字列及びSymbolでコンポーネント名を指定します。
+     S2Containerに登録されているコンポーネント中に、指定したクラスを実装しているコンポーネントが複数ある場合は、S2Containerはどの
+          コンポーネントを返せばよいのか判断できないためTooManyRegistrationRuntimeExceptionをraiseします。
+          実装コンポーネントがユニークに決まるクラスを指定してください。<br>
+          コンポーネント名で取得する場合も同様に、1つのS2Containerの中でユニークとなるコンポーネント名を指定します。
+          同じ名前をもつコンポーネントが複数登録されている場合は、TooManyRegistrationRuntimeExceptionが発生します。    
+    </p>
+
+    
+<p>
+        例として次のようなクラスを定義します。 s2componentメソッドの引数でコンポーネント名を文字列及びSymbolで設定します。
+    </p>
+
+<pre class="programlisting">
+module Example
+  class IndexAction
+    s2component :name =&gt; "index"
+  end
+
+  class TopAction
+    s2component :name =&gt; :top
+  end
+
+  class ResultAction
+    s2component
+  end
+end
+</pre>
+
+    
+<p>
+       コンポーネント名を文字列で指定してコンポーネントを取得する場合は次のようになります。
+    </p>
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+container = s2app.create
+component = container.get_component("index")
+</pre>
+
+    
+<p>
+       クラスを指定してコンポーネントを取得する場合は次のようになります。componentメソッドはget_componenntメソッドのaliasです。
+    </p>
+
+<pre class="programlisting">
+component = container.component(Example::IndexAction)
+</pre>
+
+    
+<p>
+       コンポーネント名をSymbolで指定してコンポーネントを取得する場合は次のようになります。getメソッドはget_componentメソッドのaliasです。
+    </p>
+
+<pre class="programlisting">
+component = container.get(:top)
+</pre>
+
+    
+<p>
+       S2Contaienrからコンポーネントを取得するメソッドとして[]も使用できます。
+    </p>
+
+<pre class="programlisting">
+component = container[Example::ResultAction]
+</pre>
+
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[注意]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>この例は example/example01 にあります。</p>
+    
+</td>
+</tr>
+</table>
+</div>
+
+    
+</div>
+ 
+    
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.di.auto"></a>3.1.3. Dependency Injection</h3>
+</div>
+</div>
+</div>
+       
+<p>
+       S2ContainerのDependency Injectionは、自動バインディングによるプロパティ・インジェクションです。
+             インスタンス変数とアクセッサメソッドがプロパティとして扱われます。
+              自動バインディングは、コンポーネント間の依存関係を、プロパティ名やデフォルト値で指定されるクラスやコンポーネント名で解決します。
+       </p>
+
+       
+<p>
+              次のようなクラスを定義します。Actionクラスのコンストラクタinitializeメソッドで、インスタンス変数を定義します。インスタンス変数の
+              デフォルト値に、Actionコンポーネントが依存する各ServiceコンポーネントをDIするための情報を設定しています。
+              また、attr_accessorメソッドでプロパティ「d」を定義しているため、コンポーネント名が「d」のコンポーネントがDIされます。
+       </p>
+
+<pre class="programlisting">
+module Example
+  class Action
+    s2comp
+    def initialize
+      @a = nil
+      @b = :di, "x.y.z.service_b"
+      @c = :di, ServiceC
+      @x_ = nil
+      @_x = nil
+    end
+    attr_reader :a, :b, :c
+    attr_accessor :d
+  end
+
+  class ServiceA
+    s2comp :name =&gt; :a
+  end
+
+  class ServiceB
+    s2comp :name =&gt; "service_b", :namespace =&gt; "x.y.z"
+  end
+
+  class ServiceC
+    s2comp
+  end
+
+  class ServiceD
+    s2comp :name =&gt; :d
+  end
+end
+</pre>
+
+         
+<p>
+         次のような実行ファイルを作成します。S2ContainerからActionコンポーネントを取得すると、インスタンス変数aからfに
+         各ServiceインスタンスがDIされたActionコンポーネントのインスタンスが返されます。
+         </p>
+
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+
+container = s2app.create
+component = container[Example::Action]
+</pre>
+
+      
+<p>
+            インスタンス変数名の先頭・後方にアンダースコアが付いたインスタンス変数は、自動バインディングの対象外となります。
+            コンポーネント間の依存関係を、プロパティのデフォルト値で設定するフォーマット一覧を次に示します。
+      </p>
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+      
+<div class="table">
+<a name="N201B3"></a>
+<p class="title">
+<b>表3.1 プロパティ値とDI</b>
+</p>
+<div class="table-contents">
+        
+<table summary="プロパティ値とDI" border="1">
+<colgroup>
+<col align="center" width="12%">
+<col align="left" width="62%">
+<col align="left" width="26%">
+</colgroup>
+<thead>
+<tr>
+<th align="center">プロパティ値</th><th align="center">説明</th><th align="center">例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">nil</td><td align="left">
+                           インスタンス変数名のSymbol値をコンポーネント名としてDIします。インスタンス変数名が「@a」の場合、コンポーネント名は「:a」となります。
+              </td><td align="left"> @property = nil </td>
+</tr>
+<tr>
+<td align="center">Array</td><td align="left">
+              Arrayの sizeが2で、一番目の値が文字列かSymbolで「di」の場合に、二番目の値をコンポーネント名としてDIします。
+              </td><td align="left"> @property = :di, "service" </td>
+</tr>
+</tbody>
+</table>
+      
+</div>
+</div>
+<br class="table-break">
+      
+</blockquote>
+</div>
+
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[注意]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>この例は example/example02 にあります。</p>
+    
+</td>
+</tr>
+</table>
+</div>
+    
+</div>
+
+    
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.s2container.block"></a>3.1.4. コンストラクタ ブロック</h3>
+</div>
+</div>
+</div>
+      
+<p>
+            コンストラクタ ブロックとは、コンポーネントの生成処理を行うブロックです。コンストラクタ ブロックは、s2componentメソッドで
+            クラスをコンポーネントととして登録する際に設定します。
+      </p>
+
+        
+<p>次のようなクラスを定義します。</p>
+
+<pre class="programlisting">
+module Example
+  class Action
+    def initialize(val)
+      @val = val
+    end
+    attr_accessof :val
+  end
+end
+</pre>
+
+        
+<p>
+                次のような実行ファイルを作成します。s2componentメソッドにコンストラクタ ブロックを渡します。
+                 コンストラクタ ブロックの最後の評価結果は、コンポーネントクラスとis_a?関係でなければいけません。
+        </p>
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+
+s2component(:class =&gt; Example::Action) {
+  Example::Action.new("abc")
+} 
+
+container = s2app.create
+component = container[Example::Action]
+p component.val          # -&gt; "abc" 
+</pre>
+ 
+     
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[注意]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>この例は example/example03 にあります。</p>
+    
+</td>
+</tr>
+</table>
+</div>
+ 
+    
+</div>
+   
+ 
+    
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.binding"></a>3.1.5. バインディングタイプの設定</h3>
+</div>
+</div>
+</div>
+      
+<p>
+      S2Containerでは、コンポーネント単位でバインディングタイプを指定できます。バインディングタイプは次の2つがあります。     
+      </p>
+
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+      
+<div class="table">
+<a name="N20238"></a>
+<p class="title">
+<b>表3.2 バインディングタイプ</b>
+</p>
+<div class="table-contents">
+        
+<table summary="バインディングタイプ" border="1">
+<colgroup>
+<col align="center" width="6%">
+<col align="left" width="94%">
+</colgroup>
+<thead>
+<tr>
+<th align="center">autoBinding</th><th align="center">説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">:auto (default)</td><td align="left">
+                             プロパティのデフォルト値により自動的にバインドします。
+              </td>
+</tr>
+<tr>
+<td align="center">:none</td><td align="left">
+                            コンストラクタの引数が明示的に指定されている場合は、それに従います。<br>
+                            プロパティが明示的に指定されている場合は、それに従います。
+              </td>
+</tr>
+</tbody>
+</table>
+      
+</div>
+</div>
+<br class="table-break">
+      
+</blockquote>
+</div>
+
+      
+<p>
+      s2componentメソッドでバインディングタイプを指定する場合は次のようになります。
+      </p>
+
+
+<pre class="programlisting">
+class Service
+  s2component :autobinding =&gt; :auto
+end
+</pre>
+    
+</div>
+
+    
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.instance"></a>3.1.6. インスタンスタイプの設定</h3>
+</div>
+</div>
+</div>
+      
+<p>
+      S2Containerでは、コンポーネント単位でインスタンスの管理方法を指定できます。インスタンスタイプは次の2つがあります。     
+      </p>
+
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+      
+<div class="table">
+<a name="N20289"></a>
+<p class="title">
+<b>表3.3 インスタンスタイプ</b>
+</p>
+<div class="table-contents">
+        
+<table summary="インスタンスタイプ" border="1">
+<colgroup>
+<col align="center" width="6%">
+<col align="left" width="94%">
+</colgroup>
+<thead>
+<tr>
+<th align="center">instance</th><th align="center">説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">:singleton (default)</td><td align="left">
+              S2Container.get_componentでコンポーネントを取得すると、常に同じインスタンスが返されます。
+              </td>
+</tr>
+<tr>
+<td align="center">:prototype</td><td align="left">
+              S2Container.get_componentでコンポーネントを取得すると、常に新規インスタンスが返されます。
+              </td>
+</tr>
+</tbody>
+</table>
+      
+</div>
+</div>
+<br class="table-break">
+      
+</blockquote>
+</div>
+
+      
+<p>
+      s2componentメソッドでインスタンスタイプを指定する場合は次のようになります。
+      </p>
+
+
+<pre class="programlisting">
+class Service
+  s2component :instance =&gt; :singleton
+end
+</pre>
+    
+</div>
+
+  
+</div>
+
+
+
+
+
+
+
+
+  
+  
+  
+
+
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="quick209.html">前のページ</a>&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="dicon.application.html">次のページ</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">2.8. Interceptor ブロック&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">ホーム</a></td><td valign="top" align="right" width="40%">&nbsp;3.2. S2ApplicationContext リファレンス</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

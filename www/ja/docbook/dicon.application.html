@@ -1,0 +1,714 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>3.2. S2ApplicationContext リファレンス</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="up" href="dicon.html" title="第3章 S2Container.Ruby リファレンス">
+<link rel="prev" href="dicon.html" title="第3章 S2Container.Ruby リファレンス">
+<link rel="next" href="aop.html" title="第4章 S2Aop.Ruby リファレンス">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">3.2. S2ApplicationContext リファレンス</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="dicon.html">前のページ</a>&nbsp;</td><th align="center" width="60%">第3章 S2Container.Ruby リファレンス</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="aop.html">次のページ</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="sect1" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="dicon.application"></a>3.2. S2ApplicationContext リファレンス</h2>
+</div>
+</div>
+</div>
+       
+<p>
+         S2ApplicationContextの主な機能は次になります。
+       </p>
+        
+<div class="itemizedlist">
+<ul type="disc">
+<li>s2componentメソッドで登録されたコンポーネントからS2Containerの生成</li>
+<li>アスペクトの自動設定</li>
+<li>S2Container内における名前空間(namespace)単位でのコンポーネント登録</li>
+<li>名前空間(namespace)単位でのにSingleton S2Containerインスタンス管理</li>
+</ul>
+</div>
+
+    
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.application.create"></a>3.2.1. S2ApplicationContextの生成</h3>
+</div>
+</div>
+</div>
+       
+<p>
+         S2ApplicationContextの生成は、instanceメソッドで行います。
+       </p>
+
+<pre class="programlisting">
+S2ApplicationContext#instance
+</pre>
+       
+<p>
+         instanceメソッドでS2ApplicationContextを生成した場合は、Singletonインスタンスが返ります。
+                 新規インスタンスを生成する場合は、newメソッドを使用して下さい。
+       </p>
+
+<pre class="programlisting">
+S2ApplicationContext#new
+</pre>
+       
+<p>
+         S2ApplicationContext#instanceメソッドへのショートカットとしてs2appメソッドが定義されています。
+       </p>
+   
+</div>
+
+    
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.application.import"></a>3.2.2. コンポーネントの登録</h3>
+</div>
+</div>
+</div>
+       
+<p>s2componentメソッドを用いてクラスをコンポーネントとして登録します。</p>
+
+<pre class="programlisting">
+s2component(options = {}, &amp;procedure)
+alias s2comp s2component
+</pre>
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+        
+<div class="itemizedlist">
+<ul type="disc">
+<li>第1引数 : コンポーネントの情報 (Hash)
+          <div class="itemizedlist">
+<ul type="circle">
+<li>Symbol :class       =&gt; コンポーネントのクラス<br>
+            s2componentメソッドがクラス定義内で呼ばれた場合は、そのクラスがデフォルト値として設定されます。
+            </li>
+<li>Symbol :name        =&gt; コンポーネント名 (String | Symbol)</li>
+<li>Symbol :instance    =&gt; <a class="link" href="dicon.html#dicon.instance" title="3.1.6. インスタンスタイプの設定">インスタンス管理設定</a>
+</li>
+<li>Symbol :autobinding =&gt; <a class="link" href="dicon.html#dicon.binding" title="3.1.5. バインディングタイプの設定">自動バインディング設定</a>
+</li>
+<li>Symbol :namespace   =&gt; S2Container内での名前空間設定 (String)</li>
+</ul>
+</div>
+          
+</li>
+<li>第2引数 : コンストラクタ ブロック <br>
+                   コンポーネントの生成処理を含むブロックです。ブロックの最後の評価値は、第1引数の:classで指定したクラスとis_a?関係とならなければいけません。
+          </li>
+</ul>
+</div>
+      
+</blockquote>
+</div>
+   
+</div>
+
+
+    
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.application.create"></a>3.2.3. S2Containerの生成</h3>
+</div>
+</div>
+</div>
+      
+<p>S2Containerインスタンスの生成は次のメソッドで行います。</p>
+
+<pre class="programlisting">
+S2ApplicationContext#create(namespaces = [])
+</pre>
+      
+<p>
+              生成されるS2Containerは、s2componentメソッドで登録した全クラスをコンポーネントとして持ちます。
+       namespaces引数(文字列、文字列の配列)を設定した場合は、指定されたnamespaceを含むS2Containerインスタンスが返されます。
+              例として、グローバル(namespace指定無し)にActionクラスがあり、services namespaceにServiceクラスが
+              ある場合は、次のようにS2Containerを生成できます。
+      </p>
+
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+        
+<p>
+                クラスの定義は次になります。
+        </p>
+
+<pre class="programlisting">
+module Example
+  class Action
+    s2comp
+  end
+
+  class Service
+    s2comp :namespace =&gt; "services"
+  end
+end
+</pre>
+
+        
+<p>
+                実行スクリプトは次になります。
+        </p>
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+
+// グローバルコンテナの生成
+container = s2app.create
+component = container.get(Example::Action)
+p component
+component = container.get(Example::Service)
+p component
+
+
+// services namespace コンテナの生成
+container = s2app.create("services")
+begin
+  component = container.get(Example::Action)  # -&gt; コンポーネントが存在しないのでエラーとなります。
+rescue =&gt; err
+  puts err.message
+end
+component = container.get(Example::Service)
+p component
+</pre>
+      
+</blockquote>
+</div>
+
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[注意]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>この例は example/example05 にあります。</p>
+    
+</td>
+</tr>
+</table>
+</div>
+   
+</div>
+
+
+
+
+
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N2036D"></a>3.2.4. コンポーネントの選択</h3>
+</div>
+</div>
+</div>
+       
+<p>createメソッドでS2Containerを生成する際に、s2componentメソッドで登録されたクラスから一部を選択することができます。</p>
+        
+<div class="itemizedlist">
+<ul type="disc">
+<li>default (パターン設定無し) : 登録された全てのクラスをコンポーネントとしてincludeします。</li>
+<li>Include Pattern : 登録されたクラスに対してパターンにマッチするもののみを使用します。</li>
+<li>Exclude Pattern : 登録されたクラスに対してパターンにマッチするものは除外します。</li>
+<li>Include &amp; Exclude : Include PatternとExclude Patternが両方設定されている場合は、Include PatternにマッチしたものからExclude Patternにマッチしたものが除外されます。</li>
+</ul>
+</div>
+   
+</div>
+
+   
+<br>
+   
+<div class="blockquote">
+<blockquote class="blockquote">
+<p>
+<b>include メソッド.&nbsp;</b>
+
+<pre class="programlisting">
+S2ApplicationContext.include(pattern)
+</pre>
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+        
+<div class="itemizedlist">
+<ul type="disc">
+<li>第1引数 : include パターン
+            <div class="itemizedlist">
+<ul type="circle">
+<li>正規表現 : コンポーネント名、コンポーネントのクラス名にmatchした場合にincludeします。</li>
+<li>クラス : コンポーネントクラスと等しい場合にincludeします。</li>
+<li>文字列 : コンポーネント名、コンポーネントのクラス名に等しい場合にincludeします。</li>
+<li>Symbol : コンポーネント名、コンポーネントのクラス名のSymbolに等しい場合にincludeします。</li>
+</ul>
+</div>
+          
+</li>
+</ul>
+</div>
+      
+</blockquote>
+</div>
+   
+</p>
+</blockquote>
+</div>
+
+   
+<br>
+   
+<div class="blockquote">
+<blockquote class="blockquote">
+<p>
+<b>excludeメソッド.&nbsp;</b>
+
+<pre class="programlisting">
+S2ApplicationContext.exclude(pattern)
+</pre>
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+        
+<div class="itemizedlist">
+<ul type="disc">
+<li>第1引数 : exclude パターン
+            <div class="itemizedlist">
+<ul type="circle">
+<li>正規表現 : コンポーネント名、コンポーネントのクラス名にmatchした場合にexcludeします。</li>
+<li>クラス : コンポーネントクラスと等しい場合にexcludeします。</li>
+<li>文字列 : コンポーネント名、コンポーネントのクラス名に等しい場合にexcludeします。</li>
+<li>Symbol : コンポーネント名、コンポーネントのクラス名のSymbolに等しい場合にexcludeします。</li>
+</ul>
+</div>
+          
+</li>
+</ul>
+</div>
+      
+</blockquote>
+</div>
+   
+</p>
+</blockquote>
+</div>
+
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.application.autoaspect"></a>3.2.5. 自動アスペクト</h3>
+</div>
+</div>
+</div>
+       
+<p>
+              コンポーネントの選択でインクルードされたコンポーネントに対して、自動的にアスペクトを適用します。
+              自動アスペクトの設定は、s2aspectメソッドで行います。
+       </p>
+
+<pre class="programlisting">
+s2aspect(options, &amp;procedure)
+</pre>
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+        
+<div class="itemizedlist">
+<ul type="disc">
+<li>第1引数 : アスペクト情報をHashで設定します。
+          <div class="itemizedlist">
+<ul type="circle">
+<li>Symbol :pattern =&gt; デフォルト値は Regexp /.+/ です。
+            <div class="itemizedlist">
+<ul type="square">
+<li>正規表現 : コンポーネント名、コンポーネントのクラス名にmatchした場合にaspect対象となります。</li>
+<li>クラス : コンポーネントクラスと等しい場合にaspect対象となります。</li>
+<li>文字列 : コンポーネント名、コンポーネントのクラス名に等しい場合にaspect対象となります。</li>
+<li>Symbol : コンポーネント名、コンポーネントのクラス名のSymbolに等しい場合にaspect対象となります。</li>
+</ul>
+</div>
+            
+</li>
+<li>Symbol :pointcut =&gt; デフォルト値は Regexp /.+/ です。
+            <div class="itemizedlist">
+<ul type="square">
+<li>正規表現 : メソッド名にmatchした場合にaspect対象となります。</li>
+<li>文字列 : メソッド名に等しい場合にaspect対象となります。</li>
+<li>Symbol : メソッド名に等しい場合にaspect対象となります。</li>
+</ul>
+</div>
+            
+</li>
+<li>Symbol :interceptor =&gt; Interceptorコンポーネント名、またはInterceptorインスタンス</li>
+</ul>
+</div>
+          
+</li>
+<li>第2引数 : Interceptor ブロック <br>
+          Interceptor処理を含むブロックです。引数はMethodInvocationインスタンスです。MethodInvocationのproceedメソッドで
+                    次のInterceptor処理、あるいはアスペクト対象のメソッドを実行します。
+          </li>
+</ul>
+</div>
+      
+</blockquote>
+</div>
+      
+<p>
+      s2aspectメソッドがクラス定義内で実行された場合は、第1引数の:pattern値に文字列でクラス名が自動設定されます。
+      </p>
+      
+<p>
+      ActionクラスのindexメソッドにTraceInterceptorをアスペクトする場合を次に示します。 TraceInterceptorは、予め
+            「interceptor.trace」としてコンポーネントが登録されています。
+      </p>
+
+
+<pre class="programlisting">
+module Example
+  class Action
+    s2comp
+    s2aspect :interceptor =&gt; "interceptor.trace", :pointcut =&gt; :index
+    def index
+      s2logger.debug(self.class.superclass) {"index action called."}
+    end
+  end
+end
+</pre>
+        
+<p>
+                実行スクリプトは次になります。
+        </p>
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+
+container = s2app.create
+component = container.get(Example::Action)
+component.index
+</pre>
+
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[注意]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>この例は example/example06 にあります。</p>
+    
+</td>
+</tr>
+</table>
+</div>
+
+      
+<p>
+      ActionクラスのindexメソッドにブロックでInterceptorをアスペクトする場合を次に示します。
+      </p>
+
+
+<pre class="programlisting">
+module Example
+  class Action
+    s2comp :name =&gt; :action
+    def index
+      s2logger.debug(self.class.superclass) {"index action called."}
+    end
+  end
+end
+</pre>
+        
+<p>
+                実行スクリプトは次になります。
+        </p>
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+
+s2aspect(:pattern =&gt; :action, :pointcut =&gt; :index) {|invocation|
+  s2logger.debug(invocation.component_class) {"before"}
+  result = invocation.proceed
+  s2logger.debug(invocation.component_class) {"after "}
+  next result
+}
+
+container = s2app.create
+component = container.get(:action)
+component.index
+</pre>
+
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[注意]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>この例は example/example07 にあります。</p>
+    
+</td>
+</tr>
+</table>
+</div>
+
+    
+</div>
+
+
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.application.singleton"></a>3.2.6. Singleton S2Container インスタンスの管理</h3>
+</div>
+</div>
+</div>
+      
+<p>
+      S2ApplicationContextは、namespace単位でSingleton S2Containerを生成、管理します。
+      Singleton S2Containerへのアクセスは次のメソッドで行います。
+      </p>
+
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+<p>
+<b>get_componentメソッド.&nbsp;</b>
+</p>
+
+<pre class="programlisting">
+S2ApplicationContext#get_component(key, namespaces = [])
+alias component get_component
+alias get get_component
+</pre>
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+        
+<div class="itemizedlist">
+<ul type="disc">
+<li>第1引数 : コンポーネントキー</li>
+<li>第2引数 : S2Containerを管理するnamespaces</li>
+</ul>
+</div>
+      
+</blockquote>
+</div>
+      
+<p>
+            第1引数で指定されたコンポーネントを取得します。
+            第2引数で指定されたnamespaceを含むSingleton S2Containerが未作成の場合は、S2ApplicationContext.createメソッド
+            を用いてコンテナを生成します。
+      </p>
+
+      
+</blockquote>
+</div>
+
+      
+<br>
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+<p>
+<b>get_component_defメソッド.&nbsp;</b>
+</p>
+
+<pre class="programlisting">
+S2ApplicationContext#get_component_def(key, namespaces = [])
+</pre>
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+        
+<div class="itemizedlist">
+<ul type="disc">
+<li>第1引数 : コンポーネントキー</li>
+<li>第2引数 : S2Containerを管理するnamespaces</li>
+</ul>
+</div>
+      
+</blockquote>
+</div>
+      
+<p>
+            第1引数で指定されたコンポーネント定義を取得します。
+            第2引数で指定されたnamespaceを含むSingleton S2Containerが未作成の場合は、S2ApplicationContext.createメソッド
+            を用いてコンテナを生成します。
+      </p>
+      
+</blockquote>
+</div>
+
+      
+<p>
+              例として、グローバル(namespace指定無し)にActionクラスがあり、services namespaceにServiceクラスが
+              ある場合は、次のように 各コンポーネントを取得できます。
+      </p>
+
+        
+<p>
+                クラス定義は次になります。
+        </p>
+
+<pre class="programlisting">
+module Example
+  class Action
+    s2comp
+  end
+
+  class Service
+    s2comp :namespace =&gt; "services"
+  end
+end
+</pre>
+
+        
+<p>
+                実行スクリプトは次になります。
+        </p>
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+
+global_action = s2app.get(Example::Action)
+p global_action
+global_service = s2app.get(Example::Service)
+p global_service
+
+begin
+  services_action = s2app.get(Example::Action, "services")
+rescue =&gt; err
+  puts err.message                # -&gt; component [Example::Action] not found.
+end
+services_service = s2app.get(Example::Service, "services")
+p services_service
+p global_service == services_service       # -&gt; false
+</pre>
+
+      
+<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Caution: 注意">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[注意]" src="../../images/docbook/caution.png"></td><th align="left">注意</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>
+            グローバルのSingletonコンテナが生成される際にservices namespaceのコンテナも生成され、子コンテナとして保持されていますが、
+      services namespaceのSingletonコンテナとは別インスタンスとなります。
+      </p>
+      
+</td>
+</tr>
+</table>
+</div>
+
+    
+<br>
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[注意]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>この例は example/example08 にあります。</p>
+    
+</td>
+</tr>
+</table>
+</div>
+
+    
+</div>
+  
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="dicon.html">前のページ</a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="dicon.html">上に戻る</a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="aop.html">次のページ</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">第3章 S2Container.Ruby リファレンス&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">ホーム</a></td><td valign="top" align="right" width="40%">&nbsp;第4章 S2Aop.Ruby リファレンス</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

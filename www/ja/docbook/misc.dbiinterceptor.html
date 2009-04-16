@@ -1,0 +1,622 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>5.4. DBIInterceptorを用いたデータベースアクセス</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="up" href="misc.html" title="第5章 MISC">
+<link rel="prev" href="misc.dbi.html" title="5.3. DBIを用いたデータベースアクセス">
+<link rel="next" href="misc.s2cgi.html" title="5.5. S2CGI Webフレームワーク">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">5.4. DBIInterceptorを用いたデータベースアクセス</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="misc.dbi.html">前のページ</a>&nbsp;</td><th align="center" width="60%">第5章 MISC</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="misc.s2cgi.html">次のページ</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="sect1" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="misc.dbiinterceptor"></a>5.4. DBIInterceptorを用いたデータベースアクセス</h2>
+</div>
+</div>
+</div>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N2068F"></a>5.4.1. DBIInterceptorの概要</h3>
+</div>
+</div>
+</div>
+      
+<p>
+        DBIInterceptorをアスペクトした場合は、Pointcutに適合したメソッドが実行されます。
+        DBIInterceptorは、メソッドの戻り値が文字列の場合は、SQLクエリとして扱います。
+                メソッドの戻り値が配列の場合は、1番目の値をSQLクエリ、2番目の値をSQL発行時のコンテキストとして
+                扱います。
+      </p>
+      
+      
+<p>
+        SQLクエリが取得できた場合は、データベースに発行して結果を メソッドの戻り値として return します。
+                データベースへのSQLクエリの発行は、DBIのPrepared Statementが使用されます。 Prepared Statementにバインド
+                されるvalueは、メソッド引数が使用されます。メソッドの戻り値が配列の場合は、2番目の値がバインドvalueとして扱われます。       
+      </p>
+      
+<p>
+        PdoInterceptorには、O/Rマップ機能や自動SQL構築機能は実装されていません。
+      </p>
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[注意]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>DBIInterceptorの例は example/example14 にあります。</p>
+    
+</td>
+</tr>
+</table>
+</div>
+    
+</div>
+
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N206A7"></a>5.4.2. DBIInterceptorをアスペクトする</h3>
+</div>
+</div>
+</div>      
+      
+<p>
+        PrefectureテーブルにアクセスするPrefectureDaoクラスを作成します。
+        PrefectureDaoクラスには、Prefectureテーブルから全件を取得するfind_allメソッドを実装します。
+                メソッドの戻り値としてデータベースに発行するSQLクエリを返します。
+      </p>
+      
+
+<pre class="programlisting">
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor =&gt; "dbi.interceptor"
+    def find_all
+      return 'select * from prefecture'
+    end
+  end
+end
+</pre>      
+
+      
+<p>
+             次の処理を行うrun.rbを作成します。
+      </p>
+      
+<div class="orderedlist">
+<ol type="1">
+<li>
+        'seasar/dbi/interceoptor'をrequireすることで、Seasar::DBI::DBIInterceptorが利用可能となります。
+                「dbi.interceptor」コンポーネントは、Seasa::DBI::Interceptorクラス定義が読み込まれた際に登録されます。
+        </li>
+<li>DBI::DatabaseHandleクラスを、s2componentメソッドでコンポーネントとして登録します。
+                コンポーネントのnamespaceを DBIInterceptorと同様に「dbi」とする必要があります。
+        s2componentメソッドのコンストラクタ ブロックでDSNを設定します。</li>
+<li>
+        PrefectureDaoコンポーネントを取得し、find_allメソッドを実行します。
+        DBIInterceptorの戻り値はDBI::StatementHandle.fetch_hash結果が返されます。
+        </li>
+</ol>
+</div>
+
+<pre class="programlisting">
+require 'rubygems'
+require 'dbi'
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class =&gt; DBI::DatabaseHandle, :namespace =&gt; "dbi", :autobinding =&gt; :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  s2app[Example::PrefectureDao].find_all.each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError =&gt; e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue =&gt; e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+end
+</pre>      
+    
+</div>
+
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N206CA"></a>5.4.3. メソッド引数でバインド値を設定する</h3>
+</div>
+</div>
+</div>      
+      
+<p>
+        PrefectureテーブルにアクセスするPrefectureDaoクラスを作成します。PrefectureDaoクラスには、
+        PrefectureテーブルからIDで検索するfind_by_idメソッドを実装します。
+        find_by_idメソッドの引数で検索するIDを指定します。SQLクエリへのIDの埋め込みは、「?」で行います。
+      </p>
+
+<pre class="programlisting">
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor =&gt; "dbi.interceptor"
+    def find_by_id(id)
+      return 'select * from prefecture where id = ?'
+    end
+  end
+end
+</pre>      
+
+      
+<p>
+            実行ファイルは次になります。
+      </p>
+
+<pre class="programlisting">
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class =&gt; DBI::DatabaseHandle, :namespace =&gt; "dbi", :autobinding =&gt; :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  s2app[Example::PrefectureDao].find_by_id(1).each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError =&gt; e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue =&gt; e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+end
+</pre>      
+
+    
+</div>
+
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N206E1"></a>5.4.4. メソッドの戻り値でバインド値を設定する</h3>
+</div>
+</div>
+</div>      
+      
+<p>
+        PrefectureテーブルにアクセスするPrefectureDaoクラスを作成します。PrefectureDaoクラスには、
+        Prefectureテーブルからタイトル名で検索するfind_by_nameメソッドを実装します。
+                メソッドの戻り値を配列とし、1番目の値にSQLクエリ、2番目の値にSQLクエリにバインドする値を配列で指定します。
+      </p>
+
+<pre class="programlisting">
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor =&gt; "dbi.interceptor"
+    def find_by_name(name)
+      return "select * from prefecture where name = ?", name
+    end
+  end
+end
+</pre>      
+
+      
+<p>
+            実行ファイルは次になります。
+      </p>
+
+<pre class="programlisting">
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class =&gt; DBI::DatabaseHandle, :namespace =&gt; "dbi", :autobinding =&gt; :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  s2app[Example::PrefectureDao].find_by_name("北海道").each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError =&gt; e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue =&gt; e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+end
+</pre>      
+    
+</div>
+
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N206F8"></a>5.4.5. DaoクラスでDBIを直接使用する</h3>
+</div>
+</div>
+</div>      
+      
+<p>
+      Daoクラスの中で直接DBIを使用する場合は、DaoクラスにDBIコンポーネントをインジェクションします。
+            次の例では、PrefectureDaoクラスにDBI::DatabaseHandleコンポーネントをプロパティインジェクションしています。
+      transactional_insertメソッドでは、インジェクションされたdbhコンポーネントを使用してトランザクションを開始しています。
+      </p>
+
+
+<pre class="programlisting">
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor =&gt; "dbi.interceptor", :pointcut =&gt; /^insert/
+
+    def initialize
+      @dbh = :di, DBI::DatabaseHandle
+    end
+
+    def transactional_insert(id, name)
+      result = nil
+      @dbh['AutoCommit'] = false
+      begin
+        result = self.insert(id, name)
+        @dbh.commit
+      rescue =&gt; e
+        s2logger.warn(self.class.superclass.name) { "transaction failed. #{e.class.name} #{e.message}" }
+        @dbh.rollback
+      end
+      @dbh['AutoCommit'] = true
+      return result
+    end
+
+    def insert(id, name)
+      return 'insert into prefecture values(?, ?)'
+    end
+  end
+end
+</pre>      
+
+      
+<p>
+            実行ファイルは次になります。
+      </p>
+
+<pre class="programlisting">
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class =&gt; DBI::DatabaseHandle, :namespace =&gt; "dbi", :autobinding =&gt; :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  puts s2app[Example::PrefectureDao].transactional_insert(48, "その他")
+rescue Seasar::DBI::DBIInterceptor::ConnectError =&gt; e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue =&gt; e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+end
+</pre>      
+    
+</div>
+
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N2070F"></a>5.4.6. Paginateクラスでページング処理</h3>
+</div>
+</div>
+</div>      
+      
+<p>
+        Seasar::DBI::Paginateクラスは、データベースからのデータ取得の際にページングを行うユーティリティクラスです。    
+        PrefectureDaoクラスにfind_by_dtoメソッドを実装し、ページングを行います。
+      </p>
+
+<pre class="programlisting">
+module Example
+  class PrefectureDao
+    s2comp
+    s2aspect :interceptor =&gt; "dbi.interceptor"
+
+    def find_by_dto(dto)
+      return "select * from prefecture where name like ? limit ? offset ?", [dto.name_like, dto.limit, dto.offset]
+    end
+
+    def find_total_by_dto(dto)
+      return "select count(*) as total from prefecture where name like ?", dto.name_like
+    end
+  end
+
+  require 'seasar/dbi/paginate'
+  class PrefectureDto &lt; Seasar::DBI::Paginate
+    attr_accessor :name_like
+  end
+end
+</pre>      
+      
+<p>
+             次の処理を行う実行ファイルを作成します。
+      </p>
+      
+<div class="orderedlist">
+<ol type="1">
+<li>Example::PrefectureDtoインスタンスを生成</li>
+<li>1ページのリミットを5に設定</li>
+<li>検索情報を設定(「県」のみを検索)</li>
+<li>全件数を設定</li>
+<li>1ページ目のデータを検索し結果を表示</li>
+<li>次のページに遷移</li>
+<li>2ページ目のデータを検索し結果を表示</li>
+</ol>
+</div>
+
+<pre class="programlisting">
+require 'rubygems'
+require 'dbi'
+
+require 's2container'
+require 'seasar/dbi/interceptor'
+require 'example'
+
+s2comp(:class =&gt; DBI::DatabaseHandle, :namespace =&gt; "dbi", :autobinding =&gt; :none) {
+  DBI.connect("dbi:SQLite3:example.db")
+}
+
+begin
+  dto = Example::PrefectureDto.new
+  dto.limit = 5
+  dto.name_like = '%県'
+  dto.total = s2app[Example::PrefectureDao].find_total_by_dto(dto)[0]["total"]
+  puts "page : #{dto.page}"
+  s2app[Example::PrefectureDao].find_by_dto(dto).each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+  dto.next
+  puts "page : #{dto.page}"
+  s2app[Example::PrefectureDao].find_by_dto(dto).each {|h|
+    puts "#{h['id']}\t#{h['name']}"
+  }
+rescue Seasar::DBI::DBIInterceptor::ConnectError =&gt; e
+  s2logger.fatal(e.cause.class.name){"#{e.cause.message} #{e.cause.backtrace}"}
+rescue =&gt; e
+  s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
+ensure
+  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
+end
+</pre>      
+   
+    
+<br>
+      
+<div class="sect3" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h4 class="title">
+<a name="N2073D"></a>5.4.6.1. Seasar::DBI::Paginate API リファレンス</h4>
+</div>
+</div>
+</div>
+        
+<div class="blockquote">
+<blockquote class="blockquote">
+
+        
+<p>
+<b>Seasar::DBI::Paginate#get_total_page メソッド.&nbsp;</b>
+</p>
+        
+<p>
+                  全件数を件数/ページ(limit)で割った全ページ数を返します。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#page メソッド.&nbsp;</b>
+</p>
+        
+<p>
+                  現在のページ番号を返します。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#page= メソッド.&nbsp;</b>
+</p>
+        
+<p>
+                  ページ番号を設定します。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#offset メソッド.&nbsp;</b>
+</p>
+        
+<p>
+                  現在のoffset位置を返します。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#limit= メソッド.&nbsp;</b>
+</p>
+        
+<p>
+         1ページあたりの件数を設定します。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#total メソッド.&nbsp;</b>
+</p>
+        
+<p>
+                  全件数を返します。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#total= メソッド.&nbsp;</b>
+</p>
+        
+<p>
+                  全件数を設定します。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#window_size メソッド.&nbsp;</b>
+</p>
+        
+<p>
+                  ページウィンドウに表示するページ数を設定します。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#next メソッド.&nbsp;</b>
+</p>
+        
+<p>
+          1ページ進めます。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#next? メソッド.&nbsp;</b>
+</p>
+        
+<p>
+                  次のページがあるかどうかを返します。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#prev メソッド.&nbsp;</b>
+</p>
+        
+<p>
+          1ページ戻ります。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#prev? メソッド.&nbsp;</b>
+</p>
+        
+<p>
+                  前のページがあるかどうかを返します。
+        </p>
+
+        
+<p>
+<b>Seasar::DBI::Paginate#page_range メソッド.&nbsp;</b>
+</p>
+        
+<p>
+                ページウィンドウ内に収まるページ番号のRangeを返します。
+        </p>
+
+        
+</blockquote>
+</div>
+      
+</div>
+    
+</div>    
+  
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="misc.dbi.html">前のページ</a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="misc.html">上に戻る</a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="misc.s2cgi.html">次のページ</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">5.3. DBIを用いたデータベースアクセス&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">ホーム</a></td><td valign="top" align="right" width="40%">&nbsp;5.5. S2CGI Webフレームワーク</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

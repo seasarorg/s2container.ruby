@@ -1,0 +1,268 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>第5章 MISC</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="up" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="prev" href="aop.invocation.html" title="4.6. MethodInvocation API リファレンス">
+<link rel="next" href="misc.s2log.html" title="5.2. S2Containerのログ設定">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">第5章 MISC</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="aop.invocation.html">前のページ</a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="misc.s2log.html">次のページ</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title">
+<a name="misc"></a>第5章 MISC</h2>
+</div>
+</div>
+</div>
+<div class="toc">
+<p>
+<b>目次</b>
+</p>
+<dl>
+<dt>
+<span class="sect1"><a href="misc.html#misc201">5.1. コンポーネントでS2Containerを使用する</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="misc.s2log.html">5.2. S2Containerのログ設定</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2log.html#N20634">5.2.1. S2Logger</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.dbi.html">5.3. DBIを用いたデータベースアクセス</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.dbi.html#N2065F">5.3.1. DBI::DatabaseHandleのコンポーネント化</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.dbiinterceptor.html">5.4. DBIInterceptorを用いたデータベースアクセス</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N2068F">5.4.1. DBIInterceptorの概要</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206A7">5.4.2. DBIInterceptorをアスペクトする</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206CA">5.4.3. メソッド引数でバインド値を設定する</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206E1">5.4.4. メソッドの戻り値でバインド値を設定する</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206F8">5.4.5. DaoクラスでDBIを直接使用する</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N2070F">5.4.6. Paginateクラスでページング処理</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.s2cgi.html">5.5. S2CGI Webフレームワーク</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N207AC">5.5.1. セットアップ</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N2080B">5.5.2. フレームワークの起動</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N2081F">5.5.3. Seasar::CGI::Pageクラス</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20843">5.5.4. Class Variables</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20875">5.5.5. Instance Variables</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N208B7">5.5.6. get/postメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N208E3">5.5.7. paramメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20901">5.5.8. renderメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20918">5.5.9. partialメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20929">5.5.10. redirectメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20938">5.5.11. validateメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B01">5.5.12. セッション管理</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B27">5.5.13. Dependency Injection</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B46">5.5.14. Unit Test</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B59">5.5.15. Rack CGI</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.s2rails.html">5.6. RailsでS2Containerを使用する</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20BD4">5.6.1. 動作環境</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20BE5">5.6.2. セットアップ</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20C0F">5.6.3. 概要</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20C37">5.6.4. Dependency Injection</a></span>
+</dt>
+</dl>
+</dd>
+</dl>
+</div>
+  
+<div class="sect1" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="misc201"></a>5.1. コンポーネントでS2Containerを使用する</h2>
+</div>
+</div>
+</div>
+    
+<p>
+        コンポーネントが自分自身が登録されているS2Containerに依存している場合は、プロパティインジェクションで
+    S2Containerインスタンスを取得することができます。S2Containerのコンポーネント名は「container」です。
+    <br>
+        例として、次のようなサービスクラスを作成します。自動バインディングによりプロパティインジェクションによってS2ContainerインスタンスがDIされます。
+   
+    </p>
+
+<pre class="programlisting">
+module Example
+  class Service
+    s2comp
+    def initialize
+      @container = :container
+    end
+    attr_reader :container
+  end
+end
+</pre>
+
+    
+<p>
+        実行スクリプトは次のように作成します。
+    </p>  
+
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+
+service = s2app.get(Example::Service)
+p service.container.class.name
+</pre>
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[注意]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>このExampleは example/example12 にあります。</p>
+    
+</td>
+</tr>
+</table>
+</div>
+
+  
+</div>
+
+
+
+  
+  
+
+
+  
+  
+
+  
+  
+  
+
+  
+
+
+
+  
+  
+  
+
+
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="aop.invocation.html">前のページ</a>&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="misc.s2log.html">次のページ</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">4.6. MethodInvocation API リファレンス&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">ホーム</a></td><td valign="top" align="right" width="40%">&nbsp;5.2. S2Containerのログ設定</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>S2Container.Ruby ドキュメント</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="next" href="install.html" title="第1章 インストール">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">S2Container.Ruby ドキュメント</th>
+</tr>
+<tr>
+<td align="left" width="20%">&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="install.html">次のページ</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="book" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h1 class="title">
+<a name="index"></a>S2Container.Ruby ドキュメント</h1>
+</div>
+<div>
+<p class="copyright">製作著作 &copy; 2008-2009 The Seasar Foundation and the others.</p>
+</div>
+</div>
+<hr>
+</div>
+<div class="toc">
+<p>
+<b>目次</b>
+</p>
+<dl>
+<dt>
+<span class="chapter"><a href="install.html">1. インストール</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect1"><a href="install.html#install.environment">1.1. 動作環境</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="install.setup.html">1.2. setup.rbでインストールする</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="install.gem.html">1.3. gemでインストールする</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="chapter"><a href="quickstart.html">2. クイックスタート</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect1"><a href="quickstart.html#setup">2.1. セットアップ</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick202.html">2.2. コンポーネントの登録と取得</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick203.html">2.3. コンポーネントに名前をつける</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick204.html">2.4. Prototype コンポーネント</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick205.html">2.5. コンストラクタ ブロック</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick207.html">2.6. Dependency Injection</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick208.html">2.7. 自動 Aspect</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick209.html">2.8. Interceptor ブロック</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="chapter"><a href="dicon.html">3. S2Container.Ruby リファレンス</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect1"><a href="dicon.html#dicon.s2container">3.1. S2Container リファレンス</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="dicon.html#N20132">3.1.1. S2Containerの生成</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.s2container.component">3.1.2. コンポーネントの取得</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.di.auto">3.1.3. Dependency Injection</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.s2container.block">3.1.4. コンストラクタ ブロック</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.binding">3.1.5. バインディングタイプの設定</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.instance">3.1.6. インスタンスタイプの設定</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="dicon.application.html">3.2. S2ApplicationContext リファレンス</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.create">3.2.1. S2ApplicationContextの生成</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.import">3.2.2. コンポーネントの登録</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.create">3.2.3. S2Containerの生成</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#N2036D">3.2.4. コンポーネントの選択</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.autoaspect">3.2.5. 自動アスペクト</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.singleton">3.2.6. Singleton S2Container インスタンスの管理</a></span>
+</dt>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>
+<span class="chapter"><a href="aop.html">4. S2Aop.Ruby リファレンス</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect1"><a href="aop.html#aop.about">4.1. S2Aopの概要</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="aop.html#N204BB">4.1.1. AOPを考える上でキーとなる概念</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="aop.caution.html">4.2. S2Aop 使用上の注意点</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.aspect.html">4.3. S2AopFactoryを用いてAspectする</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.dicon.html">4.4. S2ApplicationContextを用いてAspectする</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.interceptor.html">4.5. S2Aopで用意されているInterceptor</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="aop.interceptor.html#aop.interceptor.trace">4.5.1. TraceInterceptor</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="aop.interceptor.html#aop.interceptor.custom">4.5.2. Interceptorを実装する</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="aop.invocation.html">4.6. MethodInvocation API リファレンス</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="chapter"><a href="misc.html">5. MISC</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect1"><a href="misc.html#misc201">5.1. コンポーネントでS2Containerを使用する</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="misc.s2log.html">5.2. S2Containerのログ設定</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2log.html#N20634">5.2.1. S2Logger</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.dbi.html">5.3. DBIを用いたデータベースアクセス</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.dbi.html#N2065F">5.3.1. DBI::DatabaseHandleのコンポーネント化</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.dbiinterceptor.html">5.4. DBIInterceptorを用いたデータベースアクセス</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N2068F">5.4.1. DBIInterceptorの概要</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206A7">5.4.2. DBIInterceptorをアスペクトする</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206CA">5.4.3. メソッド引数でバインド値を設定する</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206E1">5.4.4. メソッドの戻り値でバインド値を設定する</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206F8">5.4.5. DaoクラスでDBIを直接使用する</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N2070F">5.4.6. Paginateクラスでページング処理</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.s2cgi.html">5.5. S2CGI Webフレームワーク</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N207AC">5.5.1. セットアップ</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N2080B">5.5.2. フレームワークの起動</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N2081F">5.5.3. Seasar::CGI::Pageクラス</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20843">5.5.4. Class Variables</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20875">5.5.5. Instance Variables</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N208B7">5.5.6. get/postメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N208E3">5.5.7. paramメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20901">5.5.8. renderメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20918">5.5.9. partialメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20929">5.5.10. redirectメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20938">5.5.11. validateメソッド</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B01">5.5.12. セッション管理</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B27">5.5.13. Dependency Injection</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B46">5.5.14. Unit Test</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B59">5.5.15. Rack CGI</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.s2rails.html">5.6. RailsでS2Containerを使用する</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20BD4">5.6.1. 動作環境</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20BE5">5.6.2. セットアップ</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20C0F">5.6.3. 概要</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20C37">5.6.4. Dependency Injection</a></span>
+</dt>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</div>
+<div class="list-of-tables">
+<p>
+<b>表目次</b>
+</p>
+<dl>
+<dt>3.1. <a href="dicon.html#N201B3">プロパティ値とDI</a>
+</dt>
+<dt>3.2. <a href="dicon.html#N20238">バインディングタイプ</a>
+</dt>
+<dt>3.3. <a href="dicon.html#N20289">インスタンスタイプ</a>
+</dt>
+</dl>
+</div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%">&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="install.html">次のページ</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">&nbsp;</td><td align="center" width="20%">&nbsp;</td><td valign="top" align="right" width="40%">&nbsp;第1章 インストール</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

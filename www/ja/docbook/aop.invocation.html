@@ -1,0 +1,117 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>4.6. MethodInvocation API リファレンス</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="up" href="aop.html" title="第4章 S2Aop.Ruby リファレンス">
+<link rel="prev" href="aop.interceptor.html" title="4.5. S2Aopで用意されているInterceptor">
+<link rel="next" href="misc.html" title="第5章 MISC">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">4.6. MethodInvocation API リファレンス</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="aop.interceptor.html">前のページ</a>&nbsp;</td><th align="center" width="60%">第4章 S2Aop.Ruby リファレンス</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="misc.html">次のページ</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="sect1" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="aop.invocation"></a>4.6. MethodInvocation API リファレンス</h2>
+</div>
+</div>
+</div>
+    
+<p>
+    MethodInvocationインスタンスは、Interceptorのcallメソッドの引数として渡されます。
+    MethodInvocationはインターセプターの管理を行い、順次実行し、アスペクト対象メソッドの呼び出しを行います。
+    MethodInvocationインスタンスを介して、アスペクト対象のインスタンスや、クラス、メソッド引数などを取得できます。
+    </p>
+
+    
+<div class="blockquote">
+<blockquote class="blockquote">
+
+      
+<p>
+<b>Seasar::Aop::MethodInvocation#proceed メソッド.&nbsp;</b>
+</p>
+      
+<p>
+            インターセプターや実際のメソッドを呼び出します。
+      </p>
+
+      
+<p>
+<b>Seasar::Aop::MethodInvocation#this インスタンス変数.&nbsp;</b>
+</p>
+      
+<p>
+            アスペクト対象のインスタンスを返します。
+      </p>
+
+      
+<p>
+<b>Seasar::Aop::MethodInvocation#method インスタンス変数.&nbsp;</b>
+</p>
+      
+<p>
+            アスペクト対象となっているメソッドを返します。
+      </p>
+
+      
+<p>
+<b>Seasar::Aop::MethodInvocation#component_class インスタンス変数.&nbsp;</b>
+</p>
+      
+<p>
+            アスペクト対象のクラス
+      </p>
+
+      
+<p>
+<b>Seasar::Aop::MethodInvocation#args インスタンス変数.&nbsp;</b>
+</p>
+      
+<p>
+            アスペクト対象メソッドの実行時引数を返します。
+      </p>
+
+    
+</blockquote>
+</div>
+  
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="aop.interceptor.html">前のページ</a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="aop.html">上に戻る</a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="misc.html">次のページ</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">4.5. S2Aopで用意されているInterceptor&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">ホーム</a></td><td valign="top" align="right" width="40%">&nbsp;第5章 MISC</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

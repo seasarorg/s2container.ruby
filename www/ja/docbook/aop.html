@@ -1,0 +1,182 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>第4章 S2Aop.Ruby リファレンス</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="up" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="prev" href="dicon.application.html" title="3.2. S2ApplicationContext リファレンス">
+<link rel="next" href="aop.caution.html" title="4.2. S2Aop 使用上の注意点">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">第4章 S2Aop.Ruby リファレンス</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="dicon.application.html">前のページ</a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="aop.caution.html">次のページ</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title">
+<a name="aop"></a>第4章 S2Aop.Ruby リファレンス</h2>
+</div>
+</div>
+</div>
+<div class="toc">
+<p>
+<b>目次</b>
+</p>
+<dl>
+<dt>
+<span class="sect1"><a href="aop.html#aop.about">4.1. S2Aopの概要</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="aop.html#N204BB">4.1.1. AOPを考える上でキーとなる概念</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="aop.caution.html">4.2. S2Aop 使用上の注意点</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.aspect.html">4.3. S2AopFactoryを用いてAspectする</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.dicon.html">4.4. S2ApplicationContextを用いてAspectする</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.interceptor.html">4.5. S2Aopで用意されているInterceptor</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="aop.interceptor.html#aop.interceptor.trace">4.5.1. TraceInterceptor</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="aop.interceptor.html#aop.interceptor.custom">4.5.2. Interceptorを実装する</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="aop.invocation.html">4.6. MethodInvocation API リファレンス</a></span>
+</dt>
+</dl>
+</div>
+  
+<div class="sect1" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="aop.about"></a>4.1. S2Aopの概要</h2>
+</div>
+</div>
+</div>
+    
+<p>
+    AOPとはAspect Oriented Programmingの略で、複数のクラスに分散するロジックをモジュールとして抽出し、外側から織り込む手法です。
+    </p>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N204BB"></a>4.1.1. AOPを考える上でキーとなる概念</h3>
+</div>
+</div>
+</div>
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+        
+<p>
+<b>Advice(Interceptor).&nbsp;</b>
+</p>
+        
+<p>
+                 プログラム中に挿入されるコードを表します。Interceptorと呼ばれることもあります。
+        </p>
+
+        
+<p>
+<b>Joinpoint(MethodInvocation).&nbsp;</b>
+</p>
+        
+<p>
+                対象となるクラスとAdviceを結合するポイントを表します。 AdviceはJoinpointから引数やメソッドの情報を取得することができます。
+        </p>
+
+        
+<p>
+<b>Pointcut.&nbsp;</b>
+</p>
+        
+<p>
+                 どこにJoinpointを設定するのかを定義します。
+        </p>
+
+        
+<p>
+<b>Aspect.&nbsp;</b>
+</p>
+        
+<p>
+        AdviceとPointcutを関連付けます。
+        </p>
+      
+</blockquote>
+</div>
+    
+</div>
+  
+</div>
+
+  
+
+  
+
+
+  
+  
+
+  
+  
+  
+
+
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="dicon.application.html">前のページ</a>&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="aop.caution.html">次のページ</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">3.2. S2ApplicationContext リファレンス&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">ホーム</a></td><td valign="top" align="right" width="40%">&nbsp;4.2. S2Aop 使用上の注意点</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

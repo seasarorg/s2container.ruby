@@ -1,0 +1,130 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>5.2. S2Containerのログ設定</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby ドキュメント">
+<link rel="up" href="misc.html" title="第5章 MISC">
+<link rel="prev" href="misc.html" title="第5章 MISC">
+<link rel="next" href="misc.dbi.html" title="5.3. DBIを用いたデータベースアクセス">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">5.2. S2Containerのログ設定</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="misc.html">前のページ</a>&nbsp;</td><th align="center" width="60%">第5章 MISC</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="misc.dbi.html">次のページ</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="sect1" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="misc.s2log"></a>5.2. S2Containerのログ設定</h2>
+</div>
+</div>
+</div>
+    
+<p>
+    S2Containerでは、次のようにs2loggerメソッドでLoggerインスタンスを取得し、ログ出力を行います。
+    </p>
+
+
+<pre class="programlisting">
+require 's2container'
+s2logger.debug(File::basename(__FILE__)) { "debug test." }
+</pre>
+
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N20634"></a>5.2.1. S2Logger</h3>
+</div>
+</div>
+</div>
+      
+<p>
+      S2Containerでは、ログ出力を行う Loggerインスタンスを Seasar::Log::S2Logger クラスを介して取得します。
+      S2Logger.logger メソッドは、デフォルトでは STDERR出力を行う Logger のインスタンスを返します。
+      s2loggerメソッドはSeasar::Log::S2Loggerクラスを返します。
+      </p>
+
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+        
+<p>
+<b>ログデバイスの設定.&nbsp;</b>
+</p>
+        
+<p>
+                ログの出力先を指定する場合は、s2loggerメソッドの引数で指定します。
+        </p>
+
+
+<pre class="programlisting">
+require 's2container'
+s2logger(STDOUT).debug(File::basename(__FILE__)) { "debug test." }
+</pre>
+
+        
+<p>
+<b>ログレベルの設定.&nbsp;</b>
+</p>
+        
+<p>
+                ログ出力のレベル設定は、S2LoggerからLoggerインスタンスを取得して設定します。
+        </p>
+
+
+<pre class="programlisting">
+require 's2container'
+s2logger.level = Logger::WARN
+s2logger.debug(File::basename(__FILE__)) { "debug test." }
+s2logger.info(File::basename(__FILE__)) { "info test." }
+s2logger.warn(File::basename(__FILE__)) { "warn test." }
+s2logger.error(File::basename(__FILE__)) { "error test." }
+s2logger.fatal(File::basename(__FILE__)) { "fatal test." }
+</pre>
+
+      
+</blockquote>
+</div>
+    
+</div>
+
+  
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="misc.html">前のページ</a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="misc.html">上に戻る</a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="misc.dbi.html">次のページ</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">第5章 MISC&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">ホーム</a></td><td valign="top" align="right" width="40%">&nbsp;5.3. DBIを用いたデータベースアクセス</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>
