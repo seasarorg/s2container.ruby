@@ -1,0 +1,9 @@
+ul.docu {
+    list-style-image: url(../images/item_little.gif);
+}
+
+ul.docu li {
+    display: inline;
+    border-left: .4em solid #308FAA;
+    padding-left: 1em;
+}
