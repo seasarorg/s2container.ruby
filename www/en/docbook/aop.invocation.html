@@ -1,0 +1,117 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>4.6.&nbsp;MethodInvocation API Reference</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby Document">
+<link rel="up" href="aop.html" title="Chapter&nbsp;4.&nbsp;S2Aop.Ruby Reference">
+<link rel="prev" href="aop.interceptor.html" title="4.5.&nbsp;Interceptor prepared in S2Aop">
+<link rel="next" href="misc.html" title="Chapter&nbsp;5.&nbsp;MISC">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">4.6.&nbsp;MethodInvocation API Reference</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="aop.interceptor.html">Prev</a>&nbsp;</td><th align="center" width="60%">Chapter&nbsp;4.&nbsp;S2Aop.Ruby Reference</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="misc.html">Next</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="sect1" lang="en">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="aop.invocation"></a>4.6.&nbsp;MethodInvocation API Reference</h2>
+</div>
+</div>
+</div>
+    
+<p>
+      MethodInvocation instance is passed as an argument of the invoke method of Interceptor.
+      MethodInvocation manages Interceptors and performs the call of sequential execution and the method for an aspect.
+      The instance for an aspect, method, method arguments, etc. are acquirable through MethodInvocation instance.
+    </p>
+
+    
+<div class="blockquote">
+<blockquote class="blockquote">
+
+      
+<p>
+<b>Seasar::Aop::MethodInvocation#proceed method.&nbsp;</b>
+</p>
+      
+<p>
+        Interceptors and an actual method are called.
+      </p>
+
+      
+<p>
+<b>Seasar::Aop::MethodInvocation#this instance variable.&nbsp;</b>
+</p>
+      
+<p>
+        Instance for an aspect is returned.
+      </p>
+
+      
+<p>
+<b>Seasar::Aop::MethodInvocation#method instance variable.&nbsp;</b>
+</p>
+      
+<p>
+        Method of the method to which an aspect is applied is returned.
+      </p>
+
+      
+<p>
+<b>Seasar::Aop::MethodInvocation#component_class instance variable.&nbsp;</b>
+</p>
+      
+<p>
+        Class of the class to which an aspect is applied is returned.
+      </p>
+      
+      
+<p>
+<b>Seasar::Aop::MethodInvocation#args instance variable.&nbsp;</b>
+</p>
+      
+<p>
+        Arguments of the method to which an aspect is applied is returned.
+      </p>
+
+    
+</blockquote>
+</div>
+  
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="aop.interceptor.html">Prev</a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="aop.html">Up</a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="misc.html">Next</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">4.5.&nbsp;Interceptor prepared in S2Aop&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">Home</a></td><td valign="top" align="right" width="40%">&nbsp;Chapter&nbsp;5.&nbsp;MISC</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

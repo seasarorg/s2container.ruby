@@ -1,0 +1,115 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>2.6.&nbsp;Dependency Injection</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby Document">
+<link rel="up" href="quickstart.html" title="Chapter&nbsp;2.&nbsp;Quick Start">
+<link rel="prev" href="quick205.html" title="2.5.&nbsp;Constructor Block">
+<link rel="next" href="quick207.html" title="2.7.&nbsp;Auto Aspect">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">2.6.&nbsp;Dependency Injection</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="quick205.html">Prev</a>&nbsp;</td><th align="center" width="60%">Chapter&nbsp;2.&nbsp;Quick Start</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="quick207.html">Next</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="sect1" lang="en">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="quick206"></a>2.6.&nbsp;Dependency Injection</h2>
+</div>
+</div>
+</div>
+    
+<p>
+      Dependency Injection of S2Container.Ruby is property injection.
+      Instance variables and accessor methods are treated as a property.
+      By an instance variable property, the component which will be injected is specified by the default value of a property.
+      When a property value is nil, a property name (Symbol) is used as a component name.
+      When a property value is Array and the 1st value is ":di", then the 2nd value is used as a component name.
+      By an accessor method property, the component which will be injected is specified by the name specified by
+      attr_accessor method. 
+    </p>
+
+<pre class="programlisting">
+require 's2container'
+
+class Action
+  s2comp
+  def initialize
+    @a = nil　　　　　　　　　　　　　　　　# name of component is a ":a"
+    @b = :di, ServiceB　　　　　　　# specified by Array
+  end
+  attr_reader :a, :b
+  attr_accessor :c
+end
+
+class ServiceA
+  s2comp :name =&gt; :a
+end
+
+class ServiceB
+  s2comp :instance =&gt; :prototype
+end
+
+class ServiceC
+  s2comp :name =&gt; :c
+end
+
+p s2app[Action].a
+p s2app[Action].b
+p s2app[Action].c
+</pre>
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[Note]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>
+        This Example is located at "examples/quickstart/quickstart6".
+      </p>
+    
+</td>
+</tr>
+</table>
+</div>
+  
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="quick205.html">Prev</a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="quickstart.html">Up</a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="quick207.html">Next</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">2.5.&nbsp;Constructor Block&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">Home</a></td><td valign="top" align="right" width="40%">&nbsp;2.7.&nbsp;Auto Aspect</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

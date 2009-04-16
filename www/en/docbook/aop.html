@@ -1,0 +1,186 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Chapter&nbsp;4.&nbsp;S2Aop.Ruby Reference</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby Document">
+<link rel="up" href="index.html" title="S2Container.Ruby Document">
+<link rel="prev" href="dicon.application.html" title="3.2.&nbsp;S2ApplicationContext Reference">
+<link rel="next" href="aop.caution.html" title="4.2.&nbsp;Notes on S2Aop">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">Chapter&nbsp;4.&nbsp;S2Aop.Ruby Reference</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="dicon.application.html">Prev</a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="aop.caution.html">Next</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="en">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title">
+<a name="aop"></a>Chapter&nbsp;4.&nbsp;S2Aop.Ruby Reference</h2>
+</div>
+</div>
+</div>
+<div class="toc">
+<p>
+<b>Table of Contents</b>
+</p>
+<dl>
+<dt>
+<span class="sect1"><a href="aop.html#aop.about">4.1. The outline of S2Aop</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="aop.html#N204BA">4.1.1. The Concept of AOP</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="aop.caution.html">4.2. Notes on S2Aop</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.aspect.html">4.3. Aspect using S2AopFactory</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.dicon.html">4.4. Aspect using S2ApplicationContext</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.interceptor.html">4.5. Interceptor prepared in S2Aop</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="aop.interceptor.html#aop.interceptor.trace">4.5.1. TraceInterceptor</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="aop.interceptor.html#aop.interceptor.custom">4.5.2. Implementing Interceptor</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="aop.invocation.html">4.6. MethodInvocation API Reference</a></span>
+</dt>
+</dl>
+</div>
+  
+<div class="sect1" lang="en">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="aop.about"></a>4.1.&nbsp;The outline of S2Aop</h2>
+</div>
+</div>
+</div>
+    
+<p>
+      AOP, Aspect Oriented Programming, it is a technique which extracts the common logic distributed
+      in two or more classes, and is woven in from the outside of a class.
+
+    </p>
+    
+<div class="sect2" lang="en">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="N204BA"></a>4.1.1.&nbsp;The Concept of AOP</h3>
+</div>
+</div>
+</div>
+      
+<div class="blockquote">
+<blockquote class="blockquote">
+        
+<p>
+<b>Advice(Interceptor).&nbsp;</b>
+</p>
+        
+<p>
+          Advice expresses the code inserted into a program.
+          Advice may be called Interceptor.
+        </p>
+
+        
+<p>
+<b>Joinpoint(MethodInvocation).&nbsp;</b>
+</p>
+        
+<p>
+          Joinpoint expresses the point which combines target class and Advice.
+          Advice can acquire the information on an argument or a method from Joinpoint.
+        </p>
+
+        
+<p>
+<b>Pointcut.&nbsp;</b>
+</p>
+        
+<p>
+          Pointcut defines where Joinpoint is set up.
+        </p>
+
+        
+<p>
+<b>Aspect.&nbsp;</b>
+</p>
+        
+<p>
+          Aspect associates Advice and Pointcut.
+        </p>
+      
+</blockquote>
+</div>
+    
+</div>
+  
+</div>
+
+  
+
+  
+
+
+  
+  
+
+  
+  
+  
+
+
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="dicon.application.html">Prev</a>&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="aop.caution.html">Next</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">3.2.&nbsp;S2ApplicationContext Reference&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">Home</a></td><td valign="top" align="right" width="40%">&nbsp;4.2.&nbsp;Notes on S2Aop</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>2.7.&nbsp;Auto Aspect</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby Document">
+<link rel="up" href="quickstart.html" title="Chapter&nbsp;2.&nbsp;Quick Start">
+<link rel="prev" href="quick206.html" title="2.6.&nbsp;Dependency Injection">
+<link rel="next" href="quick208.html" title="2.8.&nbsp;Interceptor Block">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">2.7.&nbsp;Auto Aspect</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="quick206.html">Prev</a>&nbsp;</td><th align="center" width="60%">Chapter&nbsp;2.&nbsp;Quick Start</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="quick208.html">Next</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="sect1" lang="en">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="quick207"></a>2.7.&nbsp;Auto Aspect</h2>
+</div>
+</div>
+</div>
+    
+<p>
+    A setup of Aspect is performed by the s2aspect method. Interceptor is specified by the argument of the s2aspect method.
+    </p>
+
+<pre class="programlisting">
+require 's2container'
+
+class Action
+  s2comp
+  s2aspect :interceptor =&gt; Seasar::Aop::Interceptor::TraceInterceptor.new
+  def index
+    s2logger.debug(self){"Action::index called."}
+  end
+end
+
+p s2app[Action].index
+</pre>
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[Note]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>
+        This Example is located at "examples/quickstart/quickstart7".
+      </p>
+    
+</td>
+</tr>
+</table>
+</div>
+  
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="quick206.html">Prev</a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="quickstart.html">Up</a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="quick208.html">Next</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">2.6.&nbsp;Dependency Injection&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">Home</a></td><td valign="top" align="right" width="40%">&nbsp;2.8.&nbsp;Interceptor Block</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Chapter&nbsp;5.&nbsp;MISC</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby Document">
+<link rel="up" href="index.html" title="S2Container.Ruby Document">
+<link rel="prev" href="aop.invocation.html" title="4.6.&nbsp;MethodInvocation API Reference">
+<link rel="next" href="misc.s2log.html" title="5.2.&nbsp;Log setup of S2Container">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">Chapter&nbsp;5.&nbsp;MISC</th>
+</tr>
+<tr>
+<td align="left" width="20%"><a accesskey="p" href="aop.invocation.html">Prev</a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="misc.s2log.html">Next</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="en">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title">
+<a name="misc"></a>Chapter&nbsp;5.&nbsp;MISC</h2>
+</div>
+</div>
+</div>
+<div class="toc">
+<p>
+<b>Table of Contents</b>
+</p>
+<dl>
+<dt>
+<span class="sect1"><a href="misc.html#misc201">5.1. Using S2Container in component</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="misc.s2log.html">5.2. Log setup of S2Container</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2log.html#N20631">5.2.1. S2Logger</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.dbi.html">5.3. Database access using DBI</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.dbi.html#N2065C">5.3.1. Component-izing of DBI::DatabaseHandle</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.dbiinterceptor.html">5.4. Database access using DBIInterceptor</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N2068C">5.4.1. The outline of DBIInterceptor</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206A6">5.4.2. Aspect of DBIInterceptor</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206CB">5.4.3. Setup Bind value by Method argument</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206E4">5.4.4. Setup Bind value By Method result</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206FD">5.4.5. Using DBI in Dao</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N20716">5.4.6. Paging by Paginate class</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.s2cgi.html">5.5. S2CGI Web Framework</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N207B5">5.5.1. Setup</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20814">5.5.2. Starting of Framework</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N2082A">5.5.3. Seasar::CGI::Page Class</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N2084E">5.5.4. Class Variables</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20880">5.5.5. Instance Variables</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N208C2">5.5.6. get/post method</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N208EE">5.5.7. param method</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N2090C">5.5.8. render method</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20923">5.5.9. partial method</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20934">5.5.10. redirect meshot</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20945">5.5.11. validate method</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B0E">5.5.12. Session management</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B34">5.5.13. Dependency Injection</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B53">5.5.14. Unit Test</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B66">5.5.15. Rack CGI</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.s2rails.html">5.6. Using S2Container with Rails</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20BE1">5.6.1. Environment</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20BF2">5.6.2. Setup</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20C1C">5.6.3. Summary</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20C44">5.6.4. Dependency Injection</a></span>
+</dt>
+</dl>
+</dd>
+</dl>
+</div>
+
+  
+<div class="sect1" lang="en">
+<div class="titlepage">
+<div>
+<div>
+<h2 class="title" style="clear: both">
+<a name="misc201"></a>5.1.&nbsp;Using S2Container in component</h2>
+</div>
+</div>
+</div>
+    
+<p>
+      When the component is dependent on S2Container into which it is registered,
+      S2Container instance can be acquired by Property Injection.
+      The component name of S2Container is "container".<br>
+      The following service classes are created as an example.
+      S2Container instance is be DI by automatic Property Injection.
+    </p>
+
+<pre class="programlisting">
+module Example
+  class Service
+    s2comp
+    def initialize
+      @container = :container
+    end
+    attr_reader :container
+  end
+end
+</pre>
+
+    
+<p>
+        An execution script is created as follows.
+    </p>  
+
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+
+service = s2app.get(Example::Service)
+p service.container.class.name
+</pre>
+    
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<table border="0" summary="Note: NOTE">
+<tr>
+<td valign="top" align="center" rowspan="2" width="25"><img alt="[Note]" src="../../images/docbook/note.png"></td><th align="left">NOTE</th>
+</tr>
+<tr>
+<td valign="top" align="left">
+      
+<p>This Example is located in example/example12</p>
+    
+</td>
+</tr>
+</table>
+</div>
+
+  
+</div>
+
+
+
+  
+  
+
+
+  
+  
+
+
+
+  
+  
+  
+
+  
+
+
+
+  
+  
+  
+
+
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%"><a accesskey="p" href="aop.invocation.html">Prev</a>&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="misc.s2log.html">Next</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">4.6.&nbsp;MethodInvocation API Reference&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html">Home</a></td><td valign="top" align="right" width="40%">&nbsp;5.2.&nbsp;Log setup of S2Container</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>

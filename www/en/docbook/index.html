@@ -1,0 +1,364 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>S2Container.Ruby Document</title>
+<link href="../../theme/docbook.css" rel="stylesheet" type="text/css">
+<meta content="DocBook XSL Stylesheets V1.74.0" name="generator">
+<link rel="home" href="index.html" title="S2Container.Ruby Document">
+<link rel="next" href="install.html" title="Chapter&nbsp;1.&nbsp;Installation">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<a href="../index.html"><img src="../../images/seasar_logo_blue.gif"></a>
+<br>
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+<tr>
+<th align="center" colspan="3">S2Container.Ruby Document</th>
+</tr>
+<tr>
+<td align="left" width="20%">&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="install.html">Next</a></td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="book" lang="en">
+<div class="titlepage">
+<div>
+<div>
+<h1 class="title">
+<a name="index"></a>S2Container.Ruby Document</h1>
+</div>
+<div>
+<p class="copyright">Copyright &copy; 2008-2009 The Seasar Foundation and the others.</p>
+</div>
+</div>
+<hr>
+</div>
+<div class="toc">
+<p>
+<b>Table of Contents</b>
+</p>
+<dl>
+<dt>
+<span class="chapter"><a href="install.html">1. Installation</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect1"><a href="install.html#install.environment">1.1. Requirement</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="install.setup.html">1.2. Installation with setup.rb</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="install.gem.html">1.3. Installation with Gems</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="chapter"><a href="quickstart.html">2. Quick Start</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect1"><a href="quickstart.html#setup">2.1. Setup</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick202.html">2.2. Registration and getting of a component</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick203.html">2.3. Naming of component</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick204.html">2.4. Prototype Component</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick205.html">2.5. Constructor Block</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick206.html">2.6. Dependency Injection</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick207.html">2.7. Auto Aspect</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="quick208.html">2.8. Interceptor Block</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="chapter"><a href="dicon.html">3. S2Container.Ruby Reference</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect1"><a href="dicon.html#dicon.s2container">3.1. S2Container Reference</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="dicon.html#N2012D">3.1.1. Generation of S2Container</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.s2container.component">3.1.2. Getting a component</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.di.auto">3.1.3. Dependency Injection</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.s2container.block">3.1.4. Constructor Block</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.binding">3.1.5. Binding type setup</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.instance">3.1.6. Instance type setup</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="dicon.application.html">3.2. S2ApplicationContext Reference</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.create">3.2.1. Generation of S2ApplicationContext</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.import">3.2.2. Registration of a component</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.create">3.2.3. Generation of S2Container</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#N20366">3.2.4. Selection of a component</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.autoaspect">3.2.5. Auto Aspect</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.application.html#dicon.application.singleton">3.2.6. Management of Singleton S2Container instance</a></span>
+</dt>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>
+<span class="chapter"><a href="aop.html">4. S2Aop.Ruby Reference</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect1"><a href="aop.html#aop.about">4.1. The outline of S2Aop</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="aop.html#N204BA">4.1.1. The Concept of AOP</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="aop.caution.html">4.2. Notes on S2Aop</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.aspect.html">4.3. Aspect using S2AopFactory</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.dicon.html">4.4. Aspect using S2ApplicationContext</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="aop.interceptor.html">4.5. Interceptor prepared in S2Aop</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="aop.interceptor.html#aop.interceptor.trace">4.5.1. TraceInterceptor</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="aop.interceptor.html#aop.interceptor.custom">4.5.2. Implementing Interceptor</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="aop.invocation.html">4.6. MethodInvocation API Reference</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="chapter"><a href="misc.html">5. MISC</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect1"><a href="misc.html#misc201">5.1. Using S2Container in component</a></span>
+</dt>
+<dt>
+<span class="sect1"><a href="misc.s2log.html">5.2. Log setup of S2Container</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2log.html#N20631">5.2.1. S2Logger</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.dbi.html">5.3. Database access using DBI</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.dbi.html#N2065C">5.3.1. Component-izing of DBI::DatabaseHandle</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.dbiinterceptor.html">5.4. Database access using DBIInterceptor</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N2068C">5.4.1. The outline of DBIInterceptor</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206A6">5.4.2. Aspect of DBIInterceptor</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206CB">5.4.3. Setup Bind value by Method argument</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206E4">5.4.4. Setup Bind value By Method result</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N206FD">5.4.5. Using DBI in Dao</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.dbiinterceptor.html#N20716">5.4.6. Paging by Paginate class</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.s2cgi.html">5.5. S2CGI Web Framework</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N207B5">5.5.1. Setup</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20814">5.5.2. Starting of Framework</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N2082A">5.5.3. Seasar::CGI::Page Class</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N2084E">5.5.4. Class Variables</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20880">5.5.5. Instance Variables</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N208C2">5.5.6. get/post method</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N208EE">5.5.7. param method</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N2090C">5.5.8. render method</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20923">5.5.9. partial method</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20934">5.5.10. redirect meshot</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20945">5.5.11. validate method</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B0E">5.5.12. Session management</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B34">5.5.13. Dependency Injection</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B53">5.5.14. Unit Test</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2cgi.html#N20B66">5.5.15. Rack CGI</a></span>
+</dt>
+</dl>
+</dd>
+<dt>
+<span class="sect1"><a href="misc.s2rails.html">5.6. Using S2Container with Rails</a></span>
+</dt>
+<dd>
+<dl>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20BE1">5.6.1. Environment</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20BF2">5.6.2. Setup</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20C1C">5.6.3. Summary</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="misc.s2rails.html#N20C44">5.6.4. Dependency Injection</a></span>
+</dt>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</div>
+<div class="list-of-tables">
+<p>
+<b>List of Tables</b>
+</p>
+<dl>
+<dt>3.1. <a href="dicon.html#N201B0">Property value and DI</a>
+</dt>
+<dt>3.2. <a href="dicon.html#N20235">Binding Type</a>
+</dt>
+<dt>3.3. <a href="dicon.html#N20286">Instance Type</a>
+</dt>
+</dl>
+</div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</div>
+<div class="navfooter">
+<hr>
+<table summary="Navigation footer" width="100%">
+<tr>
+<td align="left" width="40%">&nbsp;</td><td align="center" width="20%">&nbsp;</td><td align="right" width="40%">&nbsp;<a accesskey="n" href="install.html">Next</a></td>
+</tr>
+<tr>
+<td valign="top" align="left" width="40%">&nbsp;</td><td align="center" width="20%">&nbsp;</td><td valign="top" align="right" width="40%">&nbsp;Chapter&nbsp;1.&nbsp;Installation</td>
+</tr>
+</table>
+</div>
+<br>
+<br>
+<table width="100%">
+<tr>
+<td align="center"><font size="-2">
+    &copy; Copyright The Seasar Foundation and the others 2008-2009, all rights reserved.
+    </font></td>
+</tr>
+</table>
+</body>
+</html>
