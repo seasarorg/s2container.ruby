@@ -32,16 +32,12 @@ class Prefecture < Seasar::Rack::CGI::Page
     end
     @paginate_dto = session[:paginate_dto]
 
-    begin
-      if @paginate_dto.nil?
-        @paginate_dto = session[:paginate_dto] = Seasar::DBI::Paginate.new
-        session[:paginate_dto].total = @prefecture_dao.find_total_by_dto(session[:paginate_dto])[0]['total']
-      end
-      session[:paginate_dto].move(param(:act), param(:idx).to_i)
-      @prefectures = @prefecture_dao.find_by_dto(@paginate_dto)
-    ensure
-      @database_handle.disconnect
+    if @paginate_dto.nil?
+      @paginate_dto = session[:paginate_dto] = Seasar::DBI::Paginate.new
+      session[:paginate_dto].total = @prefecture_dao.find_total_by_dto(session[:paginate_dto])[0]['total']
     end
+    session[:paginate_dto].move(param(:act), param(:idx).to_i)
+    @prefectures = @prefecture_dao.find_by_dto(@paginate_dto)
   end
 end
 

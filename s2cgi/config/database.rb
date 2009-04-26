@@ -22,6 +22,12 @@ require 'dbi'
 require 'seasar/dbi/dbi-interceptor'
 require 'seasar/dbi/paginate'
 
-s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
+dsn_info = s2comp(:class => DBI::DatabaseHandle, :namespace => "dbi", :autobinding => :none) {
   DBI.connect("dbi:SQLite3:#{VAR_DIR}/db/example.db")
 }
+
+dsn_info.destructor {|dbh|
+  s2logger.info(File.basename(__FILE__)){"Database handle disconnected."}
+  dbh.disconnect
+}
+

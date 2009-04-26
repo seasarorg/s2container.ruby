@@ -55,6 +55,12 @@ module Seasar
             s2logger.fatal(self) {"#{e.message} #{e.backtrace}"}
           end
         end
+
+        begin
+          container.destroy if container
+        rescue => e
+          s2logger.error(self) {"destroy of s2container failed. #{e.message} #{e.backtrace}"}
+        end
       end
 
     end
