@@ -55,10 +55,13 @@
 <span class="sect2"><a href="dicon.html#dicon.s2container.block">3.1.4. コンストラクタ ブロック</a></span>
 </dt>
 <dt>
-<span class="sect2"><a href="dicon.html#dicon.binding">3.1.5. バインディングタイプの設定</a></span>
+<span class="sect2"><a href="dicon.html#dicon.s2container.destructor">3.1.5. デストラクタ ブロック</a></span>
 </dt>
 <dt>
-<span class="sect2"><a href="dicon.html#dicon.instance">3.1.6. インスタンスタイプの設定</a></span>
+<span class="sect2"><a href="dicon.html#dicon.binding">3.1.6. バインディングタイプの設定</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.instance">3.1.7. インスタンスタイプの設定</a></span>
 </dt>
 </dl>
 </dd>
@@ -77,7 +80,7 @@
 <span class="sect2"><a href="dicon.application.html#dicon.application.create">3.2.3. S2Containerの生成</a></span>
 </dt>
 <dt>
-<span class="sect2"><a href="dicon.application.html#N2036D">3.2.4. コンポーネントの選択</a></span>
+<span class="sect2"><a href="dicon.application.html#N20390">3.2.4. コンポーネントの選択</a></span>
 </dt>
 <dt>
 <span class="sect2"><a href="dicon.application.html#dicon.application.autoaspect">3.2.5. 自動アスペクト</a></span>
@@ -452,6 +455,74 @@ p component.val          # -&gt; "abc"
     
 </div>
    
+
+    
+    
+<br>
+    
+<div class="sect2" lang="ja">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.s2container.destructor"></a>3.1.5. デストラクタ ブロック</h3>
+</div>
+</div>
+</div>
+      
+<p>
+            デストラクタ ブロックとは、コンポーネントのDestroy処理を行うブロックです。コンポーネントの<a class="link" href="dicon.html#dicon.instance" title="3.1.7. インスタンスタイプの設定">インスタンス設定</a>がsingletonの場合にのみ実行されます。
+            デストラクタ ブロックは、s2containerのdestroyメソッド内で実行されます。
+      </p>
+
+        
+<p>次のようなクラスを定義します。</p>
+
+<pre class="programlisting">
+module Example
+  class Action
+    def init
+      s2logger.debug(self.class){"init method called as constructor."}
+    end
+    def quit
+      s2logger.debug(self.class){"quit method called as destructor."}
+    end
+  end
+end
+</pre>
+
+        
+<p>
+                次のような実行ファイルを作成します。s2componentメソッドでコンポーネントを登録します。戻り値のComponentInfoDefに
+                デストラクタ ブロックを設定します。
+        </p>
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+
+component_info = s2component(:class =&gt; Example::Action) {
+  # constructor block
+  action = Example::Action.new
+  action.init
+  next action
+}
+
+component_info.destructor {|component|
+  # destructor block
+  component.quit
+}
+
+container = s2app.create
+container.init                     # call constructor block
+container.destroy                  # call destructor block
+
+</pre>
+ 
+
+ 
+    
+</div>
  
     
     
@@ -462,7 +533,7 @@ p component.val          # -&gt; "abc"
 <div>
 <div>
 <h3 class="title">
-<a name="dicon.binding"></a>3.1.5. バインディングタイプの設定</h3>
+<a name="dicon.binding"></a>3.1.6. バインディングタイプの設定</h3>
 </div>
 </div>
 </div>
@@ -476,7 +547,7 @@ p component.val          # -&gt; "abc"
 <blockquote class="blockquote">
       
 <div class="table">
-<a name="N20238"></a>
+<a name="N2025B"></a>
 <p class="title">
 <b>表3.2 バインディングタイプ</b>
 </p>
@@ -537,7 +608,7 @@ end
 <div>
 <div>
 <h3 class="title">
-<a name="dicon.instance"></a>3.1.6. インスタンスタイプの設定</h3>
+<a name="dicon.instance"></a>3.1.7. インスタンスタイプの設定</h3>
 </div>
 </div>
 </div>
@@ -551,7 +622,7 @@ end
 <blockquote class="blockquote">
       
 <div class="table">
-<a name="N20289"></a>
+<a name="N202AC"></a>
 <p class="title">
 <b>表3.3 インスタンスタイプ</b>
 </p>

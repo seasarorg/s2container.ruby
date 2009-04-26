@@ -55,10 +55,13 @@
 <span class="sect2"><a href="dicon.html#dicon.s2container.block">3.1.4. Constructor Block</a></span>
 </dt>
 <dt>
-<span class="sect2"><a href="dicon.html#dicon.binding">3.1.5. Binding type setup</a></span>
+<span class="sect2"><a href="dicon.html#dicon.s2container.destructor">3.1.5. Destructor Block</a></span>
 </dt>
 <dt>
-<span class="sect2"><a href="dicon.html#dicon.instance">3.1.6. Instance type setup</a></span>
+<span class="sect2"><a href="dicon.html#dicon.binding">3.1.6. Binding type setup</a></span>
+</dt>
+<dt>
+<span class="sect2"><a href="dicon.html#dicon.instance">3.1.7. Instance type setup</a></span>
 </dt>
 </dl>
 </dd>
@@ -77,7 +80,7 @@
 <span class="sect2"><a href="dicon.application.html#dicon.application.create">3.2.3. Generation of S2Container</a></span>
 </dt>
 <dt>
-<span class="sect2"><a href="dicon.application.html#N20366">3.2.4. Selection of a component</a></span>
+<span class="sect2"><a href="dicon.application.html#N20389">3.2.4. Selection of a component</a></span>
 </dt>
 <dt>
 <span class="sect2"><a href="dicon.application.html#dicon.application.autoaspect">3.2.5. Auto Aspect</a></span>
@@ -461,6 +464,7 @@ p component.val          # -&gt; "abc"
     
 </div>
      
+
     
     
 <br>
@@ -470,7 +474,77 @@ p component.val          # -&gt; "abc"
 <div>
 <div>
 <h3 class="title">
-<a name="dicon.binding"></a>3.1.5.&nbsp;Binding type setup</h3>
+<a name="dicon.s2container.destructor"></a>3.1.5.&nbsp;Destructor Block</h3>
+</div>
+</div>
+</div>
+      
+<p>
+      Constructor Block is a block which performs destroy processing of a component.
+      When <a class="link" href="dicon.html#dicon.instance" title="3.1.7.&nbsp;Instance type setup">the instance setting</a> of the component is ":singleton", thr destructor block is executed. 
+      The destructor block is executed in the destroy method of s2container. 
+      </p>
+
+        
+<p>Let's define the following classes.</p>
+
+<pre class="programlisting">
+module Example
+  class Action
+    def init
+      s2logger.debug(self.class){"init method called as constructor."}
+    end
+    def quit
+      s2logger.debug(self.class){"quit method called as destructor."}
+    end
+  end
+end
+</pre>
+
+        
+<p>
+        Please create the following executable files.
+        The component is registered by the s2component method. 
+        The destructor block is set to the return value(ComponentInfoDef instance) of the s2component method. 
+        </p>
+
+<pre class="programlisting">
+require 's2container'
+require 'example'
+
+component_info = s2component(:class =&gt; Example::Action) {
+  # constructor block
+  action = Example::Action.new
+  action.init
+  next action
+}
+
+component_info.destructor {|component|
+  # destructor block
+  component.quit
+}
+
+container = s2app.create
+container.init                     # call constructor block
+container.destroy                  # call destructor block
+
+</pre>
+
+
+
+    
+</div>
+
+    
+    
+<br>
+    
+<div class="sect2" lang="en">
+<div class="titlepage">
+<div>
+<div>
+<h3 class="title">
+<a name="dicon.binding"></a>3.1.6.&nbsp;Binding type setup</h3>
 </div>
 </div>
 </div>
@@ -484,7 +558,7 @@ p component.val          # -&gt; "abc"
 <blockquote class="blockquote">
       
 <div class="table">
-<a name="N20235"></a>
+<a name="N20258"></a>
 <p class="title">
 <b>Table&nbsp;3.2.&nbsp;Binding Type</b>
 </p>
@@ -546,7 +620,7 @@ end
 <div>
 <div>
 <h3 class="title">
-<a name="dicon.instance"></a>3.1.6.&nbsp;Instance type setup</h3>
+<a name="dicon.instance"></a>3.1.7.&nbsp;Instance type setup</h3>
 </div>
 </div>
 </div>
@@ -560,7 +634,7 @@ end
 <blockquote class="blockquote">
       
 <div class="table">
-<a name="N20286"></a>
+<a name="N202A9"></a>
 <p class="title">
 <b>Table&nbsp;3.3.&nbsp;Instance Type</b>
 </p>

@@ -37,7 +37,7 @@
 <div>
 <div>
 <h3 class="title">
-<a name="N20BE1"></a>5.6.1.&nbsp;Environment</h3>
+<a name="N20C04"></a>5.6.1.&nbsp;Environment</h3>
 </div>
 </div>
 </div>
@@ -58,7 +58,7 @@
 <div>
 <div>
 <h3 class="title">
-<a name="N20BF2"></a>5.6.2.&nbsp;Setup</h3>
+<a name="N20C15"></a>5.6.2.&nbsp;Setup</h3>
 </div>
 </div>
 </div>
@@ -68,7 +68,7 @@
 <div>
 <div>
 <h4 class="title">
-<a name="N20BF6"></a>5.6.2.1.&nbsp;Installation of Initializer</h4>
+<a name="N20C19"></a>5.6.2.1.&nbsp;Installation of Initializer</h4>
 </div>
 </div>
 </div>
@@ -100,7 +100,7 @@
 <div>
 <div>
 <h4 class="title">
-<a name="N20C09"></a>5.6.2.2.&nbsp;Setting of ApplicationController</h4>
+<a name="N20C2C"></a>5.6.2.2.&nbsp;Setting of ApplicationController</h4>
 </div>
 </div>
 </div>
@@ -118,11 +118,17 @@
 class ApplicationController &lt; ActionController::Base
   ...
   def self.process(request, response)
-    ctrl = S2Rails.instantiate_controller(self, request)
-    if ctrl.nil?
-      return super # new.process(request, response);
+    container = S2Rails.get_s2container(request)
+    if container &amp;&amp; container.has_component_def(self)
+      result = container.get(self).process(request, response)
+      begin
+        container.destroy
+      rescue =&gt; e
+        s2logger.error(self) {"destroy of s2container failed. #{e.message} #{e.backtrace}"}
+      end
+      return result
     else
-      return ctrl.process(request, response)
+      return super # new.process(request, response);
     end
   end
   ...
@@ -144,7 +150,7 @@ end
 <div>
 <div>
 <h3 class="title">
-<a name="N20C1C"></a>5.6.3.&nbsp;Summary</h3>
+<a name="N20C3F"></a>5.6.3.&nbsp;Summary</h3>
 </div>
 </div>
 </div>
@@ -207,7 +213,7 @@ end
 <div>
 <div>
 <h3 class="title">
-<a name="N20C44"></a>5.6.4.&nbsp;Dependency Injection</h3>
+<a name="N20C67"></a>5.6.4.&nbsp;Dependency Injection</h3>
 </div>
 </div>
 </div>      

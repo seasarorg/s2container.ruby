@@ -37,7 +37,7 @@
 <div>
 <div>
 <h3 class="title">
-<a name="N20BD4"></a>5.6.1. 動作環境</h3>
+<a name="N20BF7"></a>5.6.1. 動作環境</h3>
 </div>
 </div>
 </div>
@@ -58,7 +58,7 @@
 <div>
 <div>
 <h3 class="title">
-<a name="N20BE5"></a>5.6.2. セットアップ</h3>
+<a name="N20C08"></a>5.6.2. セットアップ</h3>
 </div>
 </div>
 </div>
@@ -68,7 +68,7 @@
 <div>
 <div>
 <h4 class="title">
-<a name="N20BE9"></a>5.6.2.1. Initializerのインストール</h4>
+<a name="N20C0C"></a>5.6.2.1. Initializerのインストール</h4>
 </div>
 </div>
 </div>
@@ -100,7 +100,7 @@
 <div>
 <div>
 <h4 class="title">
-<a name="N20BFC"></a>5.6.2.2. ApplicationControllerの設定</h4>
+<a name="N20C1F"></a>5.6.2.2. ApplicationControllerの設定</h4>
 </div>
 </div>
 </div>
@@ -118,11 +118,17 @@
 class ApplicationController &lt; ActionController::Base
   ...
   def self.process(request, response)
-    ctrl = S2Rails.instantiate_controller(self, request)
-    if ctrl.nil?
-      return super # new.process(request, response);
+    container = S2Rails.get_s2container(request)
+    if container &amp;&amp; container.has_component_def(self)
+      result = container.get(self).process(request, response)
+      begin
+        container.destroy
+      rescue =&gt; e
+        s2logger.error(self) {"destroy of s2container failed. #{e.message} #{e.backtrace}"}
+      end
+      return result
     else
-      return ctrl.process(request, response)
+      return super # new.process(request, response);
     end
   end
   ...
@@ -144,7 +150,7 @@ end
 <div>
 <div>
 <h3 class="title">
-<a name="N20C0F"></a>5.6.3. 概要</h3>
+<a name="N20C32"></a>5.6.3. 概要</h3>
 </div>
 </div>
 </div>
@@ -204,7 +210,7 @@ end
 <div>
 <div>
 <h3 class="title">
-<a name="N20C37"></a>5.6.4. Dependency Injection</h3>
+<a name="N20C5A"></a>5.6.4. Dependency Injection</h3>
 </div>
 </div>
 </div>      
