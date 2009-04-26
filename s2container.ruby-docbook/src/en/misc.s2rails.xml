@@ -33,11 +33,17 @@
 class ApplicationController < ActionController::Base
   ...
   def self.process(request, response)
-    ctrl = S2Rails.instantiate_controller(self, request)
-    if ctrl.nil?
-      return super # new.process(request, response);
+    container = S2Rails.get_s2container(request)
+    if container && container.has_component_def(self)
+      result = container.get(self).process(request, response)
+      begin
+        container.destroy
+      rescue => e
+        s2logger.error(self) {"destroy of s2container failed. #{e.message} #{e.backtrace}"}
+      end
+      return result
     else
-      return ctrl.process(request, response)
+      return super # new.process(request, response);
     end
   end
   ...

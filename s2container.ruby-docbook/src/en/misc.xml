@@ -101,10 +101,15 @@ s2logger.fatal(File::basename(__FILE__)) { "fatal test." }
         <para>
         The s2comp method is used for creation of a DBI::DatabaseHandle component.
         A constructor block is passed to the s2component method and DBI.connect method is called within the block.
+        Moreover, DBI::DatabaseHandle.disconnect is executed in the destructor block. 
         </para>
 <programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
-s2comp(:class => DBI::DatabaseHandle) {
-  DBI.connect("dbi:SQLite3:sample.db")
+component_info = s2comp(:class => DBI::DatabaseHandle, :name => :dbh, :autobinding => :none) {
+  next DBI.connect("dbi:SQLite3:sample.db")
+}
+
+component_info.destructor {|dbh|
+  dbh.disconnect
 }
 ]]></programlisting>
 
@@ -137,17 +142,24 @@ require 'dbi'
 require 's2container'
 require 'example'
 
-s2comp(:class => DBI::DatabaseHandle, :name => :dbh, :autobinding => :none) {
-  DBI.connect("dbi:SQLite3:sample.db")
+component_info = s2comp(:class => DBI::DatabaseHandle, :name => :dbh, :autobinding => :none) {
+  s2logger.info(File.basename(__FILE__)){"Database handle connected."}
+  next DBI.connect("dbi:SQLite3:sample.db")
 }
 
+component_info.destructor {|dbh|
+  s2logger.info(File.basename(__FILE__)){"Database handle disconnected."}
+  dbh.disconnect
+}
+
+container = s2app.create
 begin
-  s2app[Example::Dao].find_by_name('hoge')
+  dao = container.get(Example::Dao)
+  dao.find_by_name('hoge')
 rescue => e
   s2logger.fatal(e.class.name){"#{e.message} #{e.backtrace}"}
 ensure
-  s2app[DBI::DatabaseHandle].disconnect if s2app[DBI::DatabaseHandle]
-
+  container.destroy
 end
 ]]></programlisting>
     </sect2>

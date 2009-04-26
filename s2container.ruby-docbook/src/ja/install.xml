@@ -24,9 +24,9 @@ require 's2container'
   </sect1>
 
   <sect1 id="install.gem"><title>gemでインストールする</title>
-    <para>s2container-version.gem をダウンロードし、gem install を実行します。</para>
+    <para>gem install を実行します。</para>
 <programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
-% gem install s2container-version.gem
+% gem install s2container
 %
 ]]></programlisting>
   <para>s2container.rb を require します。S2Container.Rubyが使用可能となります。</para>

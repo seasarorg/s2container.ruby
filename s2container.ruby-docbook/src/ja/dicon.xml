@@ -275,6 +275,62 @@ p component.val          # -> "abc"
  
     </sect2>
    
+
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.s2container.destructor"><title>デストラクタ ブロック</title>
+      <para>
+            デストラクタ ブロックとは、コンポーネントのDestroy処理を行うブロックです。コンポーネントの<link linkend="dicon.instance">インスタンス設定</link>がsingletonの場合にのみ実行されます。
+            デストラクタ ブロックは、s2containerのdestroyメソッド内で実行されます。
+      </para>
+
+        <para>次のようなクラスを定義します。</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    def init
+      s2logger.debug(self.class){"init method called as constructor."}
+    end
+    def quit
+      s2logger.debug(self.class){"quit method called as destructor."}
+    end
+  end
+end
+]]></programlisting>
+
+        <para>
+                次のような実行ファイルを作成します。s2componentメソッドでコンポーネントを登録します。戻り値のComponentInfoDefに
+                デストラクタ ブロックを設定します。
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+component_info = s2component(:class => Example::Action) {
+  # constructor block
+  action = Example::Action.new
+  action.init
+  next action
+}
+
+component_info.destructor {|component|
+  # destructor block
+  component.quit
+}
+
+container = s2app.create
+container.init                     # call constructor block
+container.destroy                  # call destructor block
+
+]]></programlisting>
+ 
+<!-- 
+     <note><title>NOTE</title>
+      <para>この例は example/example032 にあります。</para>
+    </note>
+ -->
+ 
+    </sect2>
  
     <!-- ################################################################### -->
     <sbr/>

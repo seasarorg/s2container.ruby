@@ -25,10 +25,10 @@ require 's2container'
   </sect1>
   <sect1 id="install.gem"><title>Installation with Gems</title>
     <para>
-      Please download s2container-version.gem and do "gem install".
+      Please run "gem install".
     </para>
 <programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
-% gem install s2container-version.gem
+% gem install s2container
 %
 ]]></programlisting>
   <para>S2Container.Ruby will be available by requiring "s2container.rb".</para>

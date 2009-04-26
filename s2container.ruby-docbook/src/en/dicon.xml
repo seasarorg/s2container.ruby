@@ -285,6 +285,65 @@ p component.val          # -> "abc"
  
     </sect2>
      
+
+    <!-- ################################################################### -->
+    <sbr/>
+    <sect2 id="dicon.s2container.destructor"><title>Destructor Block</title>
+      <para>
+      Constructor Block is a block which performs destroy processing of a component.
+      When <link linkend="dicon.instance">the instance setting</link> of the component is ":singleton", thr destructor block is executed. 
+      The destructor block is executed in the destroy method of s2container. 
+      </para>
+
+        <para>Let's define the following classes.</para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+module Example
+  class Action
+    def init
+      s2logger.debug(self.class){"init method called as constructor."}
+    end
+    def quit
+      s2logger.debug(self.class){"quit method called as destructor."}
+    end
+  end
+end
+]]></programlisting>
+
+        <para>
+        Please create the following executable files.
+        The component is registered by the s2component method. 
+        The destructor block is set to the return value(ComponentInfoDef instance) of the s2component method. 
+        </para>
+<programlisting continuation="restart" linenumbering="unnumbered"><![CDATA[
+require 's2container'
+require 'example'
+
+component_info = s2component(:class => Example::Action) {
+  # constructor block
+  action = Example::Action.new
+  action.init
+  next action
+}
+
+component_info.destructor {|component|
+  # destructor block
+  component.quit
+}
+
+container = s2app.create
+container.init                     # call constructor block
+container.destroy                  # call destructor block
+
+]]></programlisting>
+
+<!-- 
+   <note><title>NOTE</title>
+      <para>This Example is located at "example/example032".</para>
+    </note>
+ -->
+
+    </sect2>
+
     <!-- ################################################################### -->
     <sbr/>
     <sect2 id="dicon.binding"><title>Binding type setup</title>
