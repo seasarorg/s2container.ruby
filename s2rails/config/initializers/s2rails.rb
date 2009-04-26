@@ -3,7 +3,7 @@
 #
 require 's2container'
 Seasar::Log::S2Logger.logdev = "#{RAILS_ROOT}/log/s2.log"
-s2logger.level = Logger::WARN
+s2logger.level = Logger::DEBUG
 s2logger.formatter = Logger::Formatter.new
 
 alias s2component_dist s2component
@@ -51,22 +51,14 @@ module S2Rails
   module_function
   #
   # - args
-  #   1. ActionController::Base <em>ctrl_class</em>
-  #   2. ActionController::Request <em>request</em>
+  #   1. ActionController::Request <em>request</em>
   # - return
-  #   - ActionController::Base|nil
+  #   - Seasar::Container::S2Container|nil
   #
-  def instantiate_controller(ctrl_class, request)
+  def get_s2container(request)
     s2app = request.env[:s2app]
     return nil if s2app.nil?
     ctrl_name = request.path_parameters['controller']
-    container = s2app.create([ctrl_name] + S2Rails::IncludeNamespaces)
-    if container.has_component_def(ctrl_class)
-      s2logger.info(self){'instantiate controller with s2container.'}
-      return container.get(ctrl_class)
-    else
-      s2logger.info(self){'instantiate controller as default.'}
-      return nil
-    end
+    return  s2app.create([ctrl_name] + S2Rails::IncludeNamespaces)
   end
 end
