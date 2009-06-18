@@ -24,11 +24,11 @@ $LOAD_PATH.unshift(File.join(VENDOR_DIR, 's2validate/lib'))
 require 'cgi'
 require 'cgi/session'
 require 'cgi/session/pstore'
-require 'erb'
-include ERB::Util
+#require 'erb'
+#include ERB::Util
 
 require 'seasar/cgi'
-require 'seasar/validate'
+#require 'seasar/validate'
 require 'base-page'
 
 

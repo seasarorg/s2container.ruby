@@ -228,8 +228,8 @@ module Seasar
         @template = self.normalize_tpl(template)
         @layout = self.get_layout(@template)
         __tpl__ = @layout.nil? ? @template : @layout
-        @tpl_stack.push(__tpl__.tr('/', '_'))
-        result = ::ERB.new(File.read(self.get_tpl_file(__tpl__)), nil, nil, @tpl_stack.join('_')).result(binding)
+        @tpl_stack.push(__tpl__.gsub(/\W/, '_'))
+        result = ::ERB.new(File.read(self.get_tpl_file(__tpl__)), nil, nil,  's2cgi_' + @tpl_stack.join('_')).result(binding)
         @tpl_stack.pop
         self.render_result(result)
       end
@@ -252,8 +252,8 @@ module Seasar
       #
       def partial(template)
         template = self.normalize_tpl(template)
-        @tpl_stack.push(template.tr('/', '_'))
-        result = ::ERB.new(File.read(self.get_tpl_file(template)), nil, nil, @tpl_stack.join('_')).result(binding)
+        @tpl_stack.push(template.gsub(/\W/, '_'))
+        result = ::ERB.new(File.read(self.get_tpl_file(template)), nil, nil, 's2cgi_' + @tpl_stack.join('_')).result(binding)
         @tpl_stack.pop
         return result
       end

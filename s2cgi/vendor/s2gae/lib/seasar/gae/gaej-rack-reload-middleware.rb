@@ -16,52 +16,12 @@
 # | governing permissions and limitations under the License.             |
 # +----------------------------------------------------------------------+
 #++
-require 'erb'
-include ERB::Util
-require 'seasar/validate'
 module Seasar
-  module CGI
-    autoload :Page, 'seasar/cgi/page'
-    autoload :Session, 'seasar/cgi/session'
-
-    module_function
-
-    #
-    # - args
-    #   1. Seasar::CGI::Page|String|Symbol|nil <em>comp</em>
-    # - return
-    #   - nil
-    #
-    def run(comp = nil)
-      container = nil
-      if comp.nil?
-        container = s2app.create
-        if container.component_def?(Seasar::CGI::Page)
-          page = container.get(Seasar::CGI::Page)
-        else
-          container = nil
-          page = Seasar::CGI::Page.new
-        end
-      elsif comp.is_a?(Class) || comp.is_a?(Symbol) || comp.is_a?(String)
-        page = s2app.create.get(comp)
-      else
-        page = comp
-      end
-
-      begin
-        page.call
-      rescue => e
-        if Seasar::CGI::Page.fatal?
-          Seasar::CGI::Page.fatal.call(e, page)
-        else
-          s2logger.fatal(self) {"#{e.message} #{e.backtrace}"}
-        end
-      end
-
-      begin
-        container.destroy if container
-      rescue => e
-        s2logger.error(self) {"destroy of s2container failed. #{e.message} #{e.backtrace}"}
+  module GAE
+    class GaejRackReloadMiddleware
+      def call(env)
+        load('seasar/gae/rack-test-middleware.rb')
+        return RackTestMiddleware.new.call(env)
       end
     end
   end

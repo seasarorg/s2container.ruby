@@ -36,7 +36,6 @@ Seasar::Rack::CGI::Page.rack {|page|
     use Rack::ShowStatus
     use Rack::ShowExceptions
     use Rack::MethodOverride
-    use Rack::ContentLength
     use Rack::Session::Cookie
     run page
   end
