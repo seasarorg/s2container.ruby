@@ -18,10 +18,10 @@
 #++
 module Seasar
   module GAE
-    class GaejRackReloadMiddleware
+    class RackReloadMiddleware
       def call(env)
-        load('seasar/gae/rack-test-middleware.rb')
-        return RackTestMiddleware.new.call(env)
+        load('seasar/gae/s2application.rb')
+        return S2Application.new.call(env)
       end
     end
   end

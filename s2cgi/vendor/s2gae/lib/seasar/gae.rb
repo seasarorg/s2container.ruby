@@ -39,7 +39,7 @@ module Seasar
   module GAE
     @@reload = false;
     autoload :Page, 'seasar/gae/page'
-    #autoload :GaejRackReloadMiddleware, 'seasar/gae/gaej-rack-reload-middleware'
+    autoload :GaejRackReloadMiddleware, 'seasar/gae/gaej-rack-reload-middleware'
     autoload :S2Application, 'seasar/gae/s2application'
 
     module_function
