@@ -30,7 +30,6 @@ module Seasar
       #   - org.mortbay.jetty.servlet.HashSessionManager$Session
       #
       def get_session
-        return nil if @env['java.servlet_request'].session.new?
         return @env['java.servlet_request'].session
       end
       alias session get_session
@@ -53,7 +52,7 @@ module Seasar
       #   - nil
       #
       def delete_session
-        @env['java.servlet_request'].session.invalidate unless @env['java.servlet_request'].session.new?
+        @env['java.servlet_request'].session.invalidate
       end
     end
   end
