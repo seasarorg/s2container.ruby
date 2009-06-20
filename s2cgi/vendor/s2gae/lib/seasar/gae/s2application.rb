@@ -34,10 +34,10 @@ module Seasar
         page_path = File.join(PAGE_MODULE_PATH, key)
         page_file = page_path + '.rb'
         page_class_name = Seasar::GAE.get_class_name_with_path(page_path)
-        s2logger.warn(self.class.name) {"script name     : #{env['SCRIPT_NAME']}"}
-        s2logger.warn(self.class.name) {"namespace       : #{key}"}
-        s2logger.warn(self.class.name) {"page file path  : #{page_file}"}
-        s2logger.warn(self.class.name) {"page class name : #{page_class_name}"}
+        s2logger.info(self.class.name) {"script name     : #{env['SCRIPT_NAME']}"}
+        s2logger.info(self.class.name) {"namespace       : #{key}"}
+        s2logger.info(self.class.name) {"page file path  : #{page_file}"}
+        s2logger.info(self.class.name) {"page class name : #{page_class_name}"}
 
         s2app_instance = nil
         if Seasar::GAE.reload?
