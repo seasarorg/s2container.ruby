@@ -43,7 +43,7 @@ module Seasar
         if Seasar::GAE.reload?
           @@mutex.synchronize {
             s2logger.warn(self.class.name){"sync : " + Time.now.to_s}
-            sleep(30)
+            sleep(15)
             s2app.init(:force => true)
             s2gae_require(page_file)
             s2app_instance = s2app.snapshot
