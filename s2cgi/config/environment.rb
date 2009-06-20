@@ -18,7 +18,7 @@
 #++
 
 $KCODE      = 'UTF-8'
-#Encoding.default_external = 'utf-8'
+Encoding.default_external = 'utf-8'
 BASE_URL    = '/s2cgi'
 ROOT_DIR    = File.dirname(File.dirname(__FILE__))
 CONFIG_DIR  = "#{ROOT_DIR}/config"

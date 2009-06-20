@@ -24,6 +24,9 @@ module Seasar
       @@include_namespaces = %w[services daos models interceptors]
     
       def call(env)
+        raise "invalid BASE_URL. [#{BASE_URL}]" if !BASE_URL.is_a?(String) || BASE_URL[0, 1] != '/'
+        env['SCRIPT_NAME'] << '/index' if env['SCRIPT_NAME'] == BASE_URL
+        env['SCRIPT_NAME'] << 'index' if env['SCRIPT_NAME'][-1, 1] == '/'
         key = env['SCRIPT_NAME'].sub(%r|^#{BASE_URL}/|, '').downcase
         raise "invalid script_name. [#{env['SCRIPT_NAME']}]" if key.delete('/-').match(/\W/)
         raise "invalid PAGE_MODULE_PATH. [#{PAGE_MODULE_PATH}]" if !PAGE_MODULE_PATH.is_a?(String) || PAGE_MODULE_PATH.size == 0
@@ -31,10 +34,11 @@ module Seasar
         page_path = File.join(PAGE_MODULE_PATH, key)
         page_file = page_path + '.rb'
         page_class_name = Seasar::GAE.get_class_name_with_path(page_path)
-        s2logger.info(self.class.name) {"namespace       : #{key}"}
-        s2logger.info(self.class.name) {"page file path  : #{page_file}"}
-        s2logger.info(self.class.name) {"page class name : #{page_class_name}"}
-    
+        s2logger.warn(self.class.name) {"script name     : #{env['SCRIPT_NAME']}"}
+        s2logger.warn(self.class.name) {"namespace       : #{key}"}
+        s2logger.warn(self.class.name) {"page file path  : #{page_file}"}
+        s2logger.warn(self.class.name) {"page class name : #{page_class_name}"}
+
         s2app_instance = nil
         if Seasar::GAE.reload?
           @@mutex.synchronize {

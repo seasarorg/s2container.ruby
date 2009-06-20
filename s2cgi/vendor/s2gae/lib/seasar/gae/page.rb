@@ -22,6 +22,39 @@ module Seasar
     class Page < Seasar::Rack::CGI::Page
       @@tpl_dir = File.join(ROOT_DIR, 'tpl')
       @@tpl_ext = 'rhtml'
+
+      #
+      # - args
+      #   - none
+      # - return
+      #   - org.mortbay.jetty.servlet.HashSessionManager$Session
+      #
+      def get_session
+        return nil if @env['java.servlet_request'].session.new?
+        return @env['java.servlet_request'].session
+      end
+      alias session get_session
+
+      #
+      # - args
+      #   - none
+      # - return
+      #   - org.mortbay.jetty.servlet.HashSessionManager$Session
+      #
+      def start_session
+        self.delete_session
+        return @env['java.servlet_request'].session
+      end
+
+      #
+      # - args
+      #   - none
+      # - return
+      #   - nil
+      #
+      def delete_session
+        @env['java.servlet_request'].session.invalidate unless @env['java.servlet_request'].session.new?
+      end
     end
   end
 end

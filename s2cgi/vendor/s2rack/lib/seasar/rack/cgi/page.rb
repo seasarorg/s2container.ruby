@@ -124,6 +124,7 @@ module Seasar
         #
         def call(env)
           @s2cgi_page_id = self.generate_page_id
+          @page_id = @s2cgi_page_id
           @env = env
           self.request = ::Rack::Request.new(env)
           self.response = ::Rack::Response.new
@@ -136,18 +137,18 @@ module Seasar
           end
 
           self.init
-
           method_name = @request.request_method.downcase.to_sym
           validate_method_name = "validate_#{method_name}"
 
           validate_result = true
-          if @@validators.key?(:all)
-            validate_result = self.instance_eval(&@@validators[:all])
+          validators = @@validators[self.class].nil? ? {} : @@validators[self.class]
+          if validators.key?(:all)
+            validate_result = self.instance_eval(&validators[:all])
           end
 
           if validate_result == true
-            if @@validators.key?(method_name)
-              validate_result = self.instance_eval(&@@validators[method_name])
+            if validators.key?(method_name)
+              validate_result = self.instance_eval(&validators[method_name])
             elsif self.respond_to?(validate_method_name)
               validate_result = self.method(validate_method_name).call
             end

@@ -86,7 +86,8 @@ module Seasar
         #   - nil
         #
         def validate(method = :all, &procedure)
-          @@validators[method.to_s.downcase.to_sym] = procedure
+          @@validators[self] = {} unless @@validators.key?(self)
+          @@validators[self][method.to_s.downcase.to_sym] = procedure
         end
       end
 
@@ -154,13 +155,14 @@ module Seasar
         validate_method_name = "validate_#{method_name}"
 
         validate_result = true
-        if @@validators.key?(:all)
-          validate_result = self.instance_eval(&@@validators[:all])
+        validators = @@validators[self.class].nil? ? {} : @@validators[self.class]
+        if validators.key?(:all)
+          validate_result = self.instance_eval(&validators[:all])
         end
 
         if validate_result == true
-          if @@validators.key?(method_name)
-            validate_result = self.instance_eval(&@@validators[method_name])
+          if validators.key?(method_name)
+            validate_result = self.instance_eval(&validators[method_name])
           elsif self.respond_to?(validate_method_name)
             validate_result = self.method(validate_method_name).call
           end
