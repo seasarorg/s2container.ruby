@@ -35,7 +35,7 @@ TPL_EXT     = 'html'
 $LOAD_PATH.unshift(LIB_DIR)
 
 require 's2container'
-Seasar::Log::S2Logger.logdev = "#{LOG_DIR}/s2.log"
+Seasar::Log::Factory::RubyLoggerFactory.logdev = "#{LOG_DIR}/s2.log"
 s2logger.level = Logger::WARN
 
 
