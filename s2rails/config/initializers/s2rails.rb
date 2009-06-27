@@ -2,7 +2,7 @@
 # S2Container initializer for RoR
 #
 require 's2container'
-Seasar::Log::S2Logger.logdev = "#{RAILS_ROOT}/log/s2.log"
+Seasar::Log::Factory::RubyLoggerFactory.logdev = "#{RAILS_ROOT}/log/s2.log"
 s2logger.level = Logger::DEBUG
 s2logger.formatter = Logger::Formatter.new
 
