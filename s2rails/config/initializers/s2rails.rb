@@ -3,7 +3,7 @@
 #
 require 's2container'
 Seasar::Log::Factory::RubyLoggerFactory.logdev = "#{RAILS_ROOT}/log/s2.log"
-s2logger.level = Logger::DEBUG
+s2logger.level = Logger::WARN
 s2logger.formatter = Logger::Formatter.new
 
 alias s2component_dist s2component
@@ -21,7 +21,6 @@ module S2Rails
 
   class Rack
     @@mutex = Mutex.new
-    @@s2app = nil
     def initialize(app); @app = app; end
     def call(env)
       if false == Rails.configuration.cache_classes # and false == $rails_rake_task
@@ -29,20 +28,15 @@ module S2Rails
         @@mutex.synchronize {
           s2app.init(:force => true)
           # see railties/lib/initializer.rb L387
-          Rails.configuration.eager_load_paths.each do |load_path|
+          Rails.configuration.eager_load_paths.each {|load_path|
             matcher = /\A#{Regexp.escape(load_path)}(.*)\.rb\Z/
-            Dir.glob("#{load_path}/**/*.rb").sort.each do |file|
-              require_dependency file.sub(matcher, '\1')
-            end
-          end
-          env[:s2app] = s2app.snapshot
+            Dir.glob("#{load_path}/**/*.rb").sort.each {|file|
+              require_dependency(file.sub(matcher, '\1'))
+            }
+          }
+          Thread.current[:S2ApplicationContext] = s2app.snapshot
         }
-      else
-        # for the production environment
-        @@s2app ||= s2app.snapshot
-        env[:s2app] = @@s2app
       end
-      s2app.init(:force => true)
       @app.call(env)
     end
   end
@@ -53,12 +47,16 @@ module S2Rails
   # - args
   #   1. ActionController::Request <em>request</em>
   # - return
-  #   - Seasar::Container::S2Container|nil
+  #   - Seasar::Container::S2Container
   #
   def get_s2container(request)
-    s2app = request.env[:s2app]
-    return nil if s2app.nil?
     ctrl_name = request.path_parameters['controller']
-    return  s2app.create([ctrl_name] + S2Rails::IncludeNamespaces)
+    namespaces = [ctrl_name] + S2Rails::IncludeNamespaces
+    if false == Rails.configuration.cache_classes # and false == $rails_rake_task
+      container = s2app.create(namespaces)
+    else
+      container = s2app.create_singleton_container(namespaces)
+    end
+    return container
   end
 end
