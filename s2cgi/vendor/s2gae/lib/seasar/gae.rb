@@ -44,20 +44,6 @@ module Seasar
 
     module_function
 
-    #
-    # - args
-    #   1. Seasar::CGI::Page|String|Symbol|nil <em>comp</em>
-    # - return
-    #   - nil
-    #
-    def require(*args)
-      if @@reload
-        args.each {|arg| load arg}
-      else
-        args.each {|arg| require arg}
-      end
-    end
-
     def reload?
       return @@reload
     end

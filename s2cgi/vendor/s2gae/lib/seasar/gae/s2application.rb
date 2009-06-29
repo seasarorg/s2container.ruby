@@ -32,28 +32,39 @@ module Seasar
         raise "invalid PAGE_MODULE_PATH. [#{PAGE_MODULE_PATH}]" if !PAGE_MODULE_PATH.is_a?(String) || PAGE_MODULE_PATH.size == 0
 
         page_path = File.join(PAGE_MODULE_PATH, key)
-        page_file = page_path + '.rb'
+        page_file = File.join(ROOT_DIR, 'lib', page_path + '.rb')
         page_class_name = Seasar::GAE.get_class_name_with_path(page_path)
         s2logger.info(self.class.name) {"script name     : #{env['SCRIPT_NAME']}"}
         s2logger.info(self.class.name) {"namespace       : #{key}"}
         s2logger.info(self.class.name) {"page file path  : #{page_file}"}
         s2logger.info(self.class.name) {"page class name : #{page_class_name}"}
 
-        s2app_instance = nil
+        return Seasar::GAE::Page.new.call(env) unless File.exist?(page_file)
+
+        namespaces = [key] + @@include_namespaces
         if Seasar::GAE.reload?
           @@mutex.synchronize {
             s2app.init(:force => true)
             s2gae_require(page_file)
-            s2app_instance = s2app.snapshot
+            Thread.current[:S2ApplicationContext] = s2app.snapshot
           }
+          s2logger.warn(self.class.name){Thread.main.inspect}
+          s2logger.warn(self.class.name){Thread.current.inspect}
+          container = s2app.create(namespaces)
         else
           s2gae_require(page_file)
-          s2app_instance = s2app
+          container = s2app.create_singleton_container(namespaces)
         end
-    
-        container = s2app.create([key] + @@include_namespaces)
-        page = container.get(eval(page_class_name))
-        return page.call(env)
+
+        page_class = eval(page_class_name)
+        if container.has_component_def(page_class)
+          result = container.get(page_class).call(env)
+        else
+          s2logger.warn(self.class.name) {"component #{page_class} not foune."}
+          result = Seasar::GAE::Page.new.call(env)
+        end
+        container.destroy
+        return result
       end
     end
   end
