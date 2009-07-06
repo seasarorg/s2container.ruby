@@ -34,9 +34,9 @@
 </div>
     
 <p>
-      A component is registered by the s2component method. 
-      Getting of a component is performed by the get method of S2ApplicationContext class. 
-      The s2app method is the shortcut to S2ApplicationContext class.
+      A component is registered by the <a class="link" href="dicon.application.html#dicon.application.import" title="3.2.2.&nbsp;Registration of a component">s2component method</a>. 
+      Getting of a component is performed by the get method of <a class="link" href="dicon.application.html" title="3.2.&nbsp;S2ApplicationContext Reference">S2ApplicationContext class</a>. 
+      The s2app method is the shortcut to <a class="link" href="dicon.application.html" title="3.2.&nbsp;S2ApplicationContext Reference">S2ApplicationContext class</a>.
     </p>
 
 <pre class="programlisting">
@@ -48,12 +48,13 @@ end
 
 action = s2app.get(Action)
 action = s2app[Action]       # [] method is also available.
+action = Action.instance     # s2app.get(Action) is called in the instance method (class method).
 </pre>
 
     
 <p>
     In the above example, since Action class is registered as a component, 
-    Action class is specified as an argument of the get method of S2ApplicationContext class. 
+    Action class is specified as an argument of the get method of <a class="link" href="dicon.application.html" title="3.2.&nbsp;S2ApplicationContext Reference">S2ApplicationContext class</a>. 
     </p>
 
     

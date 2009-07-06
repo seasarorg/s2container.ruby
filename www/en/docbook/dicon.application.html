@@ -131,6 +131,24 @@ alias s2comp s2component
           </li>
 </ul>
 </div>
+
+        
+<p>
+          The s2component method defines the class method "instance" in the component class.
+          The "instance" class method gets the component from S2Container.
+        </p>
+
+
+<pre class="programlisting">
+require 's2container'
+
+class Action
+  s2component
+end
+
+action = Action.instance     # s2app.get(Action) is called in the instance method (class method).
+</pre>
+
       
 </blockquote>
 </div>
@@ -240,7 +258,7 @@ p component
 <div>
 <div>
 <h3 class="title">
-<a name="N20389"></a>3.2.4.&nbsp;Selection of a component</h3>
+<a name="N203B9"></a>3.2.4.&nbsp;Selection of a component</h3>
 </div>
 </div>
 </div>

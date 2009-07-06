@@ -130,6 +130,22 @@ alias s2comp s2component
           </li>
 </ul>
 </div>
+        
+<p>
+          s2componentメソッドは、コンポーネントクラスに「instance」クラスメソッドを定義します。 「instance」 クラスメソッドは、S2Containerからコンポーネントを取得し返します。
+        </p>
+
+
+<pre class="programlisting">
+require 's2container'
+
+class Action
+  s2component
+end
+
+action = Action.instance     # instanceクラスメソッド内でs2app.get(Action)が実行される
+</pre>
+
       
 </blockquote>
 </div>
@@ -245,7 +261,7 @@ p component
 <div>
 <div>
 <h3 class="title">
-<a name="N20390"></a>3.2.4. コンポーネントの選択</h3>
+<a name="N203BE"></a>3.2.4. コンポーネントの選択</h3>
 </div>
 </div>
 </div>

@@ -33,8 +33,9 @@
 </div>
 </div>
     
-<p>コンポーネントは、s2component メソッドで登録します。コンポーネントの取得は、S2ApplicationContextクラスの getメソッドで行います。
-     s2app メソッドは、S2ApplicationContextクラスへのショートカットです。</p>
+<p>コンポーネントは、<a class="link" href="dicon.application.html#dicon.application.import" title="3.2.2. コンポーネントの登録">s2componentメソッド</a>で登録します。コンポーネントの取得は、
+    <a class="link" href="dicon.application.html" title="3.2. S2ApplicationContext リファレンス">S2ApplicationContextクラス</a>の getメソッドで行います。
+     s2app メソッドは、<a class="link" href="dicon.application.html" title="3.2. S2ApplicationContext リファレンス">S2ApplicationContextクラス</a>へのショートカットです。</p>
 
 <pre class="programlisting">
 require 's2container'
@@ -45,6 +46,7 @@ end
 
 action = s2app.get(Action)
 action = s2app[Action]       # []でもOK
+action = Action.instance     # instanceクラスメソッド内でs2app.get(Action)が実行される
 </pre>
     
 <p>
