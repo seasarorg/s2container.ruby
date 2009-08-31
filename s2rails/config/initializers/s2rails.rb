@@ -9,7 +9,17 @@ s2logger.formatter = Logger::Formatter.new
 alias s2component_dist s2component
 def s2component(option = {}, &procedure)
   if self.class == Class && self.ancestors.member?(ActionController::Base) && option[:namespace].nil?
-      option[:namespace] = self.controller_name
+    option[:namespace] = self.controller_name
+  end
+  if self.class == Class && self.ancestors.member?(ActiveRecord::Base) && option[:class].nil? && procedure.nil?
+    if self.name.match(/Dao$/)
+      option[:class] = Class
+      procedure = proc {|cd| self}
+      option[:name] = option[:name].nil? ? Seasar::Util::ClassUtil.ub_name(self) : option[:name]
+      option[:namespace] =  option[:namespace].nil? ? 'daos' : option[:namespace]
+    else
+      option[:namespace] =  option[:namespace].nil? ? 'models' : option[:namespace]
+    end
   end
   s2component_dist(option, &procedure)
 end
